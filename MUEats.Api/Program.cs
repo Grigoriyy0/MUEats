@@ -1,3 +1,5 @@
+using MUEats.Infrastructure;
+
 namespace MUEats;
 
 public class Program
@@ -10,6 +12,8 @@ public class Program
 
         builder.Services.AddOpenApi();
 
+        builder.Services.AddInfrastructureServices(builder.Configuration);
+        
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
