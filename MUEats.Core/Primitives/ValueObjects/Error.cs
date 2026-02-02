@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using MUEats.Core.Domain.Notification;
 
 namespace MUEats.Core.Primitives.ValueObjects;
 
