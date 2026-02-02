@@ -1,16 +1,35 @@
 using MUEats.Core.Primitives;
+using MUEats.Core.Primitives.ValueObjects;
 
 namespace MUEats.Core.Domain.ShoppingCart.ValueObjects;
 
 public class CartItem
 {
-    public Guid FoodItemId { get; set; }
+    public CartItem()
+    {
+        
+    }
     
-    public Guid CartId { get; set; }
+    private CartItem(Guid foodItemId, Guid cartId, Money price, int quantity)
+    {
+        FoodItemId = foodItemId;
+        CartId = cartId;
+        Price = price;
+        Quantity = quantity;
+    }
+
+    public Guid FoodItemId { get; init; }
     
-    public Money Price { get; set; }
+    public Guid CartId { get; init; }
     
-    public int Quantity { get; set; }
+    public Money Price { get; init; }
     
-    public ShoppingCart? Cart { get; set; }
+    public int Quantity { get; private set; }
+    
+    public ShoppingCart? Cart { get; private set; }
+
+    public static CartItem Create(Guid foodItemId, Guid cartId, Money price, int quantity)
+    {
+        return new CartItem(foodItemId, cartId, price, quantity);
+    }
 }
