@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using MUEats.Core.Primitives;
 using MUEats.Core.Primitives.ValueObjects;
 
@@ -28,7 +29,7 @@ public class CartItem
     
     public ShoppingCart? Cart { get; private set; }
 
-    public static CartItem Create(Guid foodItemId, Guid cartId, Money price, int quantity)
+    public static Result<CartItem> Create(Guid foodItemId, Guid cartId, Money price, int quantity)
     {
         return new CartItem(foodItemId, cartId, price, quantity);
     }

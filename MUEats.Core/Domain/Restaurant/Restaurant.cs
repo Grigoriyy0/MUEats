@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using MUEats.Core.Domain.Restaurant.Entities;
-using MUEats.Core.Primitives;
 using MUEats.Core.Primitives.ValueObjects;
 
 namespace MUEats.Core.Domain.Restaurant;

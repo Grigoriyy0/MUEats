@@ -1,4 +1,4 @@
-using MUEats.Core.Primitives;
+using CSharpFunctionalExtensions;
 using MUEats.Core.Primitives.ValueObjects;
 
 namespace MUEats.Core.Domain.Order.ValueObjects;
@@ -25,8 +25,8 @@ public class OrderItem
     public Money Price { get; init; } = null!;
     
     public int Quantity { get; private set; }
-
-    public static OrderItem Create(Guid cartItemId, string name, Money price, int quantity)
+    
+    public static Result<OrderItem> Create(Guid cartItemId, string name, Money price, int quantity)
     {
         return new OrderItem(cartItemId, name, price, quantity);
     }

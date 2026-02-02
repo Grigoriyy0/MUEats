@@ -4,7 +4,12 @@ namespace MUEats.Core.Domain.Notification;
 
 public class Notification
 {
-    public Notification(string payload, string email)
+    public Notification()
+    {
+        
+    }
+    
+    private Notification(string payload, string email)
     {
         Id = Guid.NewGuid();
         CreatedAt = DateTime.UtcNow;
@@ -22,6 +27,6 @@ public class Notification
 
     public static Result<Notification> Create(string payload, string email)
     {
-        throw new NotImplementedException();
+        return new  Notification(payload, email);
     }
 }

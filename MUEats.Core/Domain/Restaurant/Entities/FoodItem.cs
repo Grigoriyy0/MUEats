@@ -1,4 +1,4 @@
-using MUEats.Core.Primitives;
+using CSharpFunctionalExtensions;
 using MUEats.Core.Primitives.ValueObjects;
 
 namespace MUEats.Core.Domain.Restaurant.Entities;
@@ -34,7 +34,7 @@ public class FoodItem
     
     public Restaurant? Restaurant { get; set; }
 
-    public static FoodItem Create(string name, string? description, Money price, bool isAvailable, Guid restaurantId)
+    public static Result<FoodItem> Create(string name, string? description, Money price, bool isAvailable, Guid restaurantId)
     {
         return new FoodItem(name, description, price, isAvailable, restaurantId);
     }
