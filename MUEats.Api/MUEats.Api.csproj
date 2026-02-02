@@ -13,10 +13,17 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\MUEats.Infrastructure\MUEats.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Adapters\Http\" />
     </ItemGroup>
 
 </Project>
