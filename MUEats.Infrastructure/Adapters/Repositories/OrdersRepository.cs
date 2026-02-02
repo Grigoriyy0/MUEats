@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Ports;
 using MUEats.Core.Domain.Order;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure.Adapters.Repositories;
 
-public class OrdersRepository(MueDbContext context)
+public class OrdersRepository(MueDbContext context) : IOrdersRepository
 {
     public Task AddAsync(Order order, CancellationToken ct)
     {

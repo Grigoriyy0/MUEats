@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Ports;
 using MUEats.Core.Domain.Restaurant;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure.Adapters.Repositories;
 
-public class RestaurantsRepository(MueDbContext context)
+public class RestaurantsRepository(MueDbContext context) : IRestaurantsRepository
 {
     public Task AddAsync(Restaurant restaurant, CancellationToken ct)
     {

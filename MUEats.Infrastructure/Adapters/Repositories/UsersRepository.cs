@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Ports;
 using MUEats.Core.Domain.User;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure.Adapters.Repositories;
 
-public class UsersRepository(MueDbContext context)
+public class UsersRepository(MueDbContext context) : IUsersRepository
 {
     public Task AddAsync(User user, CancellationToken ct)
     {

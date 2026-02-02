@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\MUEats.Application\MUEats.Application.csproj" />
       <ProjectReference Include="..\MUEats.Core\MUEats.Core.csproj" />
     </ItemGroup>
 

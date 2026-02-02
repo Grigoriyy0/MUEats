@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Ports;
 using MUEats.Core.Domain.ShoppingCart;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure.Adapters.Repositories;
 
-public class ShoppingCartsRepository(MueDbContext context)
+public class ShoppingCartsRepository(MueDbContext context) : IShoppingCartsRepository
 {
     public Task AddAsync(ShoppingCart shoppingCart, CancellationToken ct)
     {
