@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Dto.Restaurant;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.Restaurant;
 using MUEats.Infrastructure.Persistence;
@@ -13,11 +14,56 @@ public class RestaurantsRepository(MueDbContext context) : IRestaurantsRepositor
             .AsTask();
     }
 
-    public Task<Restaurant?> GetByIdAsync(Guid id, CancellationToken ct)
+    public Task<RestaurantDto?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        return context.Restaurants.Where(x => x.Id == id)
+        return context.Restaurants
+            .AsNoTracking()
+            .Where(x => x.Id == id)
             .Include(x => x.FoodItems)
-            .FirstOrDefaultAsync(ct);
+            .Select(x => new RestaurantDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Address = x.Address,
+                OpeningHours = x.OpeningHours,
+                ClosingHours = x.ClosingHours,
+                FoodItems = x.FoodItems
+                    .Select(y => new FoodItemDto
+                {
+                    Id = y.Id,
+                    Name = y.Name,
+                    Description = y.Description,
+                    IsAvailable = y.IsAvailable,
+                    Price = y.Price,
+                    RestaurantId = y.RestaurantId
+                }).ToList()
+            }).FirstOrDefaultAsync(ct);
+    }
+
+    public Task<List<RestaurantDto>> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    {
+        return context.Restaurants
+            .AsNoTracking()
+            .Select(x => new RestaurantDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Address = x.Address,
+                OpeningHours = x.OpeningHours,
+                ClosingHours = x.ClosingHours,
+                FoodItems = x.FoodItems.Select(y => new FoodItemDto
+                {
+                    Id = y.Id,
+                    Name = y.Name,
+                    Description = y.Description,
+                    IsAvailable = y.IsAvailable,
+                    Price = y.Price
+                }).ToList()
+            })
+            .OrderByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
     }
 
     public Task DeleteAsync(Restaurant restaurant, CancellationToken ct)

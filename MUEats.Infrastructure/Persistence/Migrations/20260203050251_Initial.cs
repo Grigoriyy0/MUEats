@@ -80,7 +80,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderItem",
+                name: "OrderItems",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -91,9 +91,9 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItem", x => x.Id);
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderItem_Orders_OrderId",
+                        name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
@@ -101,7 +101,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FoodItem",
+                name: "FoodItems",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -113,9 +113,9 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FoodItem", x => x.Id);
+                    table.PrimaryKey("PK_FoodItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FoodItem_Restaurants_RestaurantId",
+                        name: "FK_FoodItems_Restaurants_RestaurantId",
                         column: x => x.RestaurantId,
                         principalTable: "Restaurants",
                         principalColumn: "Id",
@@ -123,7 +123,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartItem",
+                name: "CartItems",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -134,9 +134,9 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartItem", x => x.Id);
+                    table.PrimaryKey("PK_CartItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CartItem_ShoppingCarts_FoodItemId",
+                        name: "FK_CartItems_ShoppingCarts_FoodItemId",
                         column: x => x.FoodItemId,
                         principalTable: "ShoppingCarts",
                         principalColumn: "Id",
@@ -144,18 +144,18 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartItem_FoodItemId",
-                table: "CartItem",
+                name: "IX_CartItems_FoodItemId",
+                table: "CartItems",
                 column: "FoodItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FoodItem_RestaurantId",
-                table: "FoodItem",
+                name: "IX_FoodItems_RestaurantId",
+                table: "FoodItems",
                 column: "RestaurantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_OrderId",
-                table: "OrderItem",
+                name: "IX_OrderItems_OrderId",
+                table: "OrderItems",
                 column: "OrderId");
         }
 
@@ -163,13 +163,13 @@ namespace MUEats.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CartItem");
+                name: "CartItems");
 
             migrationBuilder.DropTable(
-                name: "FoodItem");
+                name: "FoodItems");
 
             migrationBuilder.DropTable(
-                name: "OrderItem");
+                name: "OrderItems");
 
             migrationBuilder.DropTable(
                 name: "Users");

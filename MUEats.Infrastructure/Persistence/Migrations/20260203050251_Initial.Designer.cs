@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MueDbContext))]
-    [Migration("20260202065035_Initial")]
+    [Migration("20260203050251_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -88,7 +88,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("MUEats.Core.Domain.Restaurant.Entities.FoodItem", b =>
@@ -117,7 +117,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("FoodItem");
+                    b.ToTable("FoodItems");
                 });
 
             modelBuilder.Entity("MUEats.Core.Domain.Restaurant.Restaurant", b =>
@@ -190,7 +190,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("FoodItemId");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("MUEats.Core.Domain.User.User", b =>

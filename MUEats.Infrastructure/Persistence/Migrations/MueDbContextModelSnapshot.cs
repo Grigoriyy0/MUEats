@@ -85,7 +85,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("MUEats.Core.Domain.Restaurant.Entities.FoodItem", b =>
@@ -114,7 +114,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("FoodItem");
+                    b.ToTable("FoodItems");
                 });
 
             modelBuilder.Entity("MUEats.Core.Domain.Restaurant.Restaurant", b =>
@@ -187,7 +187,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("FoodItemId");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("MUEats.Core.Domain.User.User", b =>
