@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.ShoppingCart;
+using MUEats.Core.Domain.ShoppingCart.ValueObjects;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure.Adapters.Repositories;
@@ -20,6 +21,11 @@ public class ShoppingCartsRepository(MueDbContext context) : IShoppingCartsRepos
             .FirstOrDefaultAsync(ct);
     }
 
+    public Task<ShoppingCart?> GetByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        return context.ShoppingCarts.FirstOrDefaultAsync(x => x.UserId == userId, ct);
+    }
+    
     public Task DeleteAsync(ShoppingCart shoppingCart, CancellationToken ct)
     {
         context.ShoppingCarts.Remove(shoppingCart);
@@ -30,5 +36,11 @@ public class ShoppingCartsRepository(MueDbContext context) : IShoppingCartsRepos
     {
         context.ShoppingCarts.Update(shoppingCart);
         return Task.CompletedTask;
+    }
+    
+    public Task AddCartItemAsync(CartItem cartItem, CancellationToken ct)
+    {
+        return context.CartItems.AddAsync(cartItem, ct)
+            .AsTask();
     }
 }

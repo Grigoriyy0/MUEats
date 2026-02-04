@@ -11,4 +11,6 @@ public interface IUsersRepository
     Task DeleteAsync(User user, CancellationToken ct);
     
     Task UpdateAsync(User user, CancellationToken ct);
+
+    Task<bool> AnyAsync(Guid id, CancellationToken ct);
 }

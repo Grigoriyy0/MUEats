@@ -10,7 +10,7 @@ public class CartItem
 
     public decimal Price { get; init; }
 
-    public int Quantity { get; private set; }
+    public int Quantity { get; set; }
 
-    public ShoppingCart? Cart { get; private set; }
+    public ShoppingCart? Cart { get; set; }
 }
