@@ -185,7 +185,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FoodItemId");
+                    b.HasIndex("CartId");
 
                     b.ToTable("CartItems");
                 });
@@ -253,7 +253,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("MUEats.Core.Domain.ShoppingCart.ShoppingCart", "Cart")
                         .WithMany("CartItems")
-                        .HasForeignKey("FoodItemId")
+                        .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

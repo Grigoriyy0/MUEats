@@ -29,4 +29,9 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
         context.Users.Update(user);
         return Task.CompletedTask;
     }
+
+    public Task<bool> AnyAsync(Guid id, CancellationToken ct)
+    {
+        return context.Users.AnyAsync(x => x.Id == id, ct);
+    }
 }

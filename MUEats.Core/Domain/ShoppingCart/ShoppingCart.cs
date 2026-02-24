@@ -12,5 +12,4 @@ public class ShoppingCart
     public Guid RestaurantId { get; init; }
 
     public List<CartItem> CartItems { get; set; } = [];
-
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MUEats.Application.Dto.Restaurant;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.Restaurant;
+using MUEats.Core.Domain.Restaurant.Entities;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure.Adapters.Repositories;

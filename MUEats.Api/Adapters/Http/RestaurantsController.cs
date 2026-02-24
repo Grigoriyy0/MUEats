@@ -44,13 +44,12 @@ public class RestaurantsController(RestaurantsService restaurantsService) : Cont
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return BadRequest(e.Message);
         }
     }
 
-    [HttpPost("{id:guid}/foods")]
-    public async Task<IActionResult> AddFoodAsync(CreateFoodItemDto dto, CancellationToken ct)
+    [HttpPost("{id:guid}/food-items")]
+    public async Task<IActionResult> AddFoodItemAsync(CreateFoodItemDto dto, CancellationToken ct)
     {
         try
         {

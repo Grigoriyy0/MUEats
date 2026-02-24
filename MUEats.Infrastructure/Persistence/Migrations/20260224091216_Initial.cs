@@ -136,17 +136,17 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_CartItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CartItems_ShoppingCarts_FoodItemId",
-                        column: x => x.FoodItemId,
+                        name: "FK_CartItems_ShoppingCarts_CartId",
+                        column: x => x.CartId,
                         principalTable: "ShoppingCarts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartItems_FoodItemId",
+                name: "IX_CartItems_CartId",
                 table: "CartItems",
-                column: "FoodItemId");
+                column: "CartId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FoodItems_RestaurantId",

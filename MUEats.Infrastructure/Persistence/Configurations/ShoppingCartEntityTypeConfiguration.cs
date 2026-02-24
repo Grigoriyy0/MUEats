@@ -12,7 +12,7 @@ public class ShoppingCartEntityTypeConfiguration : IEntityTypeConfiguration<Shop
 
         builder.HasMany(x => x.CartItems)
             .WithOne(x => x.Cart)
-            .HasForeignKey(x => x.FoodItemId)
+            .HasForeignKey(x => x.CartId)
             .OnDelete(DeleteBehavior.Cascade);;
     }
 }

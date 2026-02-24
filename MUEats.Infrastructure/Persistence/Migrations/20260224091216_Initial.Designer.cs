@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MueDbContext))]
-    [Migration("20260203050251_Initial")]
+    [Migration("20260224091216_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -188,7 +188,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FoodItemId");
+                    b.HasIndex("CartId");
 
                     b.ToTable("CartItems");
                 });
@@ -256,7 +256,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("MUEats.Core.Domain.ShoppingCart.ShoppingCart", "Cart")
                         .WithMany("CartItems")
-                        .HasForeignKey("FoodItemId")
+                        .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
