@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Dto.ShoppingCart;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.ShoppingCart;
 using MUEats.Core.Domain.ShoppingCart.ValueObjects;
@@ -23,7 +24,49 @@ public class ShoppingCartsRepository(MueDbContext context) : IShoppingCartsRepos
 
     public Task<ShoppingCart?> GetByUserIdAsync(Guid userId, CancellationToken ct)
     {
-        return context.ShoppingCarts.FirstOrDefaultAsync(x => x.UserId == userId, ct);
+        return context.ShoppingCarts
+            .Include(x => x.CartItems)
+            .FirstOrDefaultAsync(x => x.UserId == userId, ct);
+    }
+
+    public async Task<CartDto?> GetCartDtoAsync(Guid userId, CancellationToken ct)
+    {
+        var cart = await context.ShoppingCarts
+            .Include(x => x.CartItems)
+            .Where(x => x.UserId == userId)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ct);
+    
+        if (cart == null)
+            return null;
+
+        var restaurantName = await context.Restaurants
+            .Where(r => r.Id == cart.RestaurantId)
+            .Select(r => r.Name)
+            .FirstOrDefaultAsync(ct);
+
+        var foodItemIds = cart.CartItems.Select(ci => ci.FoodItemId).ToList();
+        var foodItemNames = await context.FoodItems
+            .Where(fi => foodItemIds.Contains(fi.Id))
+            .ToDictionaryAsync(fi => fi.Id, fi => fi.Name, ct);
+
+        return new CartDto
+        {
+            Id = cart.Id,
+            RestaurantId = cart.RestaurantId,
+            UserId = cart.UserId,
+            RestaurantName = restaurantName ?? string.Empty,
+        
+            Items = cart.CartItems.Select(ci => new CartItemDto
+            {
+                Id = ci.Id,
+                CartId = ci.CartId,
+                FoodItemId = ci.FoodItemId,
+                Price = ci.Price,
+                Quantity = ci.Quantity,
+                FoodItemName = foodItemNames.GetValueOrDefault(ci.FoodItemId) ?? string.Empty
+            }).ToList()
+        };
     }
     
     public Task DeleteAsync(ShoppingCart shoppingCart, CancellationToken ct)
@@ -35,6 +78,12 @@ public class ShoppingCartsRepository(MueDbContext context) : IShoppingCartsRepos
     public Task UpdateAsync(ShoppingCart shoppingCart, CancellationToken ct)
     {
         context.ShoppingCarts.Update(shoppingCart);
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateCartItemAsync(CartItem cartItem, CancellationToken ct)
+    {
+        context.CartItems.Update(cartItem);
         return Task.CompletedTask;
     }
     
