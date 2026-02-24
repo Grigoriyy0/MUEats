@@ -40,6 +40,31 @@ public class ShoppingCartsService(
         }
     }
 
+    public async Task DeleteCartItemAsync(Guid cartItemId, CancellationToken ct)
+    {
+        try
+        {
+            await uow.BeginTransactionAsync(ct);
+
+            var cartItem = await shoppingCartsRepository.GetCartItemAsync(cartItemId, ct);
+
+            if (cartItem is null)
+            {
+                throw new ArgumentException("No such cart item");
+            }
+
+            await DeleteOrDecreaseItem(cartItem, ct);
+            
+            await uow.SaveChangesAsync(ct);
+            await uow.CommitTransactionAsync(ct);
+        }
+        catch (Exception)
+        {
+            await uow.RollbackTransactionAsync(ct);
+            throw;
+        }
+    }
+
     private async Task AddOrIncreaseItem(ShoppingCart cart, FoodItem foodItem, CancellationToken ct)
     {
         var existingItem = cart.CartItems.FirstOrDefault(x => x.FoodItemId == foodItem.Id);
@@ -63,6 +88,18 @@ public class ShoppingCartsService(
         await shoppingCartsRepository.AddCartItemAsync(newCartItem, ct);
         
         cart.CartItems.Add(newCartItem);
+    }
+
+    private async Task DeleteOrDecreaseItem(CartItem cartItem, CancellationToken ct)
+    {
+        if (cartItem.Quantity > 1)
+        {
+            cartItem.Quantity--;
+            await shoppingCartsRepository.UpdateCartItemAsync(cartItem, ct);
+            return;
+        }
+
+        await shoppingCartsRepository.DeleteCartItemAsync(cartItem, ct);
     }
 
     private async Task<ShoppingCart> EnsureShoppingCartAsync(ShoppingCart? cart, Guid userId, Guid restaurantId, CancellationToken ct)

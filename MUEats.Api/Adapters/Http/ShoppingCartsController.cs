@@ -28,5 +28,13 @@ namespace MUEats.Adapters.Http
         {
             return Ok(await shoppingCartsService.GetShoppingCartAsync(userId, ct));
         }
+
+        [HttpDelete]
+        [Route("cart-items/{itemId:guid}")]
+        public async Task<IActionResult> DeleteCartItemAsync(Guid itemId, CancellationToken ct)
+        {
+            await shoppingCartsService.DeleteCartItemAsync(itemId, ct);
+            return NoContent();
+        }
     }
 }

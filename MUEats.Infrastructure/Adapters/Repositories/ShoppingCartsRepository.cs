@@ -86,6 +86,18 @@ public class ShoppingCartsRepository(MueDbContext context) : IShoppingCartsRepos
         context.CartItems.Update(cartItem);
         return Task.CompletedTask;
     }
+
+    public Task<CartItem?> GetCartItemAsync(Guid cartItemId, CancellationToken ct)
+    {
+        return context.CartItems
+            .FirstOrDefaultAsync(x => x.Id == cartItemId, ct);
+    }
+
+    public Task DeleteCartItemAsync(CartItem cartItem, CancellationToken ct)
+    {
+        context.Remove(cartItem);
+        return Task.CompletedTask;
+    }
     
     public Task AddCartItemAsync(CartItem cartItem, CancellationToken ct)
     {

@@ -15,8 +15,12 @@ public interface IShoppingCartsRepository
     Task<ShoppingCart?> GetByUserIdAsync(Guid userId, CancellationToken ct);
 
     Task<CartDto?> GetCartDtoAsync(Guid userId, CancellationToken ct);
+
+    Task<CartItem?> GetCartItemAsync(Guid cartItemId, CancellationToken ct);
     
     Task DeleteAsync(ShoppingCart shoppingCart, CancellationToken ct);
+
+    Task DeleteCartItemAsync(CartItem cartItem, CancellationToken ct);
     
     Task UpdateAsync(ShoppingCart shoppingCart, CancellationToken ct);
 
