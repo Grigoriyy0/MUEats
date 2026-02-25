@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MueDbContext))]
-    [Migration("20260224091216_Initial")]
+    [Migration("20260225012241_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -193,6 +193,35 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                     b.ToTable("CartItems");
                 });
 
+            modelBuilder.Entity("MUEats.Core.Domain.User.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("MUEats.Core.Domain.User.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -263,6 +292,17 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                     b.Navigation("Cart");
                 });
 
+            modelBuilder.Entity("MUEats.Core.Domain.User.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("MUEats.Core.Domain.User.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MUEats.Core.Domain.Order.Order", b =>
                 {
                     b.Navigation("OrderItems");
@@ -276,6 +316,11 @@ namespace MUEats.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("MUEats.Core.Domain.ShoppingCart.ShoppingCart", b =>
                 {
                     b.Navigation("CartItems");
+                });
+
+            modelBuilder.Entity("MUEats.Core.Domain.User.User", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

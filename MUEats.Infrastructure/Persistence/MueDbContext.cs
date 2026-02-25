@@ -6,6 +6,7 @@ using MUEats.Core.Domain.Restaurant.Entities;
 using MUEats.Core.Domain.ShoppingCart;
 using MUEats.Core.Domain.ShoppingCart.ValueObjects;
 using MUEats.Core.Domain.User;
+using MUEats.Core.Domain.User.Entities;
 
 namespace MUEats.Infrastructure.Persistence;
 
@@ -29,6 +30,8 @@ public class MueDbContext : DbContext
     public DbSet<CartItem> CartItems { get; set; }
     
     public DbSet<User> Users { get; set; }
+    
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
