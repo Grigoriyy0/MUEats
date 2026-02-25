@@ -18,6 +18,12 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
         return context.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
+    public Task<User?> GetByEmailAsync(string email, CancellationToken ct)
+    {
+        return context.Users.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Email == email, ct);
+    }
+
     public Task DeleteAsync(User user, CancellationToken ct)
     {
         context.Users.Remove(user);
@@ -33,5 +39,10 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
     public Task<bool> AnyAsync(Guid id, CancellationToken ct)
     {
         return context.Users.AnyAsync(x => x.Id == id, ct);
+    }
+
+    public Task<bool> AnyAsync(string email, CancellationToken ct)
+    {
+        return context.Users.AnyAsync(x => x.Email == email, ct);
     }
 }

@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
           <PrivateAssets>all</PrivateAssets>
@@ -20,10 +21,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\MUEats.Infrastructure\MUEats.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Adapters\Http\" />
     </ItemGroup>
 
 </Project>

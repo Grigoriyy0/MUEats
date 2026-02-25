@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MUEats.Application.Ports;
 using MUEats.Infrastructure.Adapters.Repositories;
 using MUEats.Infrastructure.Adapters.Services;
+using MUEats.Infrastructure.Options;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure;
@@ -21,5 +22,9 @@ public static class DependencyInjection
         services.AddScoped<IShoppingCartsRepository, ShoppingCartsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IFoodItemsRepository, FoodItemsRepository>();
+        services.AddSingleton<IHashProvider, HashProvider>();
+        services.AddScoped<ITokenProducer, TokenProducer>();
+
+        services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
     }
 }

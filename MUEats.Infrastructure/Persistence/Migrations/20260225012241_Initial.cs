@@ -143,6 +143,28 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Token = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ExpiresOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CartItems_CartId",
                 table: "CartItems",
@@ -157,6 +179,11 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 name: "IX_OrderItems_OrderId",
                 table: "OrderItems",
                 column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_UserId",
+                table: "RefreshTokens",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -172,7 +199,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                 name: "OrderItems");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "ShoppingCarts");
@@ -182,6 +209,9 @@ namespace MUEats.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
