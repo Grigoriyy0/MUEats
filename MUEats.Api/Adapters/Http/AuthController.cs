@@ -21,12 +21,40 @@ public class AuthController(UserService userService) : ControllerBase
     [Route("signin")]
     public async Task<IActionResult> LoginAsync(AuthDto dto, CancellationToken ct)
     {
-        var token = await userService.AuthAsync(dto, ct);
+        var tokenPair = await userService.AuthAsync(dto, ct);
 
+        Response.Cookies.Append("refreshToken", tokenPair.RefreshToken);
+        
         return Ok(new
         {
-            AccessToken = token
+            tokenPair.AccessToken
         });
+    }
+
+    [HttpPost]
+    [Route("refresh")]
+    public async Task<IActionResult> RefreshAsync(CancellationToken ct)
+    {
+        var oldRefreshToken = Request.Cookies["refreshToken"];
+
+        if (oldRefreshToken is null)
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var tokenPair = await userService.RefreshAsync(oldRefreshToken, ct);
+
+            return Ok(new
+            {
+                tokenPair.AccessToken
+            });
+        }
+        catch (Exception)
+        {
+            return Unauthorized();
+        }
     }
     
 }

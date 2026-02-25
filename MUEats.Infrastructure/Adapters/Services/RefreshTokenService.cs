@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MUEats.Application.Ports;
 using MUEats.Core.Domain.User.Entities;
 using MUEats.Infrastructure.Options;
 using MUEats.Infrastructure.Persistence;
@@ -7,7 +9,7 @@ namespace MUEats.Infrastructure.Adapters.Services;
 
 public class RefreshTokenService(
     MueDbContext context,
-    IOptions<AuthOptions> options)
+    IOptions<AuthOptions> options) : IRefreshTokenService
 {
     private readonly AuthOptions _options = options.Value;
     
@@ -25,5 +27,10 @@ public class RefreshTokenService(
 
         await context.RefreshTokens.AddAsync(newToken, ct);
         await context.SaveChangesAsync(ct);
+    }
+
+    public Task<RefreshToken?> GetAsync(string token, CancellationToken ct)
+    {
+        return context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == token, ct);
     }
 }

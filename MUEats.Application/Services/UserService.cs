@@ -1,6 +1,8 @@
 using MUEats.Application.Dto.User;
 using MUEats.Application.Ports;
+using MUEats.Application.Responses;
 using MUEats.Core.Domain.User;
+using MUEats.Core.Domain.User.Entities;
 using MUEats.Core.Domain.User.Utils;
 
 namespace MUEats.Application.Services;
@@ -9,7 +11,8 @@ public class UserService(
     IUsersRepository usersRepository,
     IHashProvider hashProvider,
     IUnitOfWork uow,
-    ITokenProducer tokenProducer
+    ITokenProducer tokenProducer,
+    IRefreshTokenService refreshTokenService
     )
 {
     public async Task CreateAsync(CreateUserDto dto, CancellationToken ct)
@@ -53,7 +56,7 @@ public class UserService(
         }
     }
 
-    public async Task<string> AuthAsync(AuthDto dto, CancellationToken ct)
+    public async Task<TokenResponse> AuthAsync(AuthDto dto, CancellationToken ct)
     {
         var user = await usersRepository.GetByEmailAsync(dto.Email, ct);
 
@@ -69,8 +72,33 @@ public class UserService(
             throw new ArgumentException("Login or password is incorrect");
         }
 
-        var token = tokenProducer.ProduceToken(user);
+        var tokenResponse = tokenProducer.ProduceTokenPair(user);
 
-        return token;
+        await refreshTokenService.SaveAsync(user.Id, tokenResponse.RefreshToken, ct);
+
+        return tokenResponse;
+    }
+
+    public async Task<TokenResponse> RefreshAsync(string refreshToken, CancellationToken ct)
+    {
+        var token = await refreshTokenService.GetAsync(refreshToken, ct);
+
+        if (token is null)
+        {
+            throw new ArgumentException("No such token");
+        }
+
+        var user = await usersRepository.GetByIdAsync(token.UserId, ct);
+
+        if (user is null)
+        {
+            throw new ArgumentException("No such user");
+        }
+
+        var newTokenPair = tokenProducer.ProduceTokenPair(user);
+
+        await refreshTokenService.SaveAsync(user.Id, newTokenPair.RefreshToken, ct);
+        
+        return newTokenPair;
     }
 }
