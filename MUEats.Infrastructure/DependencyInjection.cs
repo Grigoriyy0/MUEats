@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IFoodItemsRepository, FoodItemsRepository>();
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddScoped<ITokenProducer, TokenProducer>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
     }
