@@ -4,8 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using MUEats.Application.Ports;
 using MUEats.Infrastructure.Adapters.Repositories;
 using MUEats.Infrastructure.Adapters.Services;
+using MUEats.Infrastructure.Adapters.Services.Kafka;
 using MUEats.Infrastructure.Options;
 using MUEats.Infrastructure.Persistence;
+using MUEats.Infrastructure.Workers;
 
 namespace MUEats.Infrastructure;
 
@@ -25,7 +27,12 @@ public static class DependencyInjection
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
 
+        services.AddSingleton<IProducer, KafkaProducer>();
+        
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
+
+        services.AddHostedService<OutboxProcessingWorker>();
     }
 }

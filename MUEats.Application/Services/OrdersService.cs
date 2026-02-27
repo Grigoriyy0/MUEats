@@ -1,14 +1,19 @@
 using MUEats.Application.Dto.Order;
+using MUEats.Application.Helpers;
 using MUEats.Application.Ports;
+using MUEats.Core;
+using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
+using Newtonsoft.Json;
 
 namespace MUEats.Application.Services;
 
 public class OrdersService(
     IShoppingCartsRepository shoppingCartsRepository,
     IOrdersRepository ordersRepository,
-    IUnitOfWork uow
+    IUnitOfWork uow,
+    IOutboxRepository outboxRepository
     )
 {
     public async Task<Guid> CreateAsync(CreateOrderDto dto, CancellationToken ct)
@@ -43,6 +48,23 @@ public class OrdersService(
 
             await ordersRepository.AddAsync(order, ct);
 
+            var @event = new OrderCreatedEvent
+            {
+                OrderId = order.Id
+            };
+
+            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
+
+            var outboxMessage = new OutboxMessage
+            {
+                Id = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow,
+                JsonPayload = json,
+                Type = @event.GetType().Name,
+            };
+
+            await outboxRepository.AddAsync(outboxMessage, ct);
+            
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);
         
