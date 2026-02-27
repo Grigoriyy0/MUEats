@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Core;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
 using MUEats.Core.Domain.Restaurant;
@@ -32,6 +33,8 @@ public class MueDbContext : DbContext
     public DbSet<User> Users { get; set; }
     
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    
+    public DbSet<OutboxMessage> OutboxMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
