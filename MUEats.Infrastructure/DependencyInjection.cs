@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IOutboxRepository, OutboxRepository>();
 
         services.AddSingleton<IProducer, KafkaProducer>();
+        services.AddSingleton<TopicMapper>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
 
