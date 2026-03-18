@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IOutboxRepository, OutboxRepository>();
 
         services.AddSingleton<TopicMapper>();
+        services.AddSingleton<IEventBus, InMemoryEventBus>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         
