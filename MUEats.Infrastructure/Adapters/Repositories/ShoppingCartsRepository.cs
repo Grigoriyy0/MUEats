@@ -104,4 +104,12 @@ public class ShoppingCartsRepository(MueDbContext context) : IShoppingCartsRepos
         return context.CartItems.AddAsync(cartItem, ct)
             .AsTask();
     }
+
+    public async Task ClearCartAsync(Guid cartId, CancellationToken ct)
+    {
+        var cartItems = await context.CartItems.Where(x => x.CartId == cartId)
+            .ToListAsync(ct);
+        
+        context.RemoveRange(cartItems);
+    }
 }

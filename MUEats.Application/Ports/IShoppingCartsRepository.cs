@@ -25,4 +25,6 @@ public interface IShoppingCartsRepository
     Task UpdateAsync(ShoppingCart shoppingCart, CancellationToken ct);
 
     Task UpdateCartItemAsync(CartItem cartItem, CancellationToken ct);
+
+    Task ClearCartAsync(Guid cartId, CancellationToken ct);
 }

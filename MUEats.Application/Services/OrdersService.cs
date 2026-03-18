@@ -63,6 +63,8 @@ public class OrdersService(
                 Type = @event.GetType().Name,
             };
 
+            await shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
+            
             await outboxRepository.AddAsync(outboxMessage, ct);
             
             await uow.SaveChangesAsync(ct);
@@ -99,5 +101,31 @@ public class OrdersService(
         }
 
         return dto;
+    }
+    
+    
+    public async Task ProcessOrderAsync(OrderCreatedEvent @event, CancellationToken ct)
+    {
+        try
+        {
+            await uow.BeginTransactionAsync(ct);
+        
+            var order = await ordersRepository.GetByIdAsync(@event.OrderId, ct);
+
+            if (order is null)
+            {
+                throw new ArgumentNullException(nameof(order));
+            }
+
+            order.Status = OrderStatus.Accepted;
+
+            await uow.SaveChangesAsync(ct);
+            await uow.CommitTransactionAsync(ct);
+        }
+        catch (Exception)
+        {
+            await uow.RollbackTransactionAsync(ct);
+            throw;
+        }
     }
 }
