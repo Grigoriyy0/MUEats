@@ -11,7 +11,8 @@ using Newtonsoft.Json;
 namespace MUEats.Infrastructure.Workers;
 
 public class OutboxProcessingWorker(
-    IServiceScopeFactory serviceScopeFactory
+    IServiceScopeFactory serviceScopeFactory,
+    IEventBus eventBus
     ) : BackgroundService
 {
     private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(500);
@@ -52,6 +53,13 @@ public class OutboxProcessingWorker(
         var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
 
         var @event = JsonConvert.DeserializeObject<DomainEvent>(message.JsonPayload, JsonSerializerHelper.Settings);
+
+        if (@event is null)
+        {
+            return;
+        }
+        
+        await eventBus.PublishAsync(@event, ct);
         
         message.ProcessedAt = DateTime.UtcNow;
 
