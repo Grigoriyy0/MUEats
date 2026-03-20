@@ -1,19 +1,17 @@
+using System.Collections.Concurrent;
+using Microsoft.Extensions.Hosting;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.Events;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 using System.Threading.Channels;
 
-public class InMemoryEventBus : IEventBus
+public class InMemoryEventBus : BackgroundService, IEventBus
 {
     private readonly Channel<DomainEvent> _channel = Channel.CreateUnbounded<DomainEvent>();
-    private readonly Dictionary<Type, List<Func<DomainEvent, Task>>> _handlers = new();
-
-    public InMemoryEventBus()
-    {
-        StartWorker();
-    }
-
+    private readonly ConcurrentDictionary<Type, ConcurrentBag<Func<DomainEvent, Task>>> _handlers = new();
+    private readonly CancellationTokenSource _cts = new();
+    
     public async Task PublishAsync<T>(T @event, CancellationToken ct) where T : DomainEvent
     {
         await _channel.Writer.WriteAsync(@event, ct);
@@ -23,38 +21,43 @@ public class InMemoryEventBus : IEventBus
     {
         var type = typeof(T);
 
-        if (!_handlers.ContainsKey(type))
-            _handlers[type] = new List<Func<DomainEvent, Task>>();
-
-        _handlers[type].Add(e => handler((T)e));
+        _handlers.GetOrAdd(type, _ => new ConcurrentBag<Func<DomainEvent, Task>>())
+            .Add(e => handler((T)e));
     }
 
-    private void StartWorker()
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Task.Run(async () =>
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, _cts.Token);
+        
+        await foreach (var message in _channel.Reader.ReadAllAsync(cts.Token))
         {
-            await foreach (var message in _channel.Reader.ReadAllAsync())
+            try
             {
                 var type = message.GetType();
 
                 if (_handlers.TryGetValue(type, out var handlers))
                 {
-                    foreach (var handler in handlers)
-                    {
-                        _ = Task.Run(async () =>
-                        {
-                            try
-                            {
-                                await handler(message);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Handler error: {ex}");
-                            }
-                        });
-                    }
+                    var tasks = handlers.Select(handler => handler(message));
+                    await Task.WhenAll(tasks);
                 }
             }
-        });
+            catch (Exception ex)
+            {
+                // _logger.LogError(ex, "Error processing event {EventType}", message.GetType().Name);
+            }
+        }
+    }
+
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await _cts.CancelAsync();
+        _channel.Writer.TryComplete(); 
+        await base.StopAsync(cancellationToken);
+    }
+
+    public override void Dispose()
+    {
+        _cts.Dispose();
+        base.Dispose();
     }
 }

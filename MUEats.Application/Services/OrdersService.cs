@@ -13,7 +13,8 @@ public class OrdersService(
     IShoppingCartsRepository shoppingCartsRepository,
     IOrdersRepository ordersRepository,
     IUnitOfWork uow,
-    IOutboxRepository outboxRepository
+    IOutboxRepository outboxRepository,
+    IOrderOrchestrator orderOrchestrator
     )
 {
     public async Task<Guid> CreateAsync(CreateOrderDto dto, CancellationToken ct)
@@ -43,29 +44,16 @@ public class OrdersService(
                     Price = i.Price,
                     Quantity = i.Quantity
                 }).ToList(),
-                Status = OrderStatus.Created
+                Status = OrderStatus.Created,
+                UserId = dto.UserId,
+                RestaurantId = cart.RestaurantId,
             };
 
             await ordersRepository.AddAsync(order, ct);
-
-            var @event = new OrderCreatedEvent
-            {
-                OrderId = order.Id
-            };
-
-            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
-
-            var outboxMessage = new OutboxMessage
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                JsonPayload = json,
-                Type = @event.GetType().Name,
-            };
-
-            await shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
             
-            await outboxRepository.AddAsync(outboxMessage, ct);
+            await orderOrchestrator.StartAsync(order, ct);
+            
+            await shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
             
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);

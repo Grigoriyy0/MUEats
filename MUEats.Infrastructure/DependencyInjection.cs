@@ -28,12 +28,17 @@ public static class DependencyInjection
         services.AddScoped<IOutboxRepository, OutboxRepository>();
 
         services.AddSingleton<TopicMapper>();
+        
         services.AddSingleton<IEventBus, InMemoryEventBus>();
-        services.AddSingleton<OrderSaga>();
+        services.AddHostedService(provider => provider.GetRequiredService<IEventBus>() as InMemoryEventBus);
+        
+        services.AddSingleton<IOrderOrchestrator, OrderOrchestrator>();
         services.AddSingleton<IHashProvider, HashProvider>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         
         services.AddHostedService<OutboxProcessingWorker>();
+        services.AddHostedService<FakeRestaurantService>();
+        services.AddHostedService<FakeCourierService>();
     }
 }
