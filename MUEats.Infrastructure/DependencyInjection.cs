@@ -23,15 +23,22 @@ public static class DependencyInjection
         services.AddScoped<IShoppingCartsRepository, ShoppingCartsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IFoodItemsRepository, FoodItemsRepository>();
-        services.AddSingleton<IHashProvider, HashProvider>();
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IOutboxRepository, OutboxRepository>();
 
         services.AddSingleton<TopicMapper>();
         
+        services.AddSingleton<IEventBus, InMemoryEventBus>();
+        services.AddHostedService(provider => provider.GetRequiredService<IEventBus>() as InMemoryEventBus);
+        
+        services.AddSingleton<IOrderOrchestrator, OrderOrchestrator>();
+        services.AddSingleton<IHashProvider, HashProvider>();
+        
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         
         services.AddHostedService<OutboxProcessingWorker>();
+        services.AddHostedService<FakeRestaurantService>();
+        services.AddHostedService<FakeCourierService>();
     }
 }

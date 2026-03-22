@@ -8,9 +8,9 @@ public class OrderDto
     
     public decimal TotalPrice { get; set; }
     
-    public string RestaurantName { get; set; }
+    public string RestaurantDetails { get; set; }
     
-    public string Address { get; set; }
+    public string DeliveryAddress { get; set; }
 
     public List<OrderItemDto> OrderItems { get; set; } = [];
 }
