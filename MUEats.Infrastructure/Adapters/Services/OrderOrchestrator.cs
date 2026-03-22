@@ -28,13 +28,11 @@ public class OrderOrchestrator : IOrderOrchestrator
         _eventBus.Subscribe<CourierRequestedEvent>(HandleCourierRequested);
         _eventBus.Subscribe<CourierFoundEvent>(HandleCourierFound);
         _eventBus.Subscribe<OrderFailedEvent>(HandleOrderFailed);
+        _eventBus.Subscribe<OrderDeliveredEvent>(HandleOrderDelivered);
     }
 
     public async Task<Guid> StartAsync(Order order, CancellationToken ct)
     {
-        //await using var scope = _scopeFactory.CreateAsyncScope();
-        //var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
         var @event = new OrderCreatedEvent
         {
             OrderId = order.Id
@@ -101,9 +99,7 @@ public class OrderOrchestrator : IOrderOrchestrator
     private async Task HandleOrderPrepared(OrderPreparedEvent @event)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
-        var outbox = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
         var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
-        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
         var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
         if (order is null)
@@ -126,6 +122,23 @@ public class OrderOrchestrator : IOrderOrchestrator
 
             await Save(startDelivery);
         }
+    }
+
+    private async Task HandleOrderDelivered(OrderDeliveredEvent @event)
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
+        
+        var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
+
+        if (order is null)
+        {
+            return;
+        }
+
+        order.Status = OrderStatus.Completed;
+
+        await SaveChanges(order);
     }
 
     private async Task HandleOrderFailed(OrderFailedEvent @event)
@@ -176,6 +189,20 @@ public class OrderOrchestrator : IOrderOrchestrator
         };
 
         await outbox.AddAsync(message, ct);
+        
+        await uow.SaveChangesAsync(ct);
+        await uow.CommitTransactionAsync(ct);
+    }
+
+    private async Task SaveChanges(Order order, CancellationToken ct = default)
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
+        
+        await uow.BeginTransactionAsync(ct);
+        
+        await orders.UpdateAsync(order, ct);
         
         await uow.SaveChangesAsync(ct);
         await uow.CommitTransactionAsync(ct);

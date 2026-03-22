@@ -25,17 +25,16 @@ public class FakeRestaurantService : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _eventBus.Subscribe<OrderCreatedEvent>(Handle);
-
+        _eventBus.Subscribe<OrderCreatedEvent>(HandleOrderCreated);
+        _eventBus.Subscribe<OrderPreparingEvent>(HandleOrderPreparing);
+        
         return Task.CompletedTask;
     }
 
-    private async Task Handle(OrderCreatedEvent @event)
+    private async Task HandleOrderCreated(OrderCreatedEvent @event)
     {
-        var delay = _random.Next(60_000, 300_000);
+        //var delay = _random.Next(60_000, 300_000);
         await Task.Delay(5000);
-
-        await using var scope = _scopeFactory.CreateAsyncScope();
         
         var accepted = _random.NextDouble() > 0.0;
 
@@ -59,7 +58,25 @@ public class FakeRestaurantService : BackgroundService
             //DeliveryReward = @event.DeliveryReward
         };
 
+        var orderStartPreparingEvent = new OrderPreparingEvent
+        {
+            OrderId = @event.OrderId,
+        };
+        
         await Save(acceptedEvent);
+        await Save(orderStartPreparingEvent);
+    }
+
+    private async Task HandleOrderPreparing(OrderPreparingEvent @event)
+    {
+        await Task.Delay(60_000);
+
+        var orderPreparedEvent = new OrderPreparingEvent
+        {
+            OrderId = @event.OrderId,
+        };
+        
+        await Save(orderPreparedEvent);
     }
 
     private async Task Save(DomainEvent @event)

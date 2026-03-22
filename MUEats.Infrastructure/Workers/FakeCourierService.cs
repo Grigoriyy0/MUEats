@@ -5,6 +5,7 @@ using MUEats.Application.Ports;
 using MUEats.Core;
 using MUEats.Core.Domain.Events;
 using MUEats.Core.Domain.Events.Courier;
+using MUEats.Core.Domain.Events.Order;
 using Newtonsoft.Json;
 
 namespace MUEats.Infrastructure.Workers;
@@ -25,21 +26,21 @@ public class FakeCourierService : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _eventBus.Subscribe<CourierRequestedEvent>(Handle);
+        _eventBus.Subscribe<CourierRequestedEvent>(HandleCourierRequested);
+        _eventBus.Subscribe<DeliveryStartedEvent>(HandleDeliveryStarted);
 
         return Task.CompletedTask;
     }
 
-    private async Task Handle(CourierRequestedEvent @event)
+    private async Task HandleCourierRequested(CourierRequestedEvent @event)
     {
-        var delay = _random.Next(30_000, 180_000); // 30 сек – 3 мин
+        //var delay = _random.Next(30_000, 180_000);
         await Task.Delay(5000);
 
         await using var scope = _scopeFactory.CreateAsyncScope();
 
         var outbox = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
 
-        // шанс не найти курьера
         var found = _random.NextDouble() > 0.05;
 
         /*if (!found)
@@ -64,6 +65,18 @@ public class FakeCourierService : BackgroundService
         await Save(courierFound);
     }
 
+    private async Task HandleDeliveryStarted(DeliveryStartedEvent @event)
+    {
+        await Task.Delay(300_000);
+
+        var orderDeliveredEvent = new OrderDeliveredEvent
+        {
+            OrderId = @event.OrderId,
+        };
+        
+        await Save(orderDeliveredEvent);
+    }
+    
     private async Task Save(DomainEvent @event)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
