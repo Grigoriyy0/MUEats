@@ -71,7 +71,7 @@ public class FakeRestaurantService : BackgroundService
     {
         await Task.Delay(60_000);
 
-        var orderPreparedEvent = new OrderPreparingEvent
+        var orderPreparedEvent = new OrderPreparedEvent
         {
             OrderId = @event.OrderId,
         };
