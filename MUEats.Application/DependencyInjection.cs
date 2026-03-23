@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Application.Helpers;
 using MUEats.Application.Services;
 using MUEats.Core.Domain.User;
 

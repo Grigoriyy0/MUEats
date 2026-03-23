@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Application.Options;
 using MUEats.Application.Ports;
 using MUEats.Infrastructure.Adapters.Repositories;
 using MUEats.Infrastructure.Adapters.Services;
@@ -32,8 +33,10 @@ public static class DependencyInjection
         
         services.AddSingleton<IOrderOrchestrator, OrderOrchestrator>();
         services.AddSingleton<IHashProvider, HashProvider>();
+        services.AddSingleton<IPasswordValidator, PasswordValidator>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
+        services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<FakeRestaurantService>();

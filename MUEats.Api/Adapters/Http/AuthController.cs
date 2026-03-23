@@ -12,9 +12,16 @@ public class AuthController(UserService userService) : ControllerBase
     [Route("signup")]
     public async Task<IActionResult> RegisterAsync(CreateUserDto dto, CancellationToken ct)
     {
-        await userService.CreateAsync(dto, ct);
+        try
+        {
+            await userService.CreateAsync(dto, ct);
 
-        return Created();
+            return Created();
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpPost]

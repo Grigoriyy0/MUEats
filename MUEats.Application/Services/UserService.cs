@@ -12,7 +12,8 @@ public class UserService(
     IHashProvider hashProvider,
     IUnitOfWork uow,
     ITokenProducer tokenProducer,
-    IRefreshTokenService refreshTokenService
+    IRefreshTokenService refreshTokenService,
+    IPasswordValidator passwordValidator
     )
 {
     public async Task CreateAsync(CreateUserDto dto, CancellationToken ct)
@@ -28,7 +29,12 @@ public class UserService(
                 throw new ArgumentException("User with that email already exists");
             }
             
-            //todo password validation 
+            var validationResult = passwordValidator.Validate(dto.Password);
+
+            if (!validationResult)
+            {
+                throw new ArgumentException("Password does not match requirements");
+            }
             
             var passwordHash = hashProvider.ComputeHash(dto.Password);
         
