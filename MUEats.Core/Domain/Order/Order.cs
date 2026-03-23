@@ -11,7 +11,9 @@ public class Order
 
     public string Address { get; set; } = null!;
     
-    public OrderStatus Status { get; set; }
+    public OrderStatus OrderStatus { get; set; }
+    
+    public DeliveryStatus DeliveryStatus { get; set; }
     
     public Guid UserId { get; init; }
     

@@ -44,7 +44,7 @@ public class OrdersService(
                     Price = i.Price,
                     Quantity = i.Quantity
                 }).ToList(),
-                Status = OrderStatus.Created,
+                OrderStatus = OrderStatus.Created,
                 UserId = dto.UserId,
                 RestaurantId = cart.RestaurantId,
             };
@@ -105,7 +105,7 @@ public class OrdersService(
                 throw new ArgumentNullException(nameof(order));
             }
 
-            order.Status = OrderStatus.Accepted;
+            order.OrderStatus = OrderStatus.Accepted;
 
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);
