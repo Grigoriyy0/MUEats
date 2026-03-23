@@ -19,7 +19,7 @@ public class Order
     
     public Guid RestaurantId { get; init; }
     
-    public Guid CourierId { get; init; }
+    public Guid CourierId { get; set; }
     
     public DateTime OrderDate { get; init; }
     

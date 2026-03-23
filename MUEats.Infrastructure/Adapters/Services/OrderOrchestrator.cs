@@ -118,6 +118,7 @@ public class OrderOrchestrator : IOrderOrchestrator
             return;
 
         order.DeliveryStatus = DeliveryStatus.CourierFound;
+        order.CourierId = @event.CourierId;
         
         await orders.UpdateAsync(order, CancellationToken.None);
         
