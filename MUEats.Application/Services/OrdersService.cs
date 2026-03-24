@@ -69,7 +69,7 @@ public class OrdersService(
         }
     }
 
-    public async Task<string?> GetStatusAsync(Guid orderId, CancellationToken ct)
+    public async Task<OrderStatusDto?> GetStatusAsync(Guid orderId, CancellationToken ct)
     {
         var status = await ordersRepository.GetStatusAsync(orderId, ct);
 
@@ -77,8 +77,8 @@ public class OrdersService(
         {
             throw new ArgumentException($"Order with {orderId} not found");
         }
-        
-        return status.ToString();
+
+        return status;
     }
 
     public async Task<OrderDto?> GetByIdAsync(Guid orderId, CancellationToken ct)
