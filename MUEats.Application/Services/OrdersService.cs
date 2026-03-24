@@ -45,6 +45,8 @@ public class OrdersService(
                     Quantity = i.Quantity
                 }).ToList(),
                 OrderStatus = OrderStatus.Created,
+                OrderDate = DateTime.UtcNow,
+                DeliverBefore =  DateTime.UtcNow.AddHours(2),
                 UserId = dto.UserId,
                 RestaurantId = cart.RestaurantId,
             };

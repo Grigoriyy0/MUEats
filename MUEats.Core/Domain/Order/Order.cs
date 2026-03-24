@@ -25,7 +25,7 @@ public class Order
     
     public DateTime DeliverBefore { get; set; }
     
-    public DateTime DeliveredAt { get; init; }
+    public DateTime DeliveredAt { get; set; }
 
     public List<OrderItem> OrderItems { get; set; } = [];
 

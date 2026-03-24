@@ -104,7 +104,8 @@ public class OrderOrchestrator : IOrderOrchestrator
         await using var scope = _scopeFactory.CreateAsyncScope();
         var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
         var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
+        var outbox =  scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+        
         await uow.BeginTransactionAsync(CancellationToken.None);
         
         var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
@@ -124,6 +125,25 @@ public class OrderOrchestrator : IOrderOrchestrator
         
         await uow.SaveChangesAsync(CancellationToken.None);
         await uow.CommitTransactionAsync(CancellationToken.None);
+        
+        if (order.OrderStatus == OrderStatus.Prepared)
+        {
+            await uow.BeginTransactionAsync(CancellationToken.None);
+            
+            var startDelivery = new DeliveryStartedEvent
+            {
+                OrderId = order.Id
+            };
+            
+            var outboxMessage = CreateOutboxMessage(startDelivery);
+            
+            await outbox.AddAsync(outboxMessage, CancellationToken.None);
+            
+            await orders.UpdateAsync(order, CancellationToken.None);
+            
+            await uow.SaveChangesAsync(CancellationToken.None);
+            await uow.CommitTransactionAsync(CancellationToken.None);
+        }
     }
 
     private async Task HandleOrderPrepared(OrderPreparedEvent @event)
@@ -134,7 +154,10 @@ public class OrderOrchestrator : IOrderOrchestrator
         var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var outbox =  scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
         
+        await uow.BeginTransactionAsync(CancellationToken.None);
+        
         var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
+        
         if (order is null)
         {
             await Fail(@event.OrderId, "Order not found");
@@ -142,9 +165,16 @@ public class OrderOrchestrator : IOrderOrchestrator
         }
 
         if (order.OrderStatus >= OrderStatus.Prepared)
+        {
             return;
+        }
 
         order.OrderStatus = OrderStatus.Prepared;
+        
+        await orders.UpdateAsync(order, CancellationToken.None);
+        
+        await uow.SaveChangesAsync(CancellationToken.None);
+        await uow.CommitTransactionAsync(CancellationToken.None);
 
         if (order.DeliveryStatus == DeliveryStatus.CourierFound && order.OrderStatus == OrderStatus.Prepared)
         {
@@ -182,6 +212,7 @@ public class OrderOrchestrator : IOrderOrchestrator
         }
 
         order.OrderStatus = OrderStatus.Completed;
+        order.DeliveredAt = DateTime.UtcNow;
         
         await orders.UpdateAsync(order, CancellationToken.None);
         
@@ -199,8 +230,11 @@ public class OrderOrchestrator : IOrderOrchestrator
         await uow.BeginTransactionAsync(CancellationToken.None);
         
         var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
+        
         if (order is null)
+        {
             return;
+        }
 
         order.OrderStatus = OrderStatus.Failed;
         
