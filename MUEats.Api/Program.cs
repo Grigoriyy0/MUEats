@@ -1,8 +1,10 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MUEats.Application;
 using MUEats.Infrastructure;
+using MUEats.Infrastructure.Persistence;
 
 namespace MUEats;
 
@@ -54,6 +56,12 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
+            dbContext.Database.Migrate();
+        }
+        
         app.UseHttpsRedirection();
 
         app.UseAuthentication();
