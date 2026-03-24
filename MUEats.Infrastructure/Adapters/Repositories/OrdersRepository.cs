@@ -40,7 +40,7 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
     {
         return context.Orders
             .Where(x => x.Id == id)
-            .Select(x => (OrderStatus?)x.Status)
+            .Select(x => (OrderStatus?)x.OrderStatus)
             .FirstOrDefaultAsync(ct);
     }
 

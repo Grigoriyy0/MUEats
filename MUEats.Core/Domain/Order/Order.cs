@@ -11,19 +11,21 @@ public class Order
 
     public string Address { get; set; } = null!;
     
-    public OrderStatus Status { get; set; }
+    public OrderStatus OrderStatus { get; set; }
+    
+    public DeliveryStatus DeliveryStatus { get; set; }
     
     public Guid UserId { get; init; }
     
     public Guid RestaurantId { get; init; }
     
-    public Guid CourierId { get; init; }
+    public Guid CourierId { get; set; }
     
     public DateTime OrderDate { get; init; }
     
     public DateTime DeliverBefore { get; set; }
     
-    public DateTime DeliveredAt { get; init; }
+    public DateTime DeliveredAt { get; set; }
 
     public List<OrderItem> OrderItems { get; set; } = [];
 
