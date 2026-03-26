@@ -1,40 +1,43 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.ShoppingCart;
 using MUEats.Application.Services;
 
-namespace MUEats.Adapters.Http
+namespace MUEats.Adapters.Http;
+
+[Route("api/carts")]
+[ApiController]
+public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) : ControllerBase
 {
-    [Route("api/carts")]
-    [ApiController]
-    public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) : ControllerBase
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> CreateAsync([FromBody] AddFoodItemDto dto, CancellationToken ct)
     {
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] AddFoodItemDto dto, CancellationToken ct)
+        try
         {
-            try
-            {
-                await shoppingCartsService.AddToCartAsync(dto, ct);
-                return Created();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            await shoppingCartsService.AddToCartAsync(dto, ct);
+            return Created();
         }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
 
-        [HttpGet]
-        [Route("{userId:guid}")]
-        public async Task<IActionResult> GetAsync([FromRoute] Guid userId, CancellationToken ct)
-        {
-            return Ok(await shoppingCartsService.GetShoppingCartAsync(userId, ct));
-        }
+    [HttpGet]
+    [Route("{userId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> GetAsync([FromRoute] Guid userId, CancellationToken ct)
+    {
+        return Ok(await shoppingCartsService.GetShoppingCartAsync(userId, ct));
+    }
 
-        [HttpDelete]
-        [Route("cart-items/{itemId:guid}")]
-        public async Task<IActionResult> DeleteCartItemAsync(Guid itemId, CancellationToken ct)
-        {
-            await shoppingCartsService.DeleteCartItemAsync(itemId, ct);
-            return NoContent();
-        }
+    [HttpDelete]
+    [Route("cart-items/{itemId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteCartItemAsync(Guid itemId, CancellationToken ct)
+    {
+        await shoppingCartsService.DeleteCartItemAsync(itemId, ct);
+        return NoContent();
     }
 }
