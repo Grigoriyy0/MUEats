@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.Order;
 using MUEats.Application.Services;
@@ -9,6 +10,7 @@ namespace MUEats.Adapters.Http;
 public class OrdersController(OrdersService ordersService) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Policy = "Customer")]
     public async Task<IActionResult> CreateAsync(CreateOrderDto dto, CancellationToken ct)
     {
         var orderId = await ordersService.CreateAsync(dto, ct);
@@ -21,6 +23,7 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
 
     [HttpGet]
     [Route("{orderId:guid}/status")]
+    [Authorize(Policy = "Customer")]
     public async Task<IActionResult> GetStatusAsync(Guid orderId, CancellationToken ct)
     {
         var orderStatus = await ordersService.GetStatusAsync(orderId, ct);
@@ -30,6 +33,7 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
 
     [HttpGet]
     [Route("{orderId:guid}")]
+    [Authorize(Policy = "Customer")]
     public async Task<IActionResult> GetByIdAsync(Guid orderId, CancellationToken ct)
     {
         var orderDto = await ordersService.GetByIdAsync(orderId, ct);

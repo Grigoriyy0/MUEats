@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using MUEats.Application;
 using MUEats.Infrastructure;
 using MUEats.Infrastructure.Persistence;
@@ -35,12 +36,38 @@ public class Program
                 };
             });
         
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthorization(opt =>
+        {
+            opt.AddPolicy("Customer", policy => 
+                policy.RequireRole("Customer"));
+            
+            opt.AddPolicy("Admin", policy =>
+                policy.RequireRole("Admin"));
+            
+            opt.AddPolicy("RestaurantManager",  policy =>
+                policy.RequireRole("RestaurantManager"));
+        });
 
         
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            const string securitySchemeId = "bearer"; 
+    
+            options.AddSecurityDefinition(securitySchemeId, new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",          
+                BearerFormat = "JWT",
+                Description = "JWT Authorization header using the Bearer scheme. Enter your token below."
+            });
+    
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference(securitySchemeId, document)] = []
+            });
+        });
         
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddApplicationServices();
