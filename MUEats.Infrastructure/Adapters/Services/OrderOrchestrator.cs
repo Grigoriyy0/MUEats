@@ -6,6 +6,7 @@ using MUEats.Core.Domain.Events;
 using MUEats.Core.Domain.Events.Courier;
 using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
+using MUEats.Core.Domain.Order.Entities;
 using MUEats.Core.Domain.Order.ValueObjects;
 using Newtonsoft.Json;
 
@@ -37,8 +38,15 @@ public class OrderOrchestrator : IOrderOrchestrator
         
         var uow  = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var outbox = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+        var sagaStates = scope.ServiceProvider.GetRequiredService<IOrderSagaStatesRepository>();
         
         await uow.BeginTransactionAsync(ct);
+
+        var oderSaga = new OrderSagaState
+        {
+            CorrelationId = order.Id,
+            State = SagaStatus.Created
+        };
         
         var @event = new OrderCreatedEvent
         {
@@ -48,7 +56,8 @@ public class OrderOrchestrator : IOrderOrchestrator
 
         var outboxMessage = CreateOutboxMessage(@event);
         
-        await outbox.AddAsync(outboxMessage, CancellationToken.None);
+        await sagaStates.AddAsync(oderSaga, ct);
+        await outbox.AddAsync(outboxMessage, ct);
         
         await uow.SaveChangesAsync(ct);
         await uow.CommitTransactionAsync(ct);
@@ -62,8 +71,31 @@ public class OrderOrchestrator : IOrderOrchestrator
         var outbox = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
         var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
         var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
+        var sagaStates = scope.ServiceProvider.GetRequiredService<IOrderSagaStatesRepository>();
+        
         await uow.BeginTransactionAsync(CancellationToken.None);
+        
+        //1. Check if state exists
+        //2. Check if state is "Created"
+        //3. Update state
+        //4. Update order status
+        
+        var sagaState = await sagaStates.GetByIdAsync(@event.OrderId, CancellationToken.None);
+
+        if (sagaState is null)
+        {
+            await Fail(@event.OrderId, "Order not found");
+            return;
+        }
+        
+        if (sagaState.State >= SagaStatus.Accepted)
+        {
+            //duplicate event.
+            return;
+        }
+        
+        sagaState.State =  SagaStatus.Accepted;
+
         
         var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
         if (order is null)
@@ -72,9 +104,6 @@ public class OrderOrchestrator : IOrderOrchestrator
             return;
         }
         
-        if (order.OrderStatus >= OrderStatus.Accepted)
-            return;
-
         order.OrderStatus = OrderStatus.Accepted;
         order.DeliveryStatus = DeliveryStatus.CourierRequested;
 
@@ -89,6 +118,7 @@ public class OrderOrchestrator : IOrderOrchestrator
         
         await outbox.AddAsync(outboxMessage, CancellationToken.None);
         await orders.UpdateAsync(order, CancellationToken.None);
+        await sagaStates.UpdateAsync(sagaState, CancellationToken.None);
         
         await uow.SaveChangesAsync(CancellationToken.None);
         await uow.CommitTransactionAsync(CancellationToken.None);
@@ -153,8 +183,25 @@ public class OrderOrchestrator : IOrderOrchestrator
         var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
         var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var outbox =  scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+        var sagaStates = scope.ServiceProvider.GetRequiredService<IOrderSagaStatesRepository>();
         
         await uow.BeginTransactionAsync(CancellationToken.None);
+        
+        var sagaState = await sagaStates.GetByIdAsync(@event.OrderId, CancellationToken.None);
+
+        if (sagaState is null)
+        {
+            await Fail(@event.OrderId, "Order not found");
+            return;
+        }
+
+        if (sagaState.State >= SagaStatus.Prepared)
+        {
+            //duplicate event
+            return;
+        }
+        
+        sagaState.State = SagaStatus.Prepared;
         
         var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
         

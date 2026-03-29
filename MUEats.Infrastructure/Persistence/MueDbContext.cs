@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MUEats.Core;
 using MUEats.Core.Domain.Order;
+using MUEats.Core.Domain.Order.Entities;
 using MUEats.Core.Domain.Order.ValueObjects;
 using MUEats.Core.Domain.Restaurant;
 using MUEats.Core.Domain.Restaurant.Entities;
@@ -35,6 +36,8 @@ public class MueDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
+    
+    public DbSet<OrderSagaState>  OrderSagaStates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

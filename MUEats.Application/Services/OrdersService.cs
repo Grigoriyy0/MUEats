@@ -71,6 +71,8 @@ public class OrdersService(
 
     public async Task<OrderStatusDto?> GetStatusAsync(Guid orderId, CancellationToken ct)
     {
+        //todo add customerID check
+        
         var status = await ordersRepository.GetStatusAsync(orderId, ct);
 
         if (status is null)
