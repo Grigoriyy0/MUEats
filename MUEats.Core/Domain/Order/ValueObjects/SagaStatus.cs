@@ -4,7 +4,9 @@ public enum SagaStatus
 {
     Created,
     WaitingForApproval,
-    Approved,
+    Accepted,
+    Preparing,
+    Prepared,
     Rejected,
     Cancelled
 }

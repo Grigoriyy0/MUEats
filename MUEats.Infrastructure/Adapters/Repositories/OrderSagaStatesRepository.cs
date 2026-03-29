@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MUEats.Application.Ports;
+using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.Entities;
 using MUEats.Infrastructure.Persistence;
 
@@ -13,7 +14,7 @@ public class OrderSagaStatesRepository(MueDbContext dbContext) : IOrderSagaState
             .AsTask();
     }
 
-    public Task GetByIdAsync(Guid correlationId, CancellationToken ct)
+    public Task<OrderSagaState?> GetByIdAsync(Guid correlationId, CancellationToken ct)
     {
         return dbContext.OrderSagaStates
             .FirstOrDefaultAsync(x => x.CorrelationId == correlationId, ct);
