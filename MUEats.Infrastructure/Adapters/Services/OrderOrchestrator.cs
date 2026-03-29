@@ -3,7 +3,6 @@ using MUEats.Application.Helpers;
 using MUEats.Application.Ports;
 using MUEats.Core;
 using MUEats.Core.Domain.Events;
-using MUEats.Core.Domain.Events.Courier;
 using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.Entities;
@@ -26,10 +25,7 @@ public class OrderOrchestrator : IOrderOrchestrator
 
         _eventBus.Subscribe<OrderAcceptedEvent>(HandleOrderAccepted);
         _eventBus.Subscribe<OrderPreparedEvent>(HandleOrderPrepared);
-        _eventBus.Subscribe<CourierRequestedEvent>(HandleCourierRequested);
-        _eventBus.Subscribe<CourierFoundEvent>(HandleCourierFound);
         _eventBus.Subscribe<OrderFailedEvent>(HandleOrderFailed);
-        _eventBus.Subscribe<OrderDeliveredEvent>(HandleOrderDelivered);
     }
 
     public async Task<Guid> StartAsync(Order order, CancellationToken ct)
@@ -105,77 +101,14 @@ public class OrderOrchestrator : IOrderOrchestrator
         }
         
         order.OrderStatus = OrderStatus.Accepted;
-        order.DeliveryStatus = DeliveryStatus.CourierRequested;
 
-        var courierRequested = new CourierRequestedEvent
-        {
-            OrderId = order.Id,
-            DeliveryAddress = @event.ToAddress,
-            RestaurantAddress = @event.RestaurantAddress
-        };
-        
-        var outboxMessage = CreateOutboxMessage(courierRequested);
-        
-        await outbox.AddAsync(outboxMessage, CancellationToken.None);
         await orders.UpdateAsync(order, CancellationToken.None);
         await sagaStates.UpdateAsync(sagaState, CancellationToken.None);
         
         await uow.SaveChangesAsync(CancellationToken.None);
         await uow.CommitTransactionAsync(CancellationToken.None);
     }
-
-    private async Task HandleCourierRequested(CourierRequestedEvent @event)
-    {
-        await Task.CompletedTask;
-    }
-
-    private async Task HandleCourierFound(CourierFoundEvent @event)
-    {
-        await using var scope = _scopeFactory.CreateAsyncScope();
-        var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
-        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        var outbox =  scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
-        
-        await uow.BeginTransactionAsync(CancellationToken.None);
-        
-        var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
-        if (order is null)
-        {
-            await Fail(@event.OrderId, "Order not found");
-            return;
-        }
-
-        if (order.DeliveryStatus >= DeliveryStatus.CourierFound)
-            return;
-
-        order.DeliveryStatus = DeliveryStatus.CourierFound;
-        order.CourierId = @event.CourierId;
-        
-        await orders.UpdateAsync(order, CancellationToken.None);
-        
-        await uow.SaveChangesAsync(CancellationToken.None);
-        await uow.CommitTransactionAsync(CancellationToken.None);
-        
-        if (order.OrderStatus == OrderStatus.Prepared)
-        {
-            await uow.BeginTransactionAsync(CancellationToken.None);
-            
-            var startDelivery = new DeliveryStartedEvent
-            {
-                OrderId = order.Id
-            };
-            
-            var outboxMessage = CreateOutboxMessage(startDelivery);
-            
-            await outbox.AddAsync(outboxMessage, CancellationToken.None);
-            
-            await orders.UpdateAsync(order, CancellationToken.None);
-            
-            await uow.SaveChangesAsync(CancellationToken.None);
-            await uow.CommitTransactionAsync(CancellationToken.None);
-        }
-    }
-
+    
     private async Task HandleOrderPrepared(OrderPreparedEvent @event)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
@@ -222,51 +155,8 @@ public class OrderOrchestrator : IOrderOrchestrator
         
         await uow.SaveChangesAsync(CancellationToken.None);
         await uow.CommitTransactionAsync(CancellationToken.None);
-
-        if (order.DeliveryStatus == DeliveryStatus.CourierFound && order.OrderStatus == OrderStatus.Prepared)
-        {
-            await uow.BeginTransactionAsync(CancellationToken.None);
-            
-            var startDelivery = new DeliveryStartedEvent
-            {
-                OrderId = order.Id
-            };
-            
-            var outboxMessage = CreateOutboxMessage(startDelivery);
-            
-            await outbox.AddAsync(outboxMessage, CancellationToken.None);
-            
-            await orders.UpdateAsync(order, CancellationToken.None);
-            
-            await uow.SaveChangesAsync(CancellationToken.None);
-            await uow.CommitTransactionAsync(CancellationToken.None);
-        }
     }
-
-    private async Task HandleOrderDelivered(OrderDeliveredEvent @event)
-    {
-        await using var scope = _scopeFactory.CreateAsyncScope();
-        var orders = scope.ServiceProvider.GetRequiredService<IOrdersRepository>();
-        var uow  = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        
-        await uow.BeginTransactionAsync(CancellationToken.None);
-        
-        var order = await orders.GetByIdAsync(@event.OrderId, CancellationToken.None);
-
-        if (order is null)
-        {
-            return;
-        }
-
-        order.OrderStatus = OrderStatus.Completed;
-        order.DeliveredAt = DateTime.UtcNow;
-        
-        await orders.UpdateAsync(order, CancellationToken.None);
-        
-        await uow.SaveChangesAsync(CancellationToken.None);
-        await uow.CommitTransactionAsync(CancellationToken.None);
-    }
-
+    
     private async Task HandleOrderFailed(OrderFailedEvent @event)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
@@ -315,7 +205,6 @@ public class OrderOrchestrator : IOrderOrchestrator
 
     private OutboxMessage CreateOutboxMessage(DomainEvent @event)
     {
-        
         var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
         
         return new OutboxMessage

@@ -17,8 +17,5 @@ public sealed class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Orde
 
         builder.Property(o => o.OrderStatus)
             .HasConversion<string>();
-        
-        builder.Property(o => o.DeliveryStatus)
-            .HasConversion<string>();
     }
 }

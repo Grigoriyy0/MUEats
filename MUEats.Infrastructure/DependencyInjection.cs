@@ -41,6 +41,5 @@ public static class DependencyInjection
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<FakeRestaurantService>();
-        services.AddHostedService<FakeCourierService>();
     }
 }
