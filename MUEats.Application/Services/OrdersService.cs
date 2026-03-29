@@ -13,7 +13,6 @@ public class OrdersService(
     IShoppingCartsRepository shoppingCartsRepository,
     IOrdersRepository ordersRepository,
     IUnitOfWork uow,
-    IOutboxRepository outboxRepository,
     IOrderOrchestrator orderOrchestrator
     )
 {
@@ -25,7 +24,7 @@ public class OrdersService(
         
             var cart = await shoppingCartsRepository.GetCartDtoAsync(dto.UserId, ct);
 
-            if (cart is null)
+            if (cart is null || cart.Items.Count == 0)
             {
                 throw new ArgumentException("Add items to create an order.");
             }
@@ -35,7 +34,6 @@ public class OrdersService(
             var order = new Order
             {
                 Id = Guid.NewGuid(),
-                Price = totalPrice,
                 Address = dto.Address,
                 OrderItems = cart.Items.Select(i => new OrderItem
                 {
@@ -46,7 +44,6 @@ public class OrdersService(
                 }).ToList(),
                 OrderStatus = OrderStatus.Created,
                 OrderDate = DateTime.UtcNow,
-                DeliverBefore =  DateTime.UtcNow.AddHours(2),
                 UserId = dto.UserId,
                 RestaurantId = cart.RestaurantId,
             };
@@ -93,31 +90,5 @@ public class OrdersService(
         }
 
         return dto;
-    }
-    
-    
-    public async Task ProcessOrderAsync(OrderCreatedEvent @event, CancellationToken ct)
-    {
-        try
-        {
-            await uow.BeginTransactionAsync(ct);
-        
-            var order = await ordersRepository.GetByIdAsync(@event.OrderId, ct);
-
-            if (order is null)
-            {
-                throw new ArgumentNullException(nameof(order));
-            }
-
-            order.OrderStatus = OrderStatus.Accepted;
-
-            await uow.SaveChangesAsync(ct);
-            await uow.CommitTransactionAsync(ct);
-        }
-        catch (Exception)
-        {
-            await uow.RollbackTransactionAsync(ct);
-            throw;
-        }
     }
 }

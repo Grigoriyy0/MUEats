@@ -44,7 +44,6 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
             {
                 OrderId = x.Id,
                 OrderStatus = x.OrderStatus.ToString(),
-                DeliveryStatus = x.DeliveryStatus.ToString(),
             })
             .FirstOrDefaultAsync(ct);
     }
@@ -57,7 +56,6 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
             {
                 Id = x.Id,
                 DeliveryAddress = x.Address,
-                TotalPrice = x.Price,
                 OrderItems = x.OrderItems.Select(o => new OrderItemDto
                 {
                     Id = o.Id,
