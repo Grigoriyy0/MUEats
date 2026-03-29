@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IOrderSagaStatesRepository, OrderSagaStatesRepository>();
         
         services.AddSingleton<IEventBus, InMemoryEventBus>();
         services.AddHostedService(provider => provider.GetRequiredService<IEventBus>() as InMemoryEventBus);
