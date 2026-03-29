@@ -10,7 +10,7 @@ namespace MUEats.Adapters.Http;
 public class RestaurantsController(RestaurantsService restaurantsService) : ControllerBase
 {
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync(CreateRestaurantDto dto, CancellationToken ct)
     {
         try
@@ -25,7 +25,6 @@ public class RestaurantsController(RestaurantsService restaurantsService) : Cont
     }
 
     [HttpGet("{id:guid}")]
-    [Authorize]
     public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken ct)
     {
         try
@@ -39,7 +38,6 @@ public class RestaurantsController(RestaurantsService restaurantsService) : Cont
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> GetAllAsync([FromQuery] GetRestaurantsQuery query, CancellationToken ct)
     {
         try
@@ -53,7 +51,7 @@ public class RestaurantsController(RestaurantsService restaurantsService) : Cont
     }
 
     [HttpPost("{id:guid}/food-items")]
-    [Authorize]
+    [Authorize(Roles = "RestaurantManager")]
     public async Task<IActionResult> AddFoodItemAsync(CreateFoodItemDto dto, CancellationToken ct)
     {
         try
