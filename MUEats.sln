@@ -10,6 +10,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MUEats.Core", "src\MUEats.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MUEats.Infrastructure", "src\MUEats.Infrastructure\MUEats.Infrastructure.csproj", "{550D722B-4E49-470A-94DC-600C0E778EEB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{8C250B44-453A-4FA0-9DD1-B1A16F304749}"
+	ProjectSection(SolutionItems) = preProject
+		solution items\docker-compose.yml = solution items\docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

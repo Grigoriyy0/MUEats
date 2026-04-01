@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MUEats.Application.Options;
 using MUEats.Application.Ports;
+using MUEats.Infrastructure.Adapters.Kafka;
 using MUEats.Infrastructure.Adapters.Repositories;
 using MUEats.Infrastructure.Adapters.Services;
 using MUEats.Infrastructure.Options;
@@ -35,9 +36,12 @@ public static class DependencyInjection
         services.AddSingleton<IOrderOrchestrator, OrderOrchestrator>();
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();
+        services.AddSingleton<TopicMapper>();
+        services.AddSingleton<IProducer, KafkaProducer>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));
+        services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<FakeRestaurantService>();
