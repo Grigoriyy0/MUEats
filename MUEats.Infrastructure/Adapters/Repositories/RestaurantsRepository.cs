@@ -72,6 +72,13 @@ public class RestaurantsRepository(MueDbContext context) : IRestaurantsRepositor
             .Take(pageSize)
             .ToListAsync(ct);
     }
+
+    public Task<Guid> GetManagerIdAsync(Guid restaurantId, CancellationToken ct)
+    {
+        return context.Restaurants.Where(x => x.Id == restaurantId)
+            .Select(r => r.ManagerId)
+            .FirstOrDefaultAsync(ct);
+    }
     
     public Task DeleteAsync(Restaurant restaurant, CancellationToken ct)
     {

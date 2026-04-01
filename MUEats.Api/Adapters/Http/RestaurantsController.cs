@@ -54,11 +54,17 @@ public class RestaurantsController(RestaurantsService restaurantsService) : Cont
     [Authorize(Roles = "RestaurantManager")]
     public async Task<IActionResult> AddFoodItemAsync(CreateFoodItemDto dto, CancellationToken ct)
     {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "id")!.Value;
+
         try
         {
-            await restaurantsService.AddFoodItemAsync(dto, ct);
+            await restaurantsService.AddFoodItemAsync(Guid.Parse(userId), dto, ct);
 
             return Created();
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Forbid(e.Message);
         }
         catch (Exception e)
         {

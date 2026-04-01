@@ -10,6 +10,8 @@ public interface IRestaurantsRepository
     Task<Restaurant?> GetByIdAsync(Guid id, CancellationToken ct);
     
     Task<RestaurantDto?> GetDtoByIdAsync(Guid id, CancellationToken ct);
+
+    Task<Guid> GetManagerIdAsync(Guid restaurantId, CancellationToken ct);
     
     Task DeleteAsync(Restaurant restaurant, CancellationToken ct);
     
