@@ -67,7 +67,7 @@ public class RestaurantsService(
 
     public async Task<RestaurantDto> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var restaurant = await restaurantsRepository.GetByIdAsync(id, ct);
+        var restaurant = await restaurantsRepository.GetDtoByIdAsync(id, ct);
 
         if (restaurant is null)
         {

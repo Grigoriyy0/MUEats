@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using MUEats.Application.Dto.Restaurant;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.Restaurant;
-using MUEats.Core.Domain.Restaurant.Entities;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats.Infrastructure.Adapters.Repositories;
@@ -15,7 +14,14 @@ public class RestaurantsRepository(MueDbContext context) : IRestaurantsRepositor
             .AsTask();
     }
 
-    public Task<RestaurantDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public Task<Restaurant?> GetByIdAsync(Guid id, CancellationToken ct)
+    {
+        return context.Restaurants.Where(x => x.Id == id)
+            .FirstOrDefaultAsync(ct);
+    }
+    
+
+    public Task<RestaurantDto?> GetDtoByIdAsync(Guid id, CancellationToken ct)
     {
         return context.Restaurants
             .AsNoTracking()
@@ -66,7 +72,7 @@ public class RestaurantsRepository(MueDbContext context) : IRestaurantsRepositor
             .Take(pageSize)
             .ToListAsync(ct);
     }
-
+    
     public Task DeleteAsync(Restaurant restaurant, CancellationToken ct)
     {
         context.Restaurants.Remove(restaurant);
