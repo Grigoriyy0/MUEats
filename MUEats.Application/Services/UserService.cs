@@ -13,7 +13,8 @@ public class UserService(
     IUnitOfWork uow,
     ITokenProducer tokenProducer,
     IRefreshTokenService refreshTokenService,
-    IPasswordValidator passwordValidator
+    IPasswordValidator passwordValidator,
+    IRestaurantsRepository restaurantsRepository
     )
 {
     public async Task CreateAsync(CreateUserDto dto, CancellationToken ct)
@@ -106,5 +107,78 @@ public class UserService(
         await refreshTokenService.SaveAsync(user.Id, newTokenPair.RefreshToken, ct);
         
         return newTokenPair;
+    }
+
+    public async Task CreateManagerAsync(CreateManagerDto dto, CancellationToken ct)
+    {
+        try
+        {
+            await uow.BeginTransactionAsync(ct);
+        
+            var restaurant = await restaurantsRepository.GetByIdAsync(dto.RestaurantId, ct);
+
+            if (restaurant is null)
+            {
+                throw new ArgumentException("No such restaurant");
+            }
+
+            var passwordHash = hashProvider.ComputeHash(dto.Password);
+        
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = restaurant.Name + "Admin",
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                Role = Role.RestaurantManager,
+                PasswordHash = passwordHash,
+            };
+        
+            restaurant.ManagerId = user.Id;
+            
+            await usersRepository.AddAsync(user, ct);
+        
+            await uow.SaveChangesAsync(ct);
+            await uow.CommitTransactionAsync(ct);
+        }
+        catch (Exception)
+        {
+            await uow.RollbackTransactionAsync(ct);
+            throw;
+        }
+    }
+    
+    public async Task GrantRoleAsync(string role, Guid userId, CancellationToken ct)
+    {
+        try
+        {
+            await uow.BeginTransactionAsync(ct);
+        
+            var user = await usersRepository.GetByIdAsync(userId, ct);
+
+            if (user is null)
+            {
+                throw new ArgumentException("No such user");
+            }
+
+            var roleEnum = Enum.Parse<Role>(role);
+
+            if (roleEnum == Role.Admin)
+            {
+                throw new ArgumentException("You cannot grant admin role");
+            }
+        
+            user.Role = roleEnum;
+        
+            await usersRepository.UpdateAsync(user, ct);
+            await uow.SaveChangesAsync(ct);
+            await uow.CommitTransactionAsync(ct);
+        }
+        catch (Exception)
+        {
+            await uow.RollbackTransactionAsync(ct);
+            throw;
+        }
     }
 }

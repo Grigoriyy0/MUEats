@@ -43,11 +43,26 @@ public class RestaurantsService(
         await uow.CommitTransactionAsync(ct);
     }
 
-    public async Task AddFoodItemAsync(CreateFoodItemDto dto, CancellationToken ct)
+    public async Task AddFoodItemAsync(Guid userId, CreateFoodItemDto dto, CancellationToken ct)
     {
         await uow.BeginTransactionAsync(ct);
         
-        //todo Validation
+        var managerId = await restaurantsRepository.GetManagerIdAsync(dto.RestaurantId, ct);
+
+        if (managerId != userId)
+        {
+            throw new UnauthorizedAccessException("Forbidden");
+        }
+
+        if (dto.Name.Length <= 2 || dto.Name.Length > 64)
+        {
+            throw new ArgumentException("Name must be between 2 and 64 characters long");
+        }
+
+        if (dto.Price <= 0)
+        {
+            throw new ArgumentException("Price must be greater than 0");
+        }
         
         var foodItem = new FoodItem
         {
@@ -67,7 +82,7 @@ public class RestaurantsService(
 
     public async Task<RestaurantDto> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var restaurant = await restaurantsRepository.GetByIdAsync(id, ct);
+        var restaurant = await restaurantsRepository.GetDtoByIdAsync(id, ct);
 
         if (restaurant is null)
         {
