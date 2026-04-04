@@ -6,6 +6,8 @@ public class OrderDto
 {
     public Guid Id { get; set; }
     
+    public Guid RestaurantId { get; set; }
+    
     public decimal TotalPrice { get; set; }
     
     public string RestaurantDetails { get; set; }

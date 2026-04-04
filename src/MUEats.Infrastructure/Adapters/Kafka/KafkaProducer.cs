@@ -1,3 +1,4 @@
+using System.Text;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using MUEats.Application.Helpers;
@@ -13,17 +14,17 @@ public class KafkaProducer : IProducer
     private readonly IProducer<Null, string> _producer;
     private readonly TopicMapper _topicMapper;
 
-    public KafkaProducer(IOptions<KafkaOptions>  options, TopicMapper topicMapper)
+    public KafkaProducer(IOptions<KafkaOptions> options, TopicMapper topicMapper)
     {
         _topicMapper = topicMapper;
-        
+
         var config = new ProducerConfig
         {
             BootstrapServers = options.Value.BootstrapServers,
             AllowAutoCreateTopics = false,
-            Acks = Acks.Leader,
+            Acks = Acks.Leader
         };
-        
+
         _producer = new ProducerBuilder<Null, string>(config)
             .Build();
     }
@@ -31,16 +32,22 @@ public class KafkaProducer : IProducer
     public async Task ProduceAsync<TMessage>(TMessage message, CancellationToken ct)
     {
         var json = JsonConvert.SerializeObject(message, JsonSerializerHelper.Settings);
-        
+
         var topic = _topicMapper.TryGetTopic(message!.GetType());
-        
+
         ArgumentNullException.ThrowIfNull(topic);
 
-        var kafkaMessage = new Message<Null, string>()
+        var messageType = Encoding.UTF8.GetBytes(message.GetType().Name);
+
+        var kafkaMessage = new Message<Null, string>
         {
             Value = json,
+            Headers = new Headers
+            {
+                { "message-type", messageType }
+            }
         };
-        
+
         await _producer.ProduceAsync(topic, kafkaMessage, ct);
     }
 }

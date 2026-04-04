@@ -56,6 +56,7 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
             {
                 Id = x.Id,
                 DeliveryAddress = x.Address,
+                RestaurantId = x.RestaurantId,
                 OrderItems = x.OrderItems.Select(o => new OrderItemDto
                 {
                     Id = o.Id,
