@@ -4,7 +4,7 @@ namespace MUEats.Infrastructure.Handlers;
 
 public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
 {
-    public Task HandleAsync(OrderPreparedEvent message, CancellationToken ct)
+    public async Task HandleAsync(OrderPreparedEvent message, CancellationToken ct)
     {
         throw new NotImplementedException();
     }

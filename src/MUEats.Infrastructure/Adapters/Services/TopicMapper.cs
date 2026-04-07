@@ -4,15 +4,15 @@ namespace MUEats.Infrastructure.Adapters.Services;
 
 public class TopicMapper
 {
-    private readonly Dictionary<Type, string> _topics = new Dictionary<Type, string>();
+    private readonly Dictionary<Type, string> _topics = new();
 
     public TopicMapper()
     {
         _topics[typeof(OrderCreatedEvent)] = "orders";
-        _topics[typeof(OrderAcceptedEvent)] = "orders";
-        _topics[typeof(OrderFailedEvent)] = "orders";
-        _topics[typeof(OrderPreparingEvent)] = "orders";
-        _topics[typeof(OrderPreparedEvent)] = "orders";
+        _topics[typeof(OrderAcceptedEvent)] = "restaurants";
+        _topics[typeof(OrderPreparingEvent)] = "restaurants";
+        _topics[typeof(OrderPreparedEvent)] = "restaurants";
+        _topics[typeof(OrderPickedUpEvent)] = "restaurants";
     }
 
     public string? TryGetTopic(Type type)

@@ -54,6 +54,7 @@ services:
 
       echo -e 'Creating kafka topics'
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic restaurants --replication-factor 1 --partitions 1
       "
   kowl:
     image: quay.io/cloudhut/kowl:v1.4.0

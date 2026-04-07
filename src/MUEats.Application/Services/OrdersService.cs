@@ -4,6 +4,7 @@ using MUEats.Application.Ports;
 using MUEats.Core;
 using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
+using MUEats.Core.Domain.Order.Entities;
 using MUEats.Core.Domain.Order.ValueObjects;
 using Newtonsoft.Json;
 
@@ -13,7 +14,8 @@ public class OrdersService(
     IShoppingCartsRepository shoppingCartsRepository,
     IOrdersRepository ordersRepository,
     IUnitOfWork uow,
-    IOrderOrchestrator orderOrchestrator
+    IOutboxRepository outboxRepository,
+    IOrderSagaStatesRepository sagaStatesRepository
     )
 {
     public async Task<Guid> CreateAsync(CreateOrderDto dto, CancellationToken ct)
@@ -42,17 +44,38 @@ public class OrdersService(
                     Price = i.Price,
                     Quantity = i.Quantity
                 }).ToList(),
+                TotalPrice = totalPrice,
                 OrderStatus = OrderStatus.Created,
                 OrderDate = DateTime.UtcNow,
                 UserId = dto.UserId,
                 RestaurantId = cart.RestaurantId,
             };
 
+            var @event = new OrderCreatedEvent
+            {
+                OrderId = order.Id,
+            };
+            
+            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
+
+            var outboxMessage = new OutboxMessage
+            {
+                Id = Guid.NewGuid(),
+                Type = @event.GetType().Name,
+                JsonPayload = json,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            var sagaState = new OrderSagaState
+            {
+                CorrelationId = order.Id,
+                State = SagaStatus.Created
+            };
+            
             await ordersRepository.AddAsync(order, ct);
-            
-            await orderOrchestrator.StartAsync(order, ct);
-            
+            await outboxRepository.AddAsync(outboxMessage, ct);
             await shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
+            await sagaStatesRepository.AddAsync(sagaState, ct);
             
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);
