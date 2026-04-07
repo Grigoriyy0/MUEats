@@ -15,6 +15,7 @@ public class FakeRestaurantService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConsumer<Null, string> _consumer;
+    private readonly HashSet<Guid> _currentOrderIds = new();
 
     public FakeRestaurantService(
         IServiceScopeFactory scopeFactory,
