@@ -2,11 +2,11 @@ using MUEats.Core.Domain.Events.Order;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
-public class EventRegistry
+public class EventsRegistry
 {
     private readonly Dictionary<string, Type> _types = new();
 
-    public EventRegistry()
+    public EventsRegistry()
     {
         _types.Add("OrderPreparedEvent", typeof(OrderPreparedEvent));
         _types.Add("OrderCreatedEvent", typeof(OrderCreatedEvent));

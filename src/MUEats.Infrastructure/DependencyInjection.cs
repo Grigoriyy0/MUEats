@@ -39,6 +39,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<TopicMapper>();
         services.AddSingleton<IProducer, KafkaProducer>();
+        services.AddSingleton<EventsRegistry>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));

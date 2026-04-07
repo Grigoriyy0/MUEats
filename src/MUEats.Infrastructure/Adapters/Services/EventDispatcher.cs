@@ -8,18 +8,18 @@ namespace MUEats.Infrastructure.Adapters.Services;
 
 public class EventDispatcher : IEventDispatcher
 {
-    private readonly EventRegistry _eventRegistry;
+    private readonly EventsRegistry _eventsRegistry;
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public EventDispatcher(EventRegistry eventRegistry, IServiceScopeFactory serviceScopeFactory)
+    public EventDispatcher(EventsRegistry eventsRegistry, IServiceScopeFactory serviceScopeFactory)
     {
-        _eventRegistry = eventRegistry;
+        _eventsRegistry = eventsRegistry;
         _serviceScopeFactory = serviceScopeFactory;
     }
 
     public async Task DispatchAsync(string eventType, string message, CancellationToken ct)
     {
-        var type = _eventRegistry.GetType(eventType);
+        var type = _eventsRegistry.GetType(eventType);
         
         if (type == null)
         {
@@ -38,7 +38,7 @@ public class EventDispatcher : IEventDispatcher
         {
             var method = handlerType.GetMethod("HandleAsync");
             
-            await (Task)method.Invoke(handler, [@event, ct]);
+            await (Task)method!.Invoke(handler, [@event, ct])!;
         }
     }
 }

@@ -13,50 +13,64 @@ public class OrderCreatedHandler : IIntegrationEventHandler<OrderCreatedEvent>
     private readonly IOrderSagaStatesRepository _orderSagaStatesRepository;
     private readonly IOutboxRepository _outboxRepository;
     private readonly IOrdersRepository _ordersRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public OrderCreatedHandler(
         IOrderSagaStatesRepository orderSagaStatesRepository, 
         IOutboxRepository outboxRepository, 
-        IOrdersRepository ordersRepository
-        )
+        IOrdersRepository ordersRepository, IUnitOfWork unitOfWork)
     {
         _orderSagaStatesRepository = orderSagaStatesRepository;
         _outboxRepository = outboxRepository;
         _ordersRepository = ordersRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task HandleAsync(OrderCreatedEvent message, CancellationToken ct)
     {
-        var order = await _ordersRepository.GetDtoByIdAsync(message.OrderId, ct);
-
-        if (order == null)
+        try
         {
-            return;
+            await _unitOfWork.BeginTransactionAsync(ct);
+            
+            var order = await _ordersRepository.GetDtoByIdAsync(message.OrderId, ct);
+
+            if (order == null)
+            {
+                return;
+            }
+        
+            var sagaState = new OrderSagaState
+            {
+                CorrelationId = message.Id,
+                State = SagaStatus.Created
+            };
+
+            var @event = new OrderSentEvent
+            {
+                OrderId = order.Id,
+                RestaurantId = order.RestaurantId,
+            };
+        
+            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
+
+            var outboxMessage = new OutboxMessage
+            {
+                Id = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow,
+                JsonPayload = json,
+                Type = @event.GetType().Name,
+            };
+        
+            await _orderSagaStatesRepository.AddAsync(sagaState, ct);
+            await _outboxRepository.AddAsync(outboxMessage, ct);
+            
+            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.CommitTransactionAsync(ct);
         }
-        
-        var sagaState = new OrderSagaState
+        catch (Exception)
         {
-            CorrelationId = message.Id,
-            State = SagaStatus.Created
-        };
-
-        var @event = new OrderSentEvent
-        {
-            OrderId = order.Id,
-            RestaurantId = order.RestaurantId,
-        };
-        
-        var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
-
-        var outboxMessage = new OutboxMessage
-        {
-            Id = Guid.NewGuid(),
-            CreatedAt = DateTime.UtcNow,
-            JsonPayload = json,
-            Type = @event.GetType().Name,
-        };
-        
-        await _orderSagaStatesRepository.AddAsync(sagaState, ct);
-        await _outboxRepository.AddAsync(outboxMessage, ct);
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            throw;
+        }
     }
 }
