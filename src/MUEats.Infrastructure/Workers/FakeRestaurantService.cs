@@ -15,14 +15,16 @@ public class FakeRestaurantService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConsumer<Null, string> _consumer;
-    private readonly HashSet<Guid> _currentOrderIds = new();
-
+    private readonly FakeKitchenWorker _kitchenWorker;
+    
     public FakeRestaurantService(
         IServiceScopeFactory scopeFactory,
-        IOptions<KafkaOptions> options)
+        IOptions<KafkaOptions> options, 
+        FakeKitchenWorker kitchenWorker)
     {
         _scopeFactory = scopeFactory;
-        
+        _kitchenWorker = kitchenWorker;
+
         var consumerConfig = new ConsumerConfig
         {
             BootstrapServers = options.Value.BootstrapServers,
@@ -35,9 +37,9 @@ public class FakeRestaurantService : BackgroundService
         _consumer = new ConsumerBuilder<Null, string>(consumerConfig)
             .Build();
         
-        if (!options.Value.ConsumerOptions.TryGetValue("Restaurants", out var consumerOptions))
+        if (!options.Value.ConsumerOptions.TryGetValue("Restaurant", out var consumerOptions))
         {
-            throw new Exception("Orders consumer options not found");
+            throw new Exception("Restaurants consumer options not found");
         }
         
         _consumer.Subscribe(consumerOptions.Topic);
@@ -74,6 +76,8 @@ public class FakeRestaurantService : BackgroundService
         {
             OrderId = message.OrderId,
         };
+        
+        _kitchenWorker.AddOrder(@event.OrderId);
         
         var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
 

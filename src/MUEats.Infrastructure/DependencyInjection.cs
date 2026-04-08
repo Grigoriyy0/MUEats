@@ -31,12 +31,12 @@ public static class DependencyInjection
         services.AddScoped<IOrderSagaStatesRepository, OrderSagaStatesRepository>();
         services.AddScoped<IEventDispatcher, EventDispatcher>();
         
-        services.AddSingleton<IOrderOrchestrator, OrderOrchestrator>();
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<TopicMapper>();
         services.AddSingleton<IProducer, KafkaProducer>();
         services.AddSingleton<EventsRegistry>();
+        services.AddSingleton<FakeKitchenWorker>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));
@@ -45,5 +45,6 @@ public static class DependencyInjection
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<FakeRestaurantService>();
         services.AddHostedService<OrdersConsumer>();
+        services.AddHostedService<FakeKitchenWorker>();
     }
 }

@@ -26,7 +26,7 @@ public class OrdersConsumer : BackgroundService
             GroupId = "Orders"
         };
 
-        if (!options.Value.ConsumerOptions.TryGetValue("Orders", out var consumerOptions))
+        if (!options.Value.ConsumerOptions.TryGetValue("Order", out var consumerOptions))
         {
             throw new Exception("Orders consumer options not found");
         }
