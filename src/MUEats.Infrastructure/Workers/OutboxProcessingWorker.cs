@@ -12,7 +12,7 @@ namespace MUEats.Infrastructure.Workers;
 
 public class OutboxProcessingWorker(
     IServiceScopeFactory serviceScopeFactory,
-    IEventBus eventBus
+    IProducer producer
     ) : BackgroundService
 {
     private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(500);
@@ -59,12 +59,12 @@ public class OutboxProcessingWorker(
             return;
         }
         
-        await eventBus.PublishAsync(@event, ct);
-        
         message.ProcessedAt = DateTime.UtcNow;
 
         dbContext.Update(message);
 
         await dbContext.SaveChangesAsync(ct);
+        
+        await producer.ProduceAsync(@event, ct);
     }
 }

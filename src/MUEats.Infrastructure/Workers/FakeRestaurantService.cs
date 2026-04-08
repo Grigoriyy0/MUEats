@@ -1,10 +1,11 @@
+using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using MUEats.Application.Helpers;
-using MUEats.Application.Ports;
 using MUEats.Core;
-using MUEats.Core.Domain.Events;
 using MUEats.Core.Domain.Events.Order;
+using MUEats.Infrastructure.Options;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
 
@@ -13,78 +14,82 @@ namespace MUEats.Infrastructure.Workers;
 public class FakeRestaurantService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IEventBus _eventBus;
-
+    private readonly IConsumer<Null, string> _consumer;
+    private readonly FakeKitchenWorker _kitchenWorker;
+    
     public FakeRestaurantService(
         IServiceScopeFactory scopeFactory,
-        IEventBus eventBus)
+        IOptions<KafkaOptions> options, 
+        FakeKitchenWorker kitchenWorker)
     {
         _scopeFactory = scopeFactory;
-        _eventBus = eventBus;
+        _kitchenWorker = kitchenWorker;
+
+        var consumerConfig = new ConsumerConfig
+        {
+            BootstrapServers = options.Value.BootstrapServers,
+            AllowAutoCreateTopics = false,
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+            Acks = Acks.Leader,
+            GroupId = "Restaurants"
+        };
+        
+        _consumer = new ConsumerBuilder<Null, string>(consumerConfig)
+            .Build();
+        
+        if (!options.Value.ConsumerOptions.TryGetValue("Restaurant", out var consumerOptions))
+        {
+            throw new Exception("Restaurants consumer options not found");
+        }
+        
+        _consumer.Subscribe(consumerOptions.Topic);
     }
 
-    protected override Task ExecuteAsync(CancellationToken ct)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        _eventBus.Subscribe<OrderCreatedEvent>(HandleOrderCreated);
-        _eventBus.Subscribe<OrderPreparingEvent>(HandleOrderPreparing);
-        
-        return Task.CompletedTask;
+        while (!ct.IsCancellationRequested)
+        {
+            var messageResult = _consumer.Consume(ct);
+            
+            var @event = JsonConvert.DeserializeObject<OrderCreatedEvent>(messageResult.Message.Value);
+
+            if (@event == null)
+            {
+                continue;
+            }
+            
+            await HandleMessageAsync(@event, ct);
+            
+            _consumer.Commit(messageResult);
+        }
     }
 
-    private async Task HandleOrderCreated(OrderCreatedEvent @event)
+    private async Task HandleMessageAsync(OrderCreatedEvent message, CancellationToken ct)
     {
-        await using var scope =  _scopeFactory.CreateAsyncScope();
+        await Task.Delay(5000, ct);
         
+        await using var scope = _scopeFactory.CreateAsyncScope();
+
         var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
         
-        await Task.Delay(5000);
-        
-        var acceptedEvent = new OrderAcceptedEvent
+        var @event = new OrderAcceptedEvent
         {
-            OrderId = @event.OrderId
-        };
-
-        var orderStartPreparingEvent = new OrderPreparingEvent
-        {
-            OrderId = @event.OrderId
+            OrderId = message.OrderId,
         };
         
-        var acceptedOutboxMessage = CreateOutboxMessage(acceptedEvent);
-        var startPreparingOutboxMessage = CreateOutboxMessage(orderStartPreparingEvent);
+        _kitchenWorker.AddOrder(@event.OrderId);
         
-        await dbContext.OutboxMessages.AddRangeAsync([acceptedOutboxMessage, startPreparingOutboxMessage], CancellationToken.None);
-        await dbContext.SaveChangesAsync(CancellationToken.None);
-    }
-
-    private async Task HandleOrderPreparing(OrderPreparingEvent @event)
-    {
-        await using var scope =  _scopeFactory.CreateAsyncScope();
-
-        var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
-        
-        await Task.Delay(60_000);
-        
-        var orderPreparedEvent = new OrderPreparedEvent
-        {
-            OrderId = @event.OrderId,
-        };
-        
-        var outboxMessage = CreateOutboxMessage(orderPreparedEvent);
-        
-        await dbContext.OutboxMessages.AddAsync(outboxMessage, CancellationToken.None);
-        await dbContext.SaveChangesAsync(CancellationToken.None);
-    }
-    
-    private OutboxMessage CreateOutboxMessage(DomainEvent @event)
-    {
         var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
 
-        return new OutboxMessage
+        var outboxMessage = new OutboxMessage
         {
             Id = Guid.NewGuid(),
-            CreatedAt = DateTime.UtcNow,
             JsonPayload = json,
+            CreatedAt = DateTime.UtcNow,
             Type = @event.GetType().Name
         };
+        
+        await dbContext.OutboxMessages.AddAsync(outboxMessage, ct);
+        await dbContext.SaveChangesAsync(ct);
     }
 }

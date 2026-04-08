@@ -1,6 +1,8 @@
 namespace MUEats.Core.Domain.Events.Order;
 
-public class OrderDeliveredEvent : DomainEvent
+public class OrderSentEvent
 {
     public Guid OrderId { get; set; }
+    
+    public Guid RestaurantId { get; set; }
 }
