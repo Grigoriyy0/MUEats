@@ -55,7 +55,6 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
             .Select(x => new OrderDto
             {
                 Id = x.Id,
-                DeliveryAddress = x.Address,
                 RestaurantId = x.RestaurantId,
                 OrderItems = x.OrderItems.Select(o => new OrderItemDto
                 {
@@ -64,5 +63,24 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
                     Price = o.Price
                 }).ToList()
             }).FirstOrDefaultAsync(ct);
+    }
+
+    public Task<List<OrderDto>> GetByRangeAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken ct)
+    {
+        return context.Orders.Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate && o.UserId == userId)
+            .Include(o => o.OrderItems)
+            .Select(x => new OrderDto
+            {
+                Id = x.Id,
+                RestaurantId = x.RestaurantId,
+                OrderItems = x.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    ItemName = oi.Name,
+                    Price = oi.Price
+                }).ToList()
+            })
+            .OrderByDescending(o => o.OrderDate)
+            .ToListAsync(ct);
     }
 }

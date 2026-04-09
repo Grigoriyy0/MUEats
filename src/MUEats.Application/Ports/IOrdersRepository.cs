@@ -17,4 +17,6 @@ public interface IOrdersRepository
     Task<OrderStatusDto?> GetStatusAsync(Guid id, CancellationToken ct);
 
     Task<OrderDto?> GetDtoByIdAsync(Guid orderId, CancellationToken ct);
+
+    Task<List<OrderDto>> GetByRangeAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken ct);
 }

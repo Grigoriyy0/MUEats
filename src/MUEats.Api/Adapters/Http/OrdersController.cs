@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.Order;
@@ -39,5 +40,20 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
         var orderDto = await ordersService.GetByIdAsync(orderId, ct);
 
         return Ok(orderDto);
+    }
+
+    [HttpGet]
+    [Route("history")]
+    [Authorize(Policy = "Customer")]
+    public async Task<IActionResult> GetHistory([FromQuery] string timePeriod, CancellationToken ct)
+    {
+        var userId = User.FindFirstValue("id");
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+        
+        return Ok(await ordersService.GetHistoryAsync(Guid.Parse(userId), timePeriod, ct));
     }
 }
