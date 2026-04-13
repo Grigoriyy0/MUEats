@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace MUEats.Infrastructure.Workers;
 
-public class OutboxProcessingWorker(
+internal sealed class OutboxProcessingWorker(
     IServiceScopeFactory serviceScopeFactory,
     IProducer producer
     ) : BackgroundService

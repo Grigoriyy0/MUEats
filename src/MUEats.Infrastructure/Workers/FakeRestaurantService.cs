@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MUEats.Infrastructure.Workers;
 
-public class FakeRestaurantService : BackgroundService
+internal sealed class FakeRestaurantService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConsumer<Null, string> _consumer;

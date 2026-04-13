@@ -12,7 +12,7 @@ public class OrderDto
     
     public string RestaurantDetails { get; set; }
     
-    public string DeliveryAddress { get; set; }
-
+    public DateTime OrderDate { get; set; } 
+    
     public List<OrderItemDto> OrderItems { get; set; } = [];
 }
