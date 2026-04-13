@@ -115,11 +115,11 @@ public class OrdersService(
         return dto;
     }
 
-    public async Task<List<OrderDto>> GetHistoryAsync(Guid userId, string timePeriod, CancellationToken ct)
+    public Task<List<OrderDto>> GetHistoryAsync(Guid userId, string timePeriod, CancellationToken ct)
     {
         var (startDate, endDate) = GetDateRange(timePeriod);
         
-        return await ordersRepository.GetByRangeAsync(userId, startDate, endDate, ct);
+        return ordersRepository.GetByRangeAsync(userId, startDate, endDate, ct);
     }
 
     private (DateTime, DateTime) GetDateRange(string timePeriod)
@@ -149,6 +149,6 @@ public class OrdersService(
                 break;
         }
         
-        return (startDate, endDate);
+        return (startDate.ToUniversalTime(), endDate.ToUniversalTime());
     }
 }

@@ -8,7 +8,7 @@ using MUEats.Infrastructure.Options;
 
 namespace MUEats.Infrastructure.Workers;
 
-public class OrdersConsumer : BackgroundService 
+internal sealed class OrdersConsumer : BackgroundService 
 {
     private readonly IConsumer<Null, string> _consumer;
     

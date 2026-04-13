@@ -67,8 +67,13 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
 
     public Task<List<OrderDto>> GetByRangeAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken ct)
     {
-        return context.Orders.Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate && o.UserId == userId)
-            .Include(o => o.OrderItems)
+        var start = startDate.Date;
+        var end = endDate.Date.AddDays(1);
+
+        return context.Orders
+            .Where(o => o.UserId == userId && 
+                        o.OrderDate >= start && 
+                        o.OrderDate < end)
             .Select(x => new OrderDto
             {
                 Id = x.Id,
@@ -80,7 +85,6 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
                     Price = oi.Price
                 }).ToList()
             })
-            .OrderByDescending(o => o.OrderDate)
             .ToListAsync(ct);
     }
 }

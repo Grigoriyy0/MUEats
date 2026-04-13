@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Application.Helpers;
@@ -8,62 +9,71 @@ using Newtonsoft.Json;
 
 namespace MUEats.Infrastructure.Workers;
 
-public class FakeKitchenWorker : BackgroundService
+internal sealed class FakeKitchenWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    
-    private Dictionary<Guid, DateTime> _orders = new();
+    private readonly ConcurrentDictionary<Guid, DateTime> _orders = new();
 
     public FakeKitchenWorker(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public void AddOrder(Guid id)
+    public void AddOrder(Guid id) 
     {
-        _orders.Add(id, DateTime.UtcNow);
+        var added = _orders.TryAdd(id, DateTime.UtcNow);
+        Console.WriteLine($"[FakeKitchenWorker] AddOrder called for {id}. Added: {added}. Total orders: {_orders.Count}");
     }
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        while (!ct.IsCancellationRequested)
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+    
+        while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync(ct))
         {
-            await WorkingLoop(ct);
+            var cutoff = DateTime.UtcNow.AddMinutes(-1);
+        
+            // Find orders ready to be processed
+            var readyOrderIds = _orders
+                .Where(x => x.Value <= cutoff)
+                .Select(x => x.Key)
+                .ToList();
+
+            foreach (var orderId in readyOrderIds)
+            {
+                if (_orders.TryRemove(orderId, out _))
+                {
+                    try 
+                    {
+                        await PublishEvent(orderId, ct);
+                    }
+                    catch (Exception ex)
+                    {
+                        // If DB fails, you might want to re-add the order to the dictionary 
+                        // or log it so it's not lost forever.
+                        Console.WriteLine($"Error processing order {orderId}: {ex.Message}");
+                    }
+                }
+            }
         }
     }
-
-    private async Task WorkingLoop(CancellationToken ct)
+    
+    private async Task PublishEvent(Guid orderId, CancellationToken ct)
     {
-        foreach (var order in _orders)
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var context = scope.ServiceProvider.GetRequiredService<MueDbContext>();
+        
+        var @event = new OrderPreparedEvent { OrderId = orderId };
+        var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
+        
+        await context.OutboxMessages.AddAsync(new OutboxMessage
         {
-            if (order.Value < DateTime.UtcNow.AddMinutes(-10))
-            {
-                continue;
-            }
-            
-            await using var scope = _serviceScopeFactory.CreateAsyncScope();
-
-            var context = scope.ServiceProvider.GetRequiredService<MueDbContext>();
-                    
-            var @event = new OrderPreparedEvent
-            {
-                OrderId = order.Key,
-            };
-            
-            _orders.Remove(order.Key);
-            
-            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
-
-            var outboxMessage = new OutboxMessage
-            {
-                Id = Guid.NewGuid(),
-                JsonPayload = json,
-                Type = @event.GetType().Name,
-                CreatedAt = DateTime.UtcNow,
-            };
-                    
-            await context.OutboxMessages.AddAsync(outboxMessage, ct);
-            await context.SaveChangesAsync(ct);
-        }
+            Id = Guid.NewGuid(),
+            JsonPayload = json,
+            Type = @event.GetType().Name,
+            CreatedAt = DateTime.UtcNow,
+        }, ct);
+        
+        await context.SaveChangesAsync(ct);
     }
 }
