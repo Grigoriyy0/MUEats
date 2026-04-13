@@ -6,6 +6,7 @@ using MUEats.Application.Ports;
 using MUEats.Infrastructure.Adapters.Kafka;
 using MUEats.Infrastructure.Adapters.Repositories;
 using MUEats.Infrastructure.Adapters.Services;
+using MUEats.Infrastructure.Handlers;
 using MUEats.Infrastructure.Options;
 using MUEats.Infrastructure.Persistence;
 using MUEats.Infrastructure.Workers;
@@ -36,15 +37,17 @@ public static class DependencyInjection
         services.AddSingleton<TopicMapper>();
         services.AddSingleton<IProducer, KafkaProducer>();
         services.AddSingleton<EventsRegistry>();
-        services.AddSingleton<FakeKitchenWorker>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));
         services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
         
+        
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<FakeRestaurantService>();
         services.AddHostedService<OrdersConsumer>();
-        services.AddHostedService<FakeKitchenWorker>();
+        
+        services.AddSingleton<FakeKitchenWorker>();
+        services.AddHostedService(sp => sp.GetRequiredService<FakeKitchenWorker>());
     }
 }

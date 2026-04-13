@@ -2,7 +2,6 @@ using MUEats.Application.Helpers;
 using MUEats.Application.Ports;
 using MUEats.Core;
 using MUEats.Core.Domain.Events.Order;
-using MUEats.Core.Domain.Order.Entities;
 using MUEats.Core.Domain.Order.ValueObjects;
 using Newtonsoft.Json;
 
@@ -33,23 +32,20 @@ public class OrderCreatedHandler : IIntegrationEventHandler<OrderCreatedEvent>
             await _unitOfWork.BeginTransactionAsync(ct);
             
             var order = await _ordersRepository.GetDtoByIdAsync(message.OrderId, ct);
-
+            var sagaState = await _orderSagaStatesRepository.GetByIdAsync(message.OrderId, ct);
+            
             if (order == null)
             {
                 return;
             }
-        
-            var sagaState = new OrderSagaState
-            {
-                CorrelationId = message.Id,
-                State = SagaStatus.Created
-            };
-
+            
             var @event = new OrderSentEvent
             {
                 OrderId = order.Id,
                 RestaurantId = order.RestaurantId,
             };
+
+            sagaState.State = SagaStatus.WaitingForApproval;
         
             var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
 
