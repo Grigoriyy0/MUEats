@@ -5,3 +5,7 @@ riderModule.iml
 /_ReSharper.Caches/
 appsettings.Development.json
 .idea
+*.user
+kafka-data/
+zookeeper-log/
+zookeeper-data/
