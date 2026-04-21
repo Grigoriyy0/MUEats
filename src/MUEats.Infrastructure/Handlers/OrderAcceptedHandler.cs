@@ -37,7 +37,7 @@ public class OrderAcceptedHandler : IIntegrationEventHandler<OrderAcceptedEvent>
                 return;
             }
 
-            if (sagaState.State >= SagaStatus.Accepted)
+            if (sagaState.State > SagaStatus.WaitingForApproval)
             {
                 return;
             }

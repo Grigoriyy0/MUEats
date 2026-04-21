@@ -17,7 +17,8 @@ public class OrderCreatedHandler : IIntegrationEventHandler<OrderCreatedEvent>
     public OrderCreatedHandler(
         IOrderSagaStatesRepository orderSagaStatesRepository, 
         IOutboxRepository outboxRepository, 
-        IOrdersRepository ordersRepository, IUnitOfWork unitOfWork)
+        IOrdersRepository ordersRepository, 
+        IUnitOfWork unitOfWork)
     {
         _orderSagaStatesRepository = orderSagaStatesRepository;
         _outboxRepository = outboxRepository;
