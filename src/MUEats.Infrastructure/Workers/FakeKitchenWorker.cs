@@ -19,10 +19,9 @@ internal sealed class FakeKitchenWorker : BackgroundService
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public void AddOrder(Guid id) 
+    public bool AddOrder(Guid id) 
     {
-        var added = _orders.TryAdd(id, DateTime.UtcNow);
-        Console.WriteLine($"[FakeKitchenWorker] AddOrder called for {id}. Added: {added}. Total orders: {_orders.Count}");
+        return _orders.TryAdd(id, DateTime.UtcNow);
     }
 
     protected override async Task ExecuteAsync(CancellationToken ct)

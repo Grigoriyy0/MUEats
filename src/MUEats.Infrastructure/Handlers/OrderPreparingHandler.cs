@@ -4,14 +4,14 @@ using MUEats.Core.Domain.Order.ValueObjects;
 
 namespace MUEats.Infrastructure.Handlers;
 
-public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
+public class OrderPreparingHandler : IIntegrationEventHandler<OrderPreparingEvent>
 {
     private readonly IOrderSagaStatesRepository _orderSagaStatesRepository;
     private readonly IOrdersRepository _ordersRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public OrderPreparedHandler(IOrderSagaStatesRepository orderSagaStatesRepository, 
-        IOrdersRepository ordersRepository, 
+    public OrderPreparingHandler(IOrderSagaStatesRepository orderSagaStatesRepository,
+        IOrdersRepository ordersRepository,
         IUnitOfWork unitOfWork)
     {
         _orderSagaStatesRepository = orderSagaStatesRepository;
@@ -19,30 +19,26 @@ public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
         _unitOfWork = unitOfWork;
     }
 
-    public async Task HandleAsync(OrderPreparedEvent message, CancellationToken ct)
+    public async Task HandleAsync(OrderPreparingEvent message, CancellationToken ct)
     {
         await _unitOfWork.BeginTransactionAsync(ct);
         
+        var sagaState = await _orderSagaStatesRepository.GetByIdAsync(message.OrderId, ct);
         var order = await _ordersRepository.GetByIdAsync(message.OrderId, ct);
         
-        var state = await _orderSagaStatesRepository.GetByIdAsync(message.OrderId, ct);
-
-        if (order == null)
+        if (sagaState is null || order is null)
         {
             return;
         }
 
-        if (state == null)
+        if (sagaState.State >= SagaStatus.Preparing)
         {
             return;
         }
 
-        order.OrderStatus = OrderStatus.Prepared;
-        state.State = SagaStatus.Prepared;
-        
-        await _ordersRepository.UpdateAsync(order, ct);
-        await _orderSagaStatesRepository.UpdateAsync(state, ct);
-        
+        sagaState.State = SagaStatus.Preparing;
+        order.OrderStatus = OrderStatus.Preparing;
+
         await _unitOfWork.SaveChangesAsync(ct);
         await _unitOfWork.CommitTransactionAsync(ct);
     }
