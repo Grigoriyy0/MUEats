@@ -36,15 +36,11 @@ public class OrdersRepository(MueDbContext context) : IOrdersRepository
         return Task.CompletedTask;
     }
 
-    public Task<OrderStatusDto?> GetStatusAsync(Guid id, CancellationToken ct)
+    public Task<OrderStatus> GetStatusAsync(Guid id, CancellationToken ct)
     {
         return context.Orders
             .Where(x => x.Id == id)
-            .Select(x => new OrderStatusDto
-            {
-                OrderId = x.Id,
-                OrderStatus = x.OrderStatus.ToString(),
-            })
+            .Select(x => x.OrderStatus)
             .FirstOrDefaultAsync(ct);
     }
 
