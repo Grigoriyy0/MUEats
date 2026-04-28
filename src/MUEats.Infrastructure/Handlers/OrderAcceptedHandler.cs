@@ -7,17 +7,15 @@ namespace MUEats.Infrastructure.Handlers;
 public class OrderAcceptedHandler : IIntegrationEventHandler<OrderAcceptedEvent>
 {
     private readonly IOrderSagaStatesRepository _orderSagaStatesRepository;
-    private readonly IOutboxRepository _outboxRepository;
     private readonly IOrdersRepository _ordersRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public OrderAcceptedHandler(
         IOrderSagaStatesRepository orderSagaStatesRepository, 
-        IOutboxRepository outboxRepository, 
-        IOrdersRepository ordersRepository, IUnitOfWork unitOfWork)
+        IOrdersRepository ordersRepository, 
+        IUnitOfWork unitOfWork)
     {
         _orderSagaStatesRepository = orderSagaStatesRepository;
-        _outboxRepository = outboxRepository;
         _ordersRepository = ordersRepository;
         _unitOfWork = unitOfWork;
     }

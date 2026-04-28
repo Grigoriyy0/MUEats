@@ -66,6 +66,8 @@ internal sealed class FakeRestaurantService : BackgroundService
 
     private async Task HandleMessageAsync(OrderCreatedEvent message, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        
         await Task.Delay(5000, ct);
         
         await using var scope = _scopeFactory.CreateAsyncScope();
@@ -76,8 +78,6 @@ internal sealed class FakeRestaurantService : BackgroundService
         {
             OrderId = message.OrderId,
         };
-        
-        _kitchenWorker.AddOrder(@event.OrderId);
         
         var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
 
@@ -91,5 +91,37 @@ internal sealed class FakeRestaurantService : BackgroundService
         
         await dbContext.OutboxMessages.AddAsync(outboxMessage, ct);
         await dbContext.SaveChangesAsync(ct);
+
+        await AddToKitchenWorker(@event.OrderId, ct);
+    }
+
+    private async Task AddToKitchenWorker(Guid orderId, CancellationToken ct)
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
+        
+        var added = _kitchenWorker.AddOrder(orderId);
+
+        if (added)
+        {
+            var @event = new OrderPreparingEvent
+            {
+                OrderId = orderId
+            };
+            
+            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
+
+            var outboxMessage = new OutboxMessage
+            {
+                Id = Guid.NewGuid(),
+                JsonPayload = json,
+                CreatedAt = DateTime.UtcNow,
+                Type = @event.GetType().Name
+            };
+            
+            await dbContext.OutboxMessages.AddAsync(outboxMessage, ct);
+            await dbContext.SaveChangesAsync(ct);
+        }
     }
 }

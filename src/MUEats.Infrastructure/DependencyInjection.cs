@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,5 +50,20 @@ public static class DependencyInjection
         
         services.AddSingleton<FakeKitchenWorker>();
         services.AddHostedService(sp => sp.GetRequiredService<FakeKitchenWorker>());
+    }
+    
+    public static void AddIntegrationEventHandlers(this IServiceCollection services, Assembly assembly)
+    {
+        var handlerTypes = assembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract)
+            .SelectMany(t => t.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IIntegrationEventHandler<>))
+                .Select(i => new { HandlerType = t, InterfaceType = i }))
+            .ToList();
+
+        foreach (var handlerType in handlerTypes)
+        {
+            services.AddScoped(handlerType.InterfaceType, handlerType.HandlerType);
+        }
     }
 }
