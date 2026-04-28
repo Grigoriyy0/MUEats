@@ -37,6 +37,8 @@ public class MueDbContext : DbContext
     
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
     
+    public DbSet<InboxMessage> InboxMessages { get; set; }
+    
     public DbSet<OrderSagaState>  OrderSagaStates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

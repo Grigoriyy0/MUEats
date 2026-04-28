@@ -89,18 +89,13 @@ public class OrdersService(
         }
     }
 
-    public async Task<OrderStatusDto?> GetStatusAsync(Guid orderId, CancellationToken ct)
+    public async Task<string> GetStatusAsync(Guid orderId, CancellationToken ct)
     {
         //todo add customerID check
         
         var status = await ordersRepository.GetStatusAsync(orderId, ct);
-
-        if (status is null)
-        {
-            throw new ArgumentException($"Order with {orderId} not found");
-        }
-
-        return status;
+        
+        return status.ToString();
     }
 
     public async Task<OrderDto?> GetByIdAsync(Guid orderId, CancellationToken ct)

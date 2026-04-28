@@ -47,6 +47,7 @@ public static class DependencyInjection
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<FakeRestaurantService>();
         services.AddHostedService<OrdersConsumer>();
+        services.AddHostedService<InboxProcessingWorker>();
         
         services.AddSingleton<FakeKitchenWorker>();
         services.AddHostedService(sp => sp.GetRequiredService<FakeKitchenWorker>());
