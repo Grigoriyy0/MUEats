@@ -21,13 +21,13 @@ public class Restaurant
 
     public Guid Id { get; init; }
 
-    public string Name { get; private set; } = null!;
+    public string Name { get; private set; }
     
     public string? Description { get; private set; }
     
     public BusinessHours BusinessHours { get; private set; }
 
-    public string Address { get; private set; } = null!; 
+    public string Address { get; private set; } 
     
     public Guid MenuId { get; private set; }
 
@@ -36,11 +36,20 @@ public class Restaurant
         BusinessHours businessHours,
         string address)
     {
-        //todo validation
-        return new Restaurant(name,  description, businessHours, address);
+        if (string.IsNullOrEmpty(name))
+        {
+            return DomainErrors.Restaurant.NameIsEmpty;
+        }
+
+        if (string.IsNullOrEmpty(address))
+        {
+            return DomainErrors.Restaurant.AddressIsEmpty;
+        }
+        
+        return new Restaurant(name, description, businessHours, address);
     }
 
-    public void UpdateMenuId(Guid menuId)
+    public void AddMenuId(Guid menuId)
     {
         MenuId = menuId;
     }
@@ -49,11 +58,23 @@ public class Restaurant
     {
         if (string.IsNullOrEmpty(name))
         {
-            // return error
+            return DomainErrors.Restaurant.NameIsEmpty;
         }
 
         Name = name;
 
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> UpdateAddress(string address)
+    {
+        if (string.IsNullOrEmpty(address))
+        {
+            return DomainErrors.Restaurant.AddressIsEmpty;
+        }
+        
+        Address = address;
+        
         return UnitResult.Success<Error>();
     }
 

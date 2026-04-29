@@ -8,12 +8,14 @@ public class MenuItem
 {
     private MenuItem(string name,
         decimal price,
-        string? description)
+        string? description,
+        Guid? categoryId)
     {
         Id = Guid.NewGuid();
         Name = name;
         Price = price;
         Description = description;
+        CategoryId = categoryId;
     }
     
     public Guid Id { get; init; }
@@ -30,13 +32,24 @@ public class MenuItem
     
     public ReadOnlyCollection<OptionsGroup> OptionsGroups => _optionsGroups.AsReadOnly();
     
-    public Guid CategoryId { get; private set; }
+    public Guid? CategoryId { get; private set; }
     
     public static Result<MenuItem, Error> Create(string name, 
         decimal price, 
-        string? description)
+        string? description,
+        Guid? categoryId)
     {
-        return new MenuItem(name, price, description);
+        if (string.IsNullOrEmpty(name))
+        {
+            return DomainErrors.MenuItem.ItemNameIsEmpty;
+        }
+
+        if (price < 0)
+        {
+            return DomainErrors.MenuItem.ItemPriceLessThanZero;
+        }
+        
+        return new MenuItem(name, price, description,  categoryId);
     }
 
     public UnitResult<Error> AddOptionsGroup(string groupName, string? description)
@@ -59,7 +72,7 @@ public class MenuItem
 
         if (optionsGroup is null)
         {
-            // return error
+            return DomainErrors.MenuItem.ItemOptionsGroupIsNotFound;
         }
         
         var itemResult = optionsGroup.AddItemOption(value);

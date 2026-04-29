@@ -38,7 +38,7 @@ public class Menu
 
         if (categoryCheck)
         {
-            // return error
+            return DomainErrors.Menu.CategoryAlreadyExists;
         }
 
         var categoryResult = Category.Create(categoryName, categoryDescription);
@@ -53,16 +53,19 @@ public class Menu
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> AddMenuItem(string itemName, string? itemDescription, decimal itemPrice)
+    public UnitResult<Error> AddMenuItem(string itemName, 
+        string? itemDescription, 
+        decimal itemPrice,
+        Guid? categoryId = null)
     {
         var check = _menuItems.Any(x => x.Name == itemName);
 
         if (check)
         {
-            //return error
+            return DomainErrors.Menu.MenuItemAlreadyExists;
         }
 
-        var itemResult = MenuItem.Create(itemName, itemPrice, itemDescription);
+        var itemResult = MenuItem.Create(itemName, itemPrice, itemDescription,  categoryId);
 
         if (itemResult.IsFailure)
         {

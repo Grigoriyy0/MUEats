@@ -20,6 +20,11 @@ public class Category
 
     public static Result<Category, Error> Create(string name, string? description)
     {
+        if (string.IsNullOrEmpty(name))
+        {
+            return DomainErrors.MenuCategory.CategoryNameIsEmpty;
+        }
+        
         return new Category(name, description);
     }
 }

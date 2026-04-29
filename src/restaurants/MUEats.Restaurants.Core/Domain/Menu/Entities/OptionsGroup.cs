@@ -35,7 +35,7 @@ public class OptionsGroup
 
         if (check)
         {
-            // return error
+            return DomainErrors.MenuOptionsGroup.OptionAlreadyExists;
         }
         
         var itemOption = ItemOption.Create(optionValue);

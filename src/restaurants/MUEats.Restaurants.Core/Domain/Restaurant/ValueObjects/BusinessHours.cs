@@ -15,7 +15,7 @@ public class BusinessHours : ValueObject
     {
         if (openingTime >= closingTime)
         {
-            
+            return DomainErrors.RestaurantBusinessHours.EndIsEarlier;
         }
         
         return new BusinessHours(openingTime, closingTime);

@@ -15,8 +15,13 @@ public class ItemOption : ValueObject
 
     public string Value { get; private set; } = null!;
 
-    internal static Result<ItemOption, Error> Create(string value)
+    public static Result<ItemOption, Error> Create(string value)
     {
+        if (string.IsNullOrEmpty(value))
+        {
+            return DomainErrors.MenuItemOption.OptionValueIsEmpty;
+        }
+        
         return new ItemOption(value);
     }
     
