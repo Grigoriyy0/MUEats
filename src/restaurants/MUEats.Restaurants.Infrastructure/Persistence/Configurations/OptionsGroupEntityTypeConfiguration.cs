@@ -8,7 +8,7 @@ public class OptionsGroupEntityTypeConfiguration : IEntityTypeConfiguration<Opti
 {
     public void Configure(EntityTypeBuilder<OptionsGroup> builder)
     {
-        builder.ToTable("options_groups", "catalog");
+        builder.ToTable("options_groups");
         
         builder.HasKey(x => x.Id);
         
@@ -18,5 +18,10 @@ public class OptionsGroupEntityTypeConfiguration : IEntityTypeConfiguration<Opti
 
         builder.Property(x => x.Description)
             .HasMaxLength(128);
+        
+        builder.HasMany(x => x.ItemOptions)
+            .WithOne()
+            .HasForeignKey(x => x.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

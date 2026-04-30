@@ -1,3 +1,5 @@
+using MUEats.Restaurants.Infrastructure;
+
 namespace MUEats.Restaurants.Api;
 
 public class Program
@@ -9,6 +11,8 @@ public class Program
         builder.Services.AddAuthorization();
 
         builder.Services.AddOpenApi();
+
+        builder.Services.AddInfrastructureServices(builder.Configuration);
 
         var app = builder.Build();
 

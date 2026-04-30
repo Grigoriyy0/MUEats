@@ -45,7 +45,7 @@ public class OptionsGroup
             return DomainErrors.MenuOptionsGroup.OptionAlreadyExists;
         }
         
-        var itemOption = ItemOption.Create(optionValue);
+        var itemOption = ItemOption.Create(optionValue, Id);
 
         if (itemOption.IsFailure)
         {

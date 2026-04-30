@@ -8,7 +8,7 @@ public class MenuEntityTypeConfiguration : IEntityTypeConfiguration<Menu>
 {
     public void Configure(EntityTypeBuilder<Menu> builder)
     {
-        builder.ToTable("menus", "catalog");
+        builder.ToTable("menus");
 
         builder.HasKey(x => x.Id);
 
