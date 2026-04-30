@@ -41,7 +41,7 @@ public class Menu
             return DomainErrors.Menu.CategoryAlreadyExists;
         }
 
-        var categoryResult = Category.Create(categoryName, categoryDescription);
+        var categoryResult = Category.Create(categoryName, categoryDescription, Id);
 
         if (categoryResult.IsFailure)
         {
@@ -65,7 +65,7 @@ public class Menu
             return DomainErrors.Menu.MenuItemAlreadyExists;
         }
 
-        var itemResult = MenuItem.Create(itemName, itemPrice, itemDescription,  categoryId);
+        var itemResult = MenuItem.Create(itemName, itemPrice, itemDescription,  categoryId, Id);
 
         if (itemResult.IsFailure)
         {

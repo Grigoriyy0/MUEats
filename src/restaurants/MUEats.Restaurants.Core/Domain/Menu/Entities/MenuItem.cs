@@ -9,16 +9,20 @@ public class MenuItem
     private MenuItem(string name,
         decimal price,
         string? description,
-        Guid? categoryId)
+        Guid? categoryId,
+        Guid menuId)
     {
         Id = Guid.NewGuid();
         Name = name;
         Price = price;
         Description = description;
         CategoryId = categoryId;
+        MenuId = menuId;
     }
     
     public Guid Id { get; init; }
+    
+    public Guid MenuId { get; private set; }
     
     public string Name { get; private set; }
     
@@ -37,7 +41,8 @@ public class MenuItem
     public static Result<MenuItem, Error> Create(string name, 
         decimal price, 
         string? description,
-        Guid? categoryId)
+        Guid? categoryId,
+        Guid menuId)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -49,12 +54,12 @@ public class MenuItem
             return DomainErrors.MenuItem.ItemPriceLessThanZero;
         }
         
-        return new MenuItem(name, price, description,  categoryId);
+        return new MenuItem(name, price, description,  categoryId, menuId);
     }
 
     public UnitResult<Error> AddOptionsGroup(string groupName, string? description)
     {
-        var optionsGroupResult = OptionsGroup.Create(groupName, description);
+        var optionsGroupResult = OptionsGroup.Create(groupName, description, Id);
 
         if (optionsGroupResult.IsFailure)
         {
