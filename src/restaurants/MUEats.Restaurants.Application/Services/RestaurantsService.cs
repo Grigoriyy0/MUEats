@@ -57,4 +57,14 @@ public class RestaurantsService
         
         return UnitResult.Success<Error>();
     }
+
+    public Task<RestaurantDto?> GetDtoByIdAsync(Guid id, CancellationToken ct)
+    {
+        return _restaurantsRepository.GetDtoByIdAsync(id, ct);
+    }
+
+    public Task<List<RestaurantDto>> GetAllDtosAsync(CancellationToken ct)
+    {
+        return _restaurantsRepository.GetAllDtosAsync(ct);
+    }
 }

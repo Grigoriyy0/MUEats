@@ -16,9 +16,16 @@ public class RestaurantsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync()
+    [Route("restaurants/{id:guid}")]
+    public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        return Ok();
+        return Ok(await _restaurantsService.GetDtoByIdAsync(id, ct));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllAsync(CancellationToken ct)
+    {
+        return Ok(await _restaurantsService.GetAllDtosAsync(ct));
     }
 
     [HttpPost]
