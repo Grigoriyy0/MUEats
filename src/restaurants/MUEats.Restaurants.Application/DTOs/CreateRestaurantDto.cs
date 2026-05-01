@@ -1,8 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MUEats.Restaurants.Application.DTOs;
 
-public class CreateRestaurantDto
+public sealed record CreateRestaurantDto
 {
-    public string Name { get; set; }
+    [Required]
+    [StringLength(128)]
+    public string Name { get; set; } = null!;
     
     public string? Description { get; set; }
     
@@ -10,5 +14,7 @@ public class CreateRestaurantDto
     
     public TimeSpan ClosingTime { get; set; }
     
+    [Required]
+    [StringLength(128)]
     public string Address { get; set; }
 }

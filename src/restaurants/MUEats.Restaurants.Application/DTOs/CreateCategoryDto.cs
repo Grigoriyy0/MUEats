@@ -1,9 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MUEats.Restaurants.Application.DTOs;
 
-public class CreateCategoryDto
+public sealed record CreateCategoryDto
 {
+    [Required]
     public Guid MenuId { get; set; }
     
+    [Required]
+    [StringLength(128)]
     public string Name { get; set; }
     
     public string? Description { get; set; }

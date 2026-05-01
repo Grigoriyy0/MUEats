@@ -1,13 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MUEats.Restaurants.Application.DTOs;
 
-public class CreateMenuItemDto
+public sealed record CreateMenuItemDto
 {
+    [Required]
     public Guid MenuId { get; set; }
     
+    [Required]
+    [StringLength(128)]
     public string ItemName { get; set; }
     
     public string? ItemDescription { get; set; }
     
+    [Required]
+    [Range(0, double.MaxValue)]
     public decimal ItemPrice { get; set; }
     
     public Guid? CategoryId { get; set; }
