@@ -21,6 +21,8 @@ public static class DomainErrors
         public static readonly Error CategoryAlreadyExists = GeneralError.ValueIsIncorrect("menu.category");
         
         public static readonly Error MenuItemAlreadyExists = GeneralError.ValueIsIncorrect("menu.item");
+        
+        public static readonly Error CategoryDoesNotExists  = GeneralError.ValueIsIncorrect("menu.category");
     }
 
     public static class MenuItem

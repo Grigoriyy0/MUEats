@@ -32,7 +32,7 @@ public class Menu
         return new Menu(restaurantId);
     }
 
-    public UnitResult<Error> AddCategory(string categoryName, string categoryDescription)
+    public UnitResult<Error> AddCategory(string categoryName, string? categoryDescription)
     {
         var categoryCheck = _categories.Any(x => x.Name == categoryName && x.Description == categoryDescription);
 
@@ -63,6 +63,16 @@ public class Menu
         if (check)
         {
             return DomainErrors.Menu.MenuItemAlreadyExists;
+        }
+
+        if (categoryId != null)
+        {
+            var categoryCheck = _categories.Any(x => x.Id == categoryId);
+
+            if (!categoryCheck)
+            {
+                return DomainErrors.Menu.CategoryDoesNotExists;
+            }
         }
 
         var itemResult = MenuItem.Create(itemName, itemPrice, itemDescription,  categoryId, Id);

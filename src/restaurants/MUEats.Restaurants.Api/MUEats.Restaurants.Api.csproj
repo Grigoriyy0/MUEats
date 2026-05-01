@@ -12,10 +12,15 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\MUEats.Restaurants.Infrastructure\MUEats.Restaurants.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Adapters\Http\" />
     </ItemGroup>
 
 </Project>
