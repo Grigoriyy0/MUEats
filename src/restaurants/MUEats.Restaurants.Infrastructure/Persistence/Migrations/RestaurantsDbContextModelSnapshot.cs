@@ -25,7 +25,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Menu.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -55,7 +54,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Menu.Entities.MenuItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -97,7 +95,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Menu.Entities.OptionsGroup", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 

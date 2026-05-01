@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MUEats.Restaurants.Application.DTOs;
 
-public sealed record CreateMenuItemDto
+public sealed record UpdateMenuItemDto
 {
     [Required]
     [StringLength(128)]
@@ -13,6 +13,8 @@ public sealed record CreateMenuItemDto
     [Required]
     [Range(0, double.MaxValue)]
     public decimal ItemPrice { get; set; }
+    
+    public bool IsAvailable { get; set; }
     
     public Guid CategoryId { get; set; }
 }

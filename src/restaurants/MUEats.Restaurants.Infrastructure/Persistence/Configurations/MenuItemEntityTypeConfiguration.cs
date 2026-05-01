@@ -11,6 +11,9 @@ public class MenuItemEntityTypeConfiguration : IEntityTypeConfiguration<MenuItem
         builder.ToTable("menu_items");
         
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id)
+            .ValueGeneratedNever();
         
         builder.Property(x => x.Name)
             .HasMaxLength(256)

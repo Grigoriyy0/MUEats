@@ -5,9 +5,6 @@ namespace MUEats.Restaurants.Application.DTOs;
 public sealed record CreateCategoryDto
 {
     [Required]
-    public Guid MenuId { get; set; }
-    
-    [Required]
     [StringLength(128)]
     public string Name { get; set; }
     

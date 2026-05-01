@@ -16,14 +16,14 @@ public class Menu
     public Guid Id { get; init; }
     
     public Guid RestaurantId { get; init; }
-    
+
     private readonly List<Category> _categories = [];
     
-    public ReadOnlyCollection<Category> Categories => _categories.AsReadOnly();
+    public IReadOnlyCollection<Category> Categories => _categories.AsReadOnly();
     
     private readonly List<MenuItem> _menuItems = [];
     
-    public ReadOnlyCollection<MenuItem> MenuItems => _menuItems.AsReadOnly();
+    public IReadOnlyCollection<MenuItem> MenuItems => _menuItems.AsReadOnly();
 
     public bool IsActive { get; private set; } = false;
 
@@ -56,7 +56,7 @@ public class Menu
     public UnitResult<Error> AddMenuItem(string itemName, 
         string? itemDescription, 
         decimal itemPrice,
-        Guid? categoryId = null)
+        Guid categoryId)
     {
         var check = _menuItems.Any(x => x.Name == itemName);
 
@@ -65,14 +65,11 @@ public class Menu
             return DomainErrors.Menu.MenuItemAlreadyExists;
         }
 
-        if (categoryId != null)
-        {
-            var categoryCheck = _categories.Any(x => x.Id == categoryId);
+        var categoryCheck = _categories.Any(x => x.Id == categoryId);
 
-            if (!categoryCheck)
-            {
-                return DomainErrors.Menu.CategoryDoesNotExists;
-            }
+        if (!categoryCheck)
+        {
+            return DomainErrors.Menu.CategoryDoesNotExists;
         }
 
         var itemResult = MenuItem.Create(itemName, itemPrice, itemDescription,  categoryId, Id);
@@ -83,6 +80,37 @@ public class Menu
         }
         
         _menuItems.Add(itemResult.Value);
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> UpdateMenuItem(Guid itemId,
+        string itemName,
+        string? itemDescription,
+        decimal itemPrice,
+        bool isAvailable,
+        Guid categoryId)
+    {
+        var categoryCheck = _categories.Any(x => x.Id == categoryId);
+
+        if (!categoryCheck)
+        {
+            return DomainErrors.Menu.CategoryDoesNotExists;
+        }
+        
+        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+
+        if (item is null)
+        {
+            return DomainErrors.Menu.MenuItemDoesNotExist;
+        }
+
+        var result = item.Update(itemName, itemPrice, itemDescription, isAvailable, categoryId);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
         
         return UnitResult.Success<Error>();
     }
