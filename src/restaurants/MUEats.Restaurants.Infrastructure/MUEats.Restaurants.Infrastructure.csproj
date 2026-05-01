@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\MUEats.Restaurants.Application\MUEats.Restaurants.Application.csproj" />
       <ProjectReference Include="..\MUEats.Restaurants.Core\MUEats.Restaurants.Core.csproj" />
     </ItemGroup>
 
