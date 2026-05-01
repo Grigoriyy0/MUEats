@@ -9,3 +9,4 @@ appsettings.Development.json
 kafka-data/
 zookeeper-log/
 zookeeper-data/
+private.key
