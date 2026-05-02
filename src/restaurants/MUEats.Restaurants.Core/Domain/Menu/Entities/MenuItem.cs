@@ -58,6 +58,13 @@ public class MenuItem
 
     public UnitResult<Error> AddOptionsGroup(string groupName, string? description)
     {
+        var optionsGroupExists = _optionsGroups.Any(x => x.Name == groupName);
+
+        if (optionsGroupExists)
+        {
+            return DomainErrors.MenuItem.ItemOptionsGroupAlreadyExists;   
+        }
+        
         var optionsGroupResult = OptionsGroup.Create(groupName, description, Id);
 
         if (optionsGroupResult.IsFailure)

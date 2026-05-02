@@ -34,6 +34,8 @@ public static class DomainErrors
         public static readonly Error ItemPriceLessThanZero = GeneralError.ValueIsIncorrect("menuItem.itemPrice");
         
         public static readonly Error ItemOptionsGroupIsNotFound  = GeneralError.ValueIsIncorrect("menuItem.optionsGroup");
+        
+        public static readonly Error ItemOptionsGroupAlreadyExists = GeneralError.ValueIsIncorrect("menuItem.optionsGroup.name");
     }
 
     public static class MenuCategory

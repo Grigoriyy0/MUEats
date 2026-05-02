@@ -114,4 +114,46 @@ public class Menu
         
         return UnitResult.Success<Error>();
     }
+
+    public UnitResult<Error> AddOptionsGroup(Guid itemId, 
+        string groupName, 
+        string? groupDescription)
+    {
+        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+
+        if (item is null)
+        {
+            return DomainErrors.Menu.MenuItemDoesNotExist;
+        }
+
+        var result = item.AddOptionsGroup(groupName, groupDescription);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> AddItemOption(Guid itemId,
+        Guid groupId,
+        string optionValue)
+    {
+        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+
+        if (item is null)
+        {
+            return DomainErrors.Menu.MenuItemDoesNotExist;
+        }
+
+        var result = item.AddItemOption(groupId, optionValue);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+        
+        return UnitResult.Success<Error>();
+    }
 }

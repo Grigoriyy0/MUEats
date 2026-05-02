@@ -45,6 +45,34 @@ public class MenusController : ControllerBase
         return Created();
     }
 
+    [HttpPost]
+    [Route("{menuId:guid}/items/{itemId:guid}/options-group")]
+    public async Task<IActionResult> AddOptionsGroupAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        [FromBody] CreateOptionsGroupDto dto,
+        CancellationToken ct)
+    {
+        var result = await _menusService.AddOptionsGroupAsync(menuId, itemId, dto, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Created();
+    }
+
+    [HttpPost]
+    [Route("{menuId:guid}/items/{itemId:guid}/option-groups/{optionsGroupId:guid}/item-options")]
+    public async Task<IActionResult> AddItemOptionAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        [FromRoute] Guid optionsGroupId,
+        [FromBody] string value,
+        CancellationToken ct)
+    {
+        return Created();
+    }
+
     [HttpPut]
     [Route("{menuId:guid}/items/{itemId:guid}")]
     public async Task<IActionResult> UpdateItemAsync(
