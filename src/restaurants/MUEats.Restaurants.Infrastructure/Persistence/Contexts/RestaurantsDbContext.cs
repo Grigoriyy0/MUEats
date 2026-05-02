@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using MUEats.Restaurants.Core.Domain.Menu;
-using MUEats.Restaurants.Core.Domain.Menu.Entities;
-using MUEats.Restaurants.Core.Domain.Menu.Entities.ValueObjects;
 using MUEats.Restaurants.Core.Domain.Restaurant;
 using MUEats.Restaurants.Infrastructure.ExternalServices.Api;
 using MUEats.Restaurants.Infrastructure.Persistence.Inbox;

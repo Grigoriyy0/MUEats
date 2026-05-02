@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RestaurantsDbContext))]
-    [Migration("20260430090746_Initial")]
+    [Migration("20260501112403_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -28,7 +28,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Menu.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -58,7 +57,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Menu.Entities.MenuItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -100,7 +98,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Menu.Entities.OptionsGroup", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 

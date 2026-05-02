@@ -14,5 +14,7 @@ public static class ApplicationErrors
     public static class Menu
     {
         public static readonly Error MenuNotFound = GeneralError.ValueIsIncorrect("menu.id");
+        
+        public static readonly Error MenuAlreadyExists = GeneralError.ValueIsIncorrect("menu.restaurantId");
     }
 }

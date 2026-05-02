@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CSharpFunctionalExtensions;
 using MUEats.Restaurants.Core.Domain.Menu.Entities.ValueObjects;
 using Primitives;
@@ -27,7 +26,7 @@ public class OptionsGroup
     
     private readonly List<ItemOption> _itemOptions = [];
     
-    public ReadOnlyCollection<ItemOption> ItemOptions => _itemOptions.AsReadOnly();
+    public IReadOnlyCollection<ItemOption> ItemOptions => _itemOptions.AsReadOnly();
 
     public static Result<OptionsGroup, Error> Create(string name, 
         string? description,  

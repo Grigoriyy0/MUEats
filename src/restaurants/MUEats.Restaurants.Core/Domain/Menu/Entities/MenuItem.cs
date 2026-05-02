@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CSharpFunctionalExtensions;
 using Primitives;
 
@@ -34,7 +33,7 @@ public class MenuItem
     
     private readonly List<OptionsGroup>  _optionsGroups = [];
     
-    public ReadOnlyCollection<OptionsGroup> OptionsGroups => _optionsGroups.AsReadOnly();
+    public IReadOnlyCollection<OptionsGroup> OptionsGroups => _optionsGroups.AsReadOnly();
     
     public Guid? CategoryId { get; private set; }
     
@@ -59,6 +58,13 @@ public class MenuItem
 
     public UnitResult<Error> AddOptionsGroup(string groupName, string? description)
     {
+        var optionsGroupExists = _optionsGroups.Any(x => x.Name == groupName);
+
+        if (optionsGroupExists)
+        {
+            return DomainErrors.MenuItem.ItemOptionsGroupAlreadyExists;   
+        }
+        
         var optionsGroupResult = OptionsGroup.Create(groupName, description, Id);
 
         if (optionsGroupResult.IsFailure)
@@ -88,5 +94,24 @@ public class MenuItem
         }
         
         return  UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> Update(string itemName,
+        decimal price,
+        string? description,
+        bool isAvailable,
+        Guid categoryId)
+    {
+        if (string.IsNullOrEmpty(itemName))
+        {
+            return DomainErrors.MenuItem.ItemNameIsEmpty;
+        }
+
+        Name = itemName;
+        Description = description;
+        IsAvailable = isAvailable;
+        CategoryId = categoryId;
+        
+        return UnitResult.Success<Error>();
     }
 }

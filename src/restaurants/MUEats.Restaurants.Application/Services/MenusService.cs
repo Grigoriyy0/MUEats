@@ -35,6 +35,14 @@ public class MenusService
             return ApplicationErrors.Restaurant.RestaurantNotFound;
         }
 
+        var menuExists = await _menusRepository.AnyAsync(restaurantId, ct);
+
+        if (menuExists)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.MenuAlreadyExists;
+        }
+        
         var menuResult = Menu.Create(restaurantId);
 
         await _menusRepository.AddAsync(menuResult.Value, ct);
@@ -45,11 +53,13 @@ public class MenusService
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> AddMenuItemAsync(CreateMenuItemDto dto, CancellationToken ct)
+    public async Task<UnitResult<Error>> AddMenuItemAsync(Guid menuId,
+        CreateMenuItemDto dto, 
+        CancellationToken ct)
     {
         await  _unitOfWork.BeginTransactionAsync(ct);
         
-        var menu = await _menusRepository.GetByIdAsync(dto.MenuId, ct);
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
 
         if (menu == null)
         {
@@ -71,11 +81,11 @@ public class MenusService
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> AddCategoryAsync(CreateCategoryDto dto, CancellationToken ct)
+    public async Task<UnitResult<Error>> AddCategoryAsync(Guid menuId, CreateCategoryDto dto, CancellationToken ct)
     {
         await _unitOfWork.BeginTransactionAsync(ct);
         
-        var menu = await _menusRepository.GetByIdAsync(dto.MenuId, ct);
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
 
         if (menu == null)
         {
@@ -89,6 +99,103 @@ public class MenusService
         {
             await  _unitOfWork.RollbackTransactionAsync(ct);
             return categoryResult.Error;
+        }
+        
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> AddOptionsGroupAsync(Guid menuId,
+        Guid itemId,
+        CreateOptionsGroupDto dto,
+        CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+        
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu == null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.MenuNotFound;
+        }
+
+        var result = menu.AddOptionsGroup(itemId, dto.Name, dto.Description);
+
+        if (result.IsFailure)
+        {
+            await  _unitOfWork.RollbackTransactionAsync(ct);
+            return result.Error;
+        }
+        
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> AddItemOptionAsync(Guid menuId,
+        Guid itemId,
+        Guid groupId,
+        string optionValue,
+        CancellationToken ct)
+    {
+        await  _unitOfWork.BeginTransactionAsync(ct);
+        
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu == null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.MenuNotFound;
+        }
+        
+        var result = menu.AddItemOption(itemId, groupId, optionValue);
+
+        if (result.IsFailure)
+        {
+            await  _unitOfWork.RollbackTransactionAsync(ct);
+            return result.Error;
+        }
+        
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
+ 
+    public Task<MenuDto?> GetDtoByIdAsync(Guid restaurantId, CancellationToken ct)
+    {
+        return _menusRepository.GetDtoByIdAsync(restaurantId, ct);
+    }
+
+    public async Task<UnitResult<Error>> UpdateMenuItemAsync(Guid menuId, 
+        Guid itemId, 
+        UpdateMenuItemDto dto, 
+        CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+        
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu == null)
+        {
+            return ApplicationErrors.Menu.MenuNotFound;
+        }
+        
+        var updateResult = menu.UpdateMenuItem(itemId, 
+            dto.ItemName, 
+            dto.ItemDescription, 
+            dto.ItemPrice, 
+            dto.IsAvailable, 
+            dto.CategoryId);
+
+        if (updateResult.IsFailure)
+        {
+            await  _unitOfWork.RollbackTransactionAsync(ct);
+            return updateResult.Error;
         }
         
         await _unitOfWork.SaveChangesAsync(ct);

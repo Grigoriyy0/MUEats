@@ -22,6 +22,8 @@ public static class DomainErrors
         
         public static readonly Error MenuItemAlreadyExists = GeneralError.ValueIsIncorrect("menu.item");
         
+        public static readonly Error MenuItemDoesNotExist = GeneralError.ValueIsIncorrect("menu.itemId");
+        
         public static readonly Error CategoryDoesNotExists  = GeneralError.ValueIsIncorrect("menu.category");
     }
 
@@ -32,6 +34,8 @@ public static class DomainErrors
         public static readonly Error ItemPriceLessThanZero = GeneralError.ValueIsIncorrect("menuItem.itemPrice");
         
         public static readonly Error ItemOptionsGroupIsNotFound  = GeneralError.ValueIsIncorrect("menuItem.optionsGroup");
+        
+        public static readonly Error ItemOptionsGroupAlreadyExists = GeneralError.ValueIsIncorrect("menuItem.optionsGroup.name");
     }
 
     public static class MenuCategory

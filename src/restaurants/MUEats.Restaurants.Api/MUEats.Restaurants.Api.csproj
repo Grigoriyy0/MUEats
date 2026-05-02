@@ -22,8 +22,4 @@
       <ProjectReference Include="..\MUEats.Restaurants.Infrastructure\MUEats.Restaurants.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Adapters\Http\" />
-    </ItemGroup>
-
 </Project>
