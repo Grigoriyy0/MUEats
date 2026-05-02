@@ -36,12 +36,12 @@ public class Restaurant
         BusinessHours businessHours,
         string address)
     {
-        if (string.IsNullOrEmpty(name))
+        if (string.IsNullOrWhiteSpace(name))
         {
             return DomainErrors.Restaurant.NameIsEmpty;
         }
 
-        if (string.IsNullOrEmpty(address))
+        if (string.IsNullOrWhiteSpace(address))
         {
             return DomainErrors.Restaurant.AddressIsEmpty;
         }
@@ -56,7 +56,7 @@ public class Restaurant
 
     public UnitResult<Error> UpdateName(string name)
     {
-        if (string.IsNullOrEmpty(name))
+        if (string.IsNullOrWhiteSpace(name))
         {
             return DomainErrors.Restaurant.NameIsEmpty;
         }
@@ -68,7 +68,7 @@ public class Restaurant
 
     public UnitResult<Error> UpdateAddress(string address)
     {
-        if (string.IsNullOrEmpty(address))
+        if (string.IsNullOrWhiteSpace(address))
         {
             return DomainErrors.Restaurant.AddressIsEmpty;
         }
