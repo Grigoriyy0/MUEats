@@ -27,7 +27,7 @@ public class Category
         string? description,
         Guid menuId)
     {
-        if (string.IsNullOrEmpty(name))
+        if (string.IsNullOrWhiteSpace(name))
         {
             return DomainErrors.MenuCategory.CategoryNameIsEmpty;
         }
