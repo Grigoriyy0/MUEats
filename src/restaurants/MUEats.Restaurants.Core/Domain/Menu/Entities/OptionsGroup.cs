@@ -32,6 +32,11 @@ public class OptionsGroup
         string? description,  
         Guid menuItemId)
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return DomainErrors.MenuOptionsGroup.OptionsGroupNameIsEmpty;
+        }
+        
         return new OptionsGroup(name, description,  menuItemId);
     }
 

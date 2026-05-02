@@ -43,7 +43,7 @@ public class MenuItem
         Guid? categoryId,
         Guid menuId)
     {
-        if (string.IsNullOrEmpty(name))
+        if (string.IsNullOrWhiteSpace(name))
         {
             return DomainErrors.MenuItem.ItemNameIsEmpty;
         }
@@ -102,15 +102,21 @@ public class MenuItem
         bool isAvailable,
         Guid categoryId)
     {
-        if (string.IsNullOrEmpty(itemName))
+        if (string.IsNullOrWhiteSpace(itemName))
         {
             return DomainErrors.MenuItem.ItemNameIsEmpty;
+        }
+
+        if (price <= 0)
+        {
+            return DomainErrors.MenuItem.ItemPriceLessThanZero;
         }
 
         Name = itemName;
         Description = description;
         IsAvailable = isAvailable;
         CategoryId = categoryId;
+        Price = price;
         
         return UnitResult.Success<Error>();
     }

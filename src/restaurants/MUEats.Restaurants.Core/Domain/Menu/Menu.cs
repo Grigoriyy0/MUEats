@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CSharpFunctionalExtensions;
 using MUEats.Restaurants.Core.Domain.Menu.Entities;
 using Primitives;
@@ -34,7 +33,7 @@ public class Menu
 
     public UnitResult<Error> AddCategory(string categoryName, string? categoryDescription)
     {
-        var categoryCheck = _categories.Any(x => x.Name == categoryName && x.Description == categoryDescription);
+        var categoryCheck = _categories.Any(x => x.Name == categoryName);
 
         if (categoryCheck)
         {
