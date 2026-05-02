@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using CSharpFunctionalExtensions;
 using MUEats.Restaurants.Core.Domain.Menu.Entities;
 using Primitives;

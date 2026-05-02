@@ -2,7 +2,7 @@
 using MUEats.Restaurants.Core.Domain.Restaurant;
 using MUEats.Restaurants.Core.Domain.Restaurant.ValueObjects;
 
-namespace MUEats.Restaurants.Domain.UnitTests;
+namespace MUEats.Restaurants.Domain.UnitTests.RestaurantTests;
 
 public class RestaurantAggregateTests
 {
