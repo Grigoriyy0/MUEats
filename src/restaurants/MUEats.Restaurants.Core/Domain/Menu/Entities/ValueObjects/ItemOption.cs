@@ -20,7 +20,7 @@ public class ItemOption : ValueObject
 
     public static Result<ItemOption, Error> Create(string value, Guid groupId)
     {
-        if (string.IsNullOrEmpty(value))
+        if (string.IsNullOrWhiteSpace(value))
         {
             return DomainErrors.MenuItemOption.OptionValueIsEmpty;
         }

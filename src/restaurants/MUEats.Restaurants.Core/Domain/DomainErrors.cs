@@ -46,6 +46,8 @@ public static class DomainErrors
     public static class MenuOptionsGroup
     {
         public static readonly Error OptionAlreadyExists = GeneralError.ValueIsIncorrect("optionsGroup.option");
+        
+        public static readonly Error OptionsGroupNameIsEmpty = GeneralError.ValueIsIncorrect("optionsGroup.groupName");
     }
 
     public static class MenuItemOption
