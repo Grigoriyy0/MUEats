@@ -1,9 +1,9 @@
 using CSharpFunctionalExtensions;
 using Primitives;
 
-namespace MUEats.Restaurants.Core.Domain.Menu.Entities.ValueObjects;
+namespace MUEats.Restaurants.Core.Domain.Menu.Entities;
 
-public class ItemOption : ValueObject
+public class ItemOption
 {
     private ItemOption(string value, Guid groupId)
     {
@@ -35,10 +35,5 @@ public class ItemOption : ValueObject
         }
         
         return new ItemOption(value,  groupId);
-    }
-    
-    protected override IEnumerable<object> GetEqualityComponents()
-    {
-        yield return Id;
     }
 }

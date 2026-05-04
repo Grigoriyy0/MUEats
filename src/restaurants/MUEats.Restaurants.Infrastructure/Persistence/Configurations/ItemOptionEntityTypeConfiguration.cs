@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MUEats.Restaurants.Core.Domain.Menu.Entities.ValueObjects;
+using MUEats.Restaurants.Core.Domain.Menu.Entities;
 
 namespace MUEats.Restaurants.Infrastructure.Persistence.Configurations;
 

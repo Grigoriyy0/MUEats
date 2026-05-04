@@ -10,9 +10,12 @@ public class RestaurantsController : ControllerBase
 {
     private readonly RestaurantsService _restaurantsService;
 
-    public RestaurantsController(RestaurantsService restaurantsService)
+    private readonly MenusService _menusService;
+    
+    public RestaurantsController(RestaurantsService restaurantsService, MenusService menusService)
     {
         _restaurantsService = restaurantsService;
+        _menusService = menusService;
     }
 
     [HttpGet]
@@ -26,6 +29,13 @@ public class RestaurantsController : ControllerBase
     public async Task<IActionResult> GetAllAsync(CancellationToken ct)
     {
         return Ok(await _restaurantsService.GetAllDtosAsync(ct));
+    }
+    
+    [HttpGet]
+    [Route("{restaurantId:guid}/menu")]
+    public async Task<IActionResult> GetAsync([FromRoute] Guid restaurantId, CancellationToken ct)
+    {
+        return Ok(await _menusService.GetDtoByIdAsync(restaurantId, ct));
     }
 
     [HttpPost]

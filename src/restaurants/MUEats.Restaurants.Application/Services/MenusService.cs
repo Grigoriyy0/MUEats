@@ -139,7 +139,6 @@ public class MenusService
     }
 
     public async Task<UnitResult<Error>> DeleteOptionsGroupAsync(Guid menuId, 
-        Guid itemId,
         Guid groupId,
         CancellationToken ct)
     {
@@ -153,7 +152,7 @@ public class MenusService
             return ApplicationErrors.Menu.MenuNotFound;
         }
 
-        var result = menu.DeleteOptionsGroup(itemId, groupId);
+        var result = menu.DeleteOptionsGroup(groupId);
 
         if (result.IsFailure)
         {
@@ -168,9 +167,7 @@ public class MenusService
     }
 
     public async Task<UnitResult<Error>> DeleteItemOptionAsync(Guid menuId, 
-        Guid itemId, 
-        Guid optionsGroupId, 
-        Guid optionId,
+        Guid itemId,
         CancellationToken ct)
     {
         await _unitOfWork.BeginTransactionAsync(ct);
@@ -183,7 +180,7 @@ public class MenusService
             return ApplicationErrors.Menu.MenuNotFound;
         }
 
-        var result = menu.DeleteItemOption(itemId, optionsGroupId, optionId);
+        var result = menu.DeleteItemOption(itemId);
 
         if (result.IsFailure)
         {
@@ -198,7 +195,6 @@ public class MenusService
     }
 
     public async Task<UnitResult<Error>> AddItemOptionAsync(Guid menuId,
-        Guid itemId,
         Guid groupId,
         AddItemOptionDto dto,
         CancellationToken ct)
@@ -213,7 +209,7 @@ public class MenusService
             return ApplicationErrors.Menu.MenuNotFound;
         }
         
-        var result = menu.AddItemOption(itemId, groupId, dto.Value, dto.AdditionalPrice);
+        var result = menu.AddItemOption(groupId, dto.Value, dto.AdditionalPrice);
 
         if (result.IsFailure)
         {

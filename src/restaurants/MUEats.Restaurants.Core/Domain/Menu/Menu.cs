@@ -135,9 +135,9 @@ public class Menu
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> DeleteOptionsGroup(Guid itemId, Guid groupId)
+    public UnitResult<Error> DeleteOptionsGroup(Guid groupId)
     {
-        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+        var item = _menuItems.FirstOrDefault(x => x.OptionsGroups.Any(g => g.Id == groupId));
 
         if (item is null)
         {
@@ -155,19 +155,19 @@ public class Menu
     }
     
 
-    public UnitResult<Error> AddItemOption(Guid itemId,
-        Guid groupId,
+    public UnitResult<Error> AddItemOption(Guid groupId,
         string optionValue,
         decimal? additionalPrice)
     {
-        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
-
-        if (item is null)
+        var group = MenuItems.SelectMany(x => x.OptionsGroups)
+            .FirstOrDefault(g => g.Id == groupId);
+        
+        if (group is null)
         {
-            return DomainErrors.Menu.MenuItemDoesNotExist;
+            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
         }
 
-        var result = item.AddItemOption(groupId, optionValue, additionalPrice);
+        var result = group.AddItemOption(optionValue, additionalPrice);
 
         if (result.IsFailure)
         {
@@ -177,18 +177,17 @@ public class Menu
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> DeleteItemOption(Guid itemId,
-        Guid groupId,
-        Guid optionId)
+    public UnitResult<Error> DeleteItemOption(Guid optionId)
     {
-        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+        var group = MenuItems.SelectMany(i => i.OptionsGroups)
+            .FirstOrDefault(x => x.ItemOptions.Any(o => o.Id == optionId));
 
-        if (item is null)
+        if (group is null)
         {
-            return DomainErrors.Menu.MenuItemDoesNotExist;
+            return DomainErrors.MenuOptionsGroup.ItemOptionDoesNotExist;
         }
 
-        var result = item.DeleteItemOption(groupId, optionId);
+        var result = group.DeleteItemOption(optionId);
 
         if (result.IsFailure)
         {

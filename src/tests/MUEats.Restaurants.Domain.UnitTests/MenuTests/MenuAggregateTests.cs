@@ -297,8 +297,8 @@ public class MenuAggregateTests
         
         var group = item.OptionsGroups.FirstOrDefault(g => g.Name == groupName);
 
-        var firstItemOptionResult = menu.AddItemOption(item.Id, group.Id, "hot", null);
-        var secondItemOptionResult = menu.AddItemOption(item.Id, group.Id, "cold", null);
+        var firstItemOptionResult = menu.AddItemOption(group.Id, "hot", null);
+        var secondItemOptionResult = menu.AddItemOption(group.Id, "cold", null);
         
         Assert.True(firstItemOptionResult.IsSuccess);
         Assert.True(secondItemOptionResult.IsSuccess);
@@ -331,8 +331,8 @@ public class MenuAggregateTests
         
         var group = item.OptionsGroups.FirstOrDefault(g => g.Name == groupName);
 
-        menu.AddItemOption(item.Id, group.Id, "hot", null);
-        var result = menu.AddItemOption(item.Id, group.Id, "hot", null);
+        menu.AddItemOption(group.Id, "hot", null);
+        var result = menu.AddItemOption(group.Id, "hot", null);
         
         Assert.False(result.IsSuccess);
         Assert.Single(group.ItemOptions);
@@ -365,7 +365,7 @@ public class MenuAggregateTests
         
         var group = item.OptionsGroups.FirstOrDefault(g => g.Name == groupName);
 
-        var result = menu.AddItemOption(item.Id, group.Id, "", null); 
+        var result = menu.AddItemOption(group.Id, "", null); 
         
         Assert.False(result.IsSuccess);
         Assert.Equal(result.Error, DomainErrors.MenuItemOption.OptionValueIsEmpty);

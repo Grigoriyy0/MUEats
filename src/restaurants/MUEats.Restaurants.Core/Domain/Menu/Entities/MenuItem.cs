@@ -90,45 +90,7 @@ public class MenuItem
 
         return UnitResult.Success<Error>();
     }
-
-    public UnitResult<Error> AddItemOption(Guid optionsGroupId, string value, decimal? additionalPrice)
-    {
-        var optionsGroup = _optionsGroups.FirstOrDefault(x => x.Id == optionsGroupId);
-
-        if (optionsGroup is null)
-        {
-            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
-        }
-        
-        var itemResult = optionsGroup.AddItemOption(value, additionalPrice);
-
-        if (itemResult.IsFailure)
-        {
-            return itemResult.Error;
-        }
-        
-        return  UnitResult.Success<Error>();
-    }
-
-    public UnitResult<Error> DeleteItemOption(Guid groupId, Guid optionId)
-    {
-        var group = _optionsGroups.FirstOrDefault(x => x.Id == groupId);
-
-        if (group is null)
-        {
-            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
-        }
-
-        var result = group.DeleteItemOption(optionId);
-
-        if (result.IsFailure)
-        {
-            return result.Error;
-        }
-
-        return UnitResult.Success<Error>();
-    }
-
+    
     public UnitResult<Error> Update(string itemName,
         decimal price,
         string? description,
