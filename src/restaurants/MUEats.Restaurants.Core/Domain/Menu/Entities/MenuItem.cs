@@ -77,7 +77,7 @@ public class MenuItem
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> AddItemOption(Guid optionsGroupId, string value)
+    public UnitResult<Error> AddItemOption(Guid optionsGroupId, string value, decimal? additionalPrice)
     {
         var optionsGroup = _optionsGroups.FirstOrDefault(x => x.Id == optionsGroupId);
 
@@ -86,7 +86,7 @@ public class MenuItem
             return DomainErrors.MenuItem.ItemOptionsGroupIsNotFound;
         }
         
-        var itemResult = optionsGroup.AddItemOption(value);
+        var itemResult = optionsGroup.AddItemOption(value, additionalPrice);
 
         if (itemResult.IsFailure)
         {

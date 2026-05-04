@@ -137,7 +137,8 @@ public class Menu
 
     public UnitResult<Error> AddItemOption(Guid itemId,
         Guid groupId,
-        string optionValue)
+        string optionValue,
+        decimal? additionalPrice)
     {
         var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
 
@@ -146,13 +147,13 @@ public class Menu
             return DomainErrors.Menu.MenuItemDoesNotExist;
         }
 
-        var result = item.AddItemOption(groupId, optionValue);
+        var result = item.AddItemOption(groupId, optionValue, additionalPrice);
 
         if (result.IsFailure)
         {
             return result.Error;
         }
-        
+
         return UnitResult.Success<Error>();
     }
 }

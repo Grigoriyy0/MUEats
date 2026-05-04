@@ -32,7 +32,7 @@ public class MenusController : ControllerBase
     [Route("{menuId:guid}/items")]
     public async Task<IActionResult> CreateItemAsync(
         [FromRoute] Guid menuId,
-        [FromBody] CreateMenuItemDto dto, 
+        [FromBody] CreateMenuItemDto dto,
         CancellationToken ct)
     {
         var result = await _menusService.AddMenuItemAsync(menuId, dto, ct);
@@ -41,7 +41,7 @@ public class MenusController : ControllerBase
         {
             return BadRequest(result.Error);
         }
-        
+
         return Created();
     }
 
@@ -67,9 +67,16 @@ public class MenusController : ControllerBase
     public async Task<IActionResult> AddItemOptionAsync([FromRoute] Guid menuId,
         [FromRoute] Guid itemId,
         [FromRoute] Guid optionsGroupId,
-        [FromBody] string value,
+        [FromBody] AddItemOptionDto dto,
         CancellationToken ct)
     {
+        var result = await _menusService.AddItemOptionAsync(menuId, itemId, optionsGroupId, dto, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
         return Created();
     }
 
@@ -78,7 +85,7 @@ public class MenusController : ControllerBase
     public async Task<IActionResult> UpdateItemAsync(
         [FromRoute] Guid menuId,
         [FromRoute] Guid itemId,
-        [FromBody] UpdateMenuItemDto dto, 
+        [FromBody] UpdateMenuItemDto dto,
         CancellationToken ct)
     {
         var result = await _menusService.UpdateMenuItemAsync(menuId, itemId, dto, ct);
@@ -87,7 +94,7 @@ public class MenusController : ControllerBase
         {
             return BadRequest(result.Error);
         }
-        
+
         return Created();
     }
 
@@ -95,7 +102,7 @@ public class MenusController : ControllerBase
     [Route("{menuId:guid}/categories")]
     public async Task<IActionResult> CreateCategoryAsync(
         [FromRoute] Guid menuId,
-        [FromBody] CreateCategoryDto dto, 
+        [FromBody] CreateCategoryDto dto,
         CancellationToken ct)
     {
         var result = await _menusService.AddCategoryAsync(menuId, dto, ct);
@@ -104,14 +111,23 @@ public class MenusController : ControllerBase
         {
             return BadRequest(result.Error);
         }
-        
+
         return Created();
     }
-    
+
     [HttpGet]
     [Route("{restaurantId:guid}")]
     public async Task<IActionResult> GetAsync([FromRoute] Guid restaurantId, CancellationToken ct)
     {
         return Ok(await _menusService.GetDtoByIdAsync(restaurantId, ct));
+    }
+
+    [HttpGet]
+    [Route("{menuId:guid}/items/{itemId:guid}")]
+    public async Task<IActionResult> GetItemAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        CancellationToken ct)
+    {
+        return Ok(await _menusService.GetItemDtoAsync(menuId, itemId, ct)); 
     }
 }

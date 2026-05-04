@@ -40,7 +40,7 @@ public class OptionsGroup
         return new OptionsGroup(name, description,  menuItemId);
     }
 
-    public UnitResult<Error> AddItemOption(string optionValue)
+    public UnitResult<Error> AddItemOption(string optionValue, decimal? additionalPrice)
     {
         var check = _itemOptions.Any(x => x.Value == optionValue);
 
@@ -49,7 +49,7 @@ public class OptionsGroup
             return DomainErrors.MenuOptionsGroup.OptionAlreadyExists;
         }
         
-        var itemOption = ItemOption.Create(optionValue, Id);
+        var itemOption = ItemOption.Create(optionValue, Id, additionalPrice);
 
         if (itemOption.IsFailure)
         {

@@ -53,5 +53,7 @@ public static class DomainErrors
     public static class MenuItemOption
     {
         public static readonly Error OptionValueIsEmpty = GeneralError.ValueIsIncorrect("itemOption.value");
+
+        public static readonly Error AdditionalPriceLessThanZero = GeneralError.ValueIsIncorrect("itemOption.additionalPrice");
     }
 }

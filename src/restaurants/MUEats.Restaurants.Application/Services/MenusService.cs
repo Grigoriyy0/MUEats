@@ -139,7 +139,7 @@ public class MenusService
     public async Task<UnitResult<Error>> AddItemOptionAsync(Guid menuId,
         Guid itemId,
         Guid groupId,
-        string optionValue,
+        AddItemOptionDto dto,
         CancellationToken ct)
     {
         await  _unitOfWork.BeginTransactionAsync(ct);
@@ -152,7 +152,7 @@ public class MenusService
             return ApplicationErrors.Menu.MenuNotFound;
         }
         
-        var result = menu.AddItemOption(itemId, groupId, optionValue);
+        var result = menu.AddItemOption(itemId, groupId, dto.Value, dto.AdditionalPrice);
 
         if (result.IsFailure)
         {
@@ -202,5 +202,12 @@ public class MenusService
         await _unitOfWork.CommitTransactionAsync(ct);
         
         return UnitResult.Success<Error>();
+    }
+
+    public Task<MenuItemDetailsDto?> GetItemDtoAsync(Guid menuId,
+        Guid itemId,
+        CancellationToken ct)
+    {
+        return _menusRepository.GetMenuItemDto(menuId, itemId, ct);
     }
 }
