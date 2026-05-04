@@ -9,10 +9,12 @@ namespace MUEats.Restaurants.Api.Adapters.Http;
 public class MenusController : ControllerBase
 {
     private readonly MenusService _menusService;
-
-    public MenusController(MenusService menusService)
+    private readonly MenusQueries _menusQueries;
+    
+    public MenusController(MenusService menusService, MenusQueries menusQueries)
     {
         _menusService = menusService;
+        _menusQueries = menusQueries;
     }
 
     [HttpPost]
@@ -120,7 +122,7 @@ public class MenusController : ControllerBase
         [FromRoute] Guid itemId,
         CancellationToken ct)
     {
-        return Ok(await _menusService.GetItemDtoAsync(menuId, itemId, ct)); 
+        return Ok(await _menusQueries.GetItemDtoAsync(menuId, itemId, ct)); 
     }
 
     [HttpDelete]

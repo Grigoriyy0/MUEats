@@ -9,9 +9,7 @@ namespace MUEats.Restaurants.Application.Services;
 public class MenusService
 {
     private readonly IUnitOfWork _unitOfWork;
-    
     private readonly IRestaurantsRepository _restaurantsRepository;
-    
     private readonly IMenusRepository _menusRepository;
 
     public MenusService(IUnitOfWork unitOfWork, 
@@ -222,12 +220,7 @@ public class MenusService
         
         return UnitResult.Success<Error>();
     }
- 
-    public Task<MenuDto?> GetDtoByIdAsync(Guid restaurantId, CancellationToken ct)
-    {
-        return _menusRepository.GetDtoByIdAsync(restaurantId, ct);
-    }
-
+    
     public async Task<UnitResult<Error>> UpdateMenuItemAsync(Guid menuId, 
         Guid itemId, 
         UpdateMenuItemDto dto, 
@@ -259,12 +252,5 @@ public class MenusService
         await _unitOfWork.CommitTransactionAsync(ct);
         
         return UnitResult.Success<Error>();
-    }
-
-    public Task<MenuItemDetailsDto?> GetItemDtoAsync(Guid menuId,
-        Guid itemId,
-        CancellationToken ct)
-    {
-        return _menusRepository.GetMenuItemDto(menuId, itemId, ct);
     }
 }
