@@ -21,12 +21,10 @@ public static class DependencyInjection
         services.AddDbContext<MueDbContext>(opt =>
             opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
 
-        services.AddScoped<IRestaurantsRepository, RestaurantsRepository>();
         services.AddScoped<IOrdersRepository, OrdersRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IShoppingCartsRepository, ShoppingCartsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IFoodItemsRepository, FoodItemsRepository>();
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IOutboxRepository, OutboxRepository>();

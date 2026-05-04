@@ -3,6 +3,7 @@ using System;
 using MUEats.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MueDbContext))]
-    partial class MueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504163350_Remove_Tables_Restaurants_And_FoodItems_Add_Columns_To_Table_ShoppingCarts")]
+    partial class Remove_Tables_Restaurants_And_FoodItems_Add_Columns_To_Table_ShoppingCarts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

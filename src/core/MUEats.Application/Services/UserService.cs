@@ -13,8 +13,7 @@ public class UserService(
     IUnitOfWork uow,
     ITokenProducer tokenProducer,
     IRefreshTokenService refreshTokenService,
-    IPasswordValidator passwordValidator,
-    IRestaurantsRepository restaurantsRepository
+    IPasswordValidator passwordValidator
     )
 {
     public async Task CreateAsync(CreateUserDto dto, CancellationToken ct)
@@ -114,28 +113,19 @@ public class UserService(
         try
         {
             await uow.BeginTransactionAsync(ct);
-        
-            var restaurant = await restaurantsRepository.GetByIdAsync(dto.RestaurantId, ct);
-
-            if (restaurant is null)
-            {
-                throw new ArgumentException("No such restaurant");
-            }
-
+            
             var passwordHash = hashProvider.ComputeHash(dto.Password);
         
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Username = restaurant.Name + "Admin",
+                Username = dto.UserName,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,
                 Role = Role.RestaurantManager,
                 PasswordHash = passwordHash,
             };
-        
-            restaurant.ManagerId = user.Id;
             
             await usersRepository.AddAsync(user, ct);
         

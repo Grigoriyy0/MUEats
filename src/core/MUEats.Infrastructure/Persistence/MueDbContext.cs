@@ -3,8 +3,6 @@ using MUEats.Core;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.Entities;
 using MUEats.Core.Domain.Order.ValueObjects;
-using MUEats.Core.Domain.Restaurant;
-using MUEats.Core.Domain.Restaurant.Entities;
 using MUEats.Core.Domain.ShoppingCart;
 using MUEats.Core.Domain.ShoppingCart.ValueObjects;
 using MUEats.Core.Domain.User;
@@ -22,10 +20,6 @@ public class MueDbContext : DbContext
     public DbSet<Order> Orders { get; set; }
     
     public DbSet<OrderItem> OrderItems { get; set; }
-    
-    public DbSet<Restaurant> Restaurants { get; set; }
-    
-    public DbSet<FoodItem>  FoodItems { get; set; }
     
     public DbSet<ShoppingCart> ShoppingCarts { get; set; }
     
