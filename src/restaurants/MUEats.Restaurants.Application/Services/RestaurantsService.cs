@@ -10,11 +10,9 @@ namespace MUEats.Restaurants.Application.Services;
 public class RestaurantsService
 {
     private readonly IUnitOfWork _unitOfWork;
-    
     private readonly IRestaurantsRepository _restaurantsRepository;
 
-    public RestaurantsService(IUnitOfWork unitOfWork, 
-        IRestaurantsRepository restaurantsRepository)
+    public RestaurantsService(IUnitOfWork unitOfWork, IRestaurantsRepository restaurantsRepository)
     {
         _unitOfWork = unitOfWork;
         _restaurantsRepository = restaurantsRepository;

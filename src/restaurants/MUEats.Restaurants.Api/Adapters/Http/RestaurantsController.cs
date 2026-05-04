@@ -9,13 +9,12 @@ namespace MUEats.Restaurants.Api.Adapters.Http;
 public class RestaurantsController : ControllerBase
 {
     private readonly RestaurantsService _restaurantsService;
-
-    private readonly MenusService _menusService;
+    private readonly MenusQueries _menusQueries;
     
-    public RestaurantsController(RestaurantsService restaurantsService, MenusService menusService)
+    public RestaurantsController(RestaurantsService restaurantsService, MenusQueries menusQueries)
     {
         _restaurantsService = restaurantsService;
-        _menusService = menusService;
+        _menusQueries = menusQueries;
     }
 
     [HttpGet]
@@ -35,7 +34,7 @@ public class RestaurantsController : ControllerBase
     [Route("{restaurantId:guid}/menu")]
     public async Task<IActionResult> GetAsync([FromRoute] Guid restaurantId, CancellationToken ct)
     {
-        return Ok(await _menusService.GetDtoByIdAsync(restaurantId, ct));
+        return Ok(await _menusQueries.GetDtoByIdAsync(restaurantId, ct));
     }
 
     [HttpPost]
