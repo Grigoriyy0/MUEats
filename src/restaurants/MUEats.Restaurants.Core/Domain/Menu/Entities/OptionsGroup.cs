@@ -60,4 +60,18 @@ public class OptionsGroup
         
         return UnitResult.Success<Error>();
     }
+
+    public UnitResult<Error> DeleteItemOption(Guid optionId)
+    {
+        var option = _itemOptions.FirstOrDefault(x => x.Id == optionId);
+
+        if (option is null)
+        {
+            return DomainErrors.MenuOptionsGroup.ItemOptionDoesNotExist;
+        }
+
+        _itemOptions.Remove(option);
+
+        return UnitResult.Success<Error>();
+    }
 }

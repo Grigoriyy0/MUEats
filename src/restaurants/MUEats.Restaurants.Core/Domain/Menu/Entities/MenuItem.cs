@@ -77,13 +77,27 @@ public class MenuItem
         return UnitResult.Success<Error>();
     }
 
+    public UnitResult<Error> DeleteOptionsGroup(Guid groupId)
+    {
+        var optionsGroup = _optionsGroups.FirstOrDefault(x => x.Id == groupId);
+
+        if (optionsGroup is null)
+        {
+            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
+        }
+
+        _optionsGroups.Remove(optionsGroup);
+
+        return UnitResult.Success<Error>();
+    }
+
     public UnitResult<Error> AddItemOption(Guid optionsGroupId, string value, decimal? additionalPrice)
     {
         var optionsGroup = _optionsGroups.FirstOrDefault(x => x.Id == optionsGroupId);
 
         if (optionsGroup is null)
         {
-            return DomainErrors.MenuItem.ItemOptionsGroupIsNotFound;
+            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
         }
         
         var itemResult = optionsGroup.AddItemOption(value, additionalPrice);
@@ -94,6 +108,25 @@ public class MenuItem
         }
         
         return  UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> DeleteItemOption(Guid groupId, Guid optionId)
+    {
+        var group = _optionsGroups.FirstOrDefault(x => x.Id == groupId);
+
+        if (group is null)
+        {
+            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
+        }
+
+        var result = group.DeleteItemOption(optionId);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+
+        return UnitResult.Success<Error>();
     }
 
     public UnitResult<Error> Update(string itemName,

@@ -138,6 +138,65 @@ public class MenusService
         return UnitResult.Success<Error>();
     }
 
+    public async Task<UnitResult<Error>> DeleteOptionsGroupAsync(Guid menuId, 
+        Guid itemId,
+        Guid groupId,
+        CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu is null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.MenuNotFound;
+        }
+
+        var result = menu.DeleteOptionsGroup(itemId, groupId);
+
+        if (result.IsFailure)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return result.Error;
+        }
+        
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> DeleteItemOptionAsync(Guid menuId, 
+        Guid itemId, 
+        Guid optionsGroupId, 
+        Guid optionId,
+        CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu is null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.MenuNotFound;
+        }
+
+        var result = menu.DeleteItemOption(itemId, optionsGroupId, optionId);
+
+        if (result.IsFailure)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return result.Error;
+        }
+
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<UnitResult<Error>> AddItemOptionAsync(Guid menuId,
         Guid itemId,
         Guid groupId,

@@ -79,6 +79,23 @@ public class MenusController : ControllerBase
 
         return Created();
     }
+    
+    [HttpPost]
+    [Route("{menuId:guid}/categories")]
+    public async Task<IActionResult> CreateCategoryAsync(
+        [FromRoute] Guid menuId,
+        [FromBody] CreateCategoryDto dto,
+        CancellationToken ct)
+    {
+        var result = await _menusService.AddCategoryAsync(menuId, dto, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Created();
+    }
 
     [HttpPut]
     [Route("{menuId:guid}/items/{itemId:guid}")]
@@ -97,24 +114,7 @@ public class MenusController : ControllerBase
 
         return Created();
     }
-
-    [HttpPost]
-    [Route("{menuId:guid}/categories")]
-    public async Task<IActionResult> CreateCategoryAsync(
-        [FromRoute] Guid menuId,
-        [FromBody] CreateCategoryDto dto,
-        CancellationToken ct)
-    {
-        var result = await _menusService.AddCategoryAsync(menuId, dto, ct);
-
-        if (result.IsFailure)
-        {
-            return BadRequest(result.Error);
-        }
-
-        return Created();
-    }
-
+    
     [HttpGet]
     [Route("{restaurantId:guid}")]
     public async Task<IActionResult> GetAsync([FromRoute] Guid restaurantId, CancellationToken ct)
@@ -129,5 +129,40 @@ public class MenusController : ControllerBase
         CancellationToken ct)
     {
         return Ok(await _menusService.GetItemDtoAsync(menuId, itemId, ct)); 
+    }
+
+    [HttpDelete]
+    [Route("{menuId:guid}/items/{itemId:guid}/options-groups/{optionsGroupId:guid}")]
+    public async Task<IActionResult> DeleteOptionsGroupAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        [FromRoute] Guid optionsGroupId,
+        CancellationToken ct)
+    {
+        var result = await _menusService.DeleteOptionsGroupAsync(menuId, itemId, optionsGroupId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete]
+    [Route("{menuId:guid}/items/{itemId:guid}/options-groups/{optionsGroupId:guid}/item-options/{optionId:guid}")]
+    public async Task<IActionResult> DeleteItemOptionAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        [FromRoute] Guid optionsGroupId,
+        [FromRoute] Guid optionId,
+        CancellationToken ct)
+    {
+        var result = await _menusService.DeleteItemOptionAsync(menuId, itemId, optionsGroupId, optionId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return NoContent();
     }
 }

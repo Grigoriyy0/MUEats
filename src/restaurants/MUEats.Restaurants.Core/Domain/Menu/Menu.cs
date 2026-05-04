@@ -135,6 +135,26 @@ public class Menu
         return UnitResult.Success<Error>();
     }
 
+    public UnitResult<Error> DeleteOptionsGroup(Guid itemId, Guid groupId)
+    {
+        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+
+        if (item is null)
+        {
+            return DomainErrors.Menu.MenuItemDoesNotExist;
+        }
+
+        var result = item.DeleteOptionsGroup(groupId);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+        
+        return UnitResult.Success<Error>();
+    }
+    
+
     public UnitResult<Error> AddItemOption(Guid itemId,
         Guid groupId,
         string optionValue,
@@ -148,6 +168,27 @@ public class Menu
         }
 
         var result = item.AddItemOption(groupId, optionValue, additionalPrice);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> DeleteItemOption(Guid itemId,
+        Guid groupId,
+        Guid optionId)
+    {
+        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+
+        if (item is null)
+        {
+            return DomainErrors.Menu.MenuItemDoesNotExist;
+        }
+
+        var result = item.DeleteItemOption(groupId, optionId);
 
         if (result.IsFailure)
         {
