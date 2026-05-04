@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.ShoppingCart;
@@ -15,7 +16,15 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
     {
         try
         {
-            await shoppingCartsService.AddToCartAsync(dto, ct);
+            var userId = User.FindFirstValue("id");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            
+            await shoppingCartsService.AddToCartAsync(Guid.Parse(userId), dto, ct);
             return Created();
         }
         catch (Exception e)

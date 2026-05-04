@@ -8,6 +8,8 @@ public class CartItem
 
     public Guid CartId { get; init; }
 
+    public string Name { get; set; }
+    
     public decimal Price { get; init; }
 
     public int Quantity { get; set; }

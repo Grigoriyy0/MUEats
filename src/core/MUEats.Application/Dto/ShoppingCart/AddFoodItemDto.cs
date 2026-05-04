@@ -2,7 +2,11 @@ namespace MUEats.Application.Dto.ShoppingCart;
 
 public class AddFoodItemDto
 {
-    public Guid UserId { get; set; }
+    public Guid RestaurantId { get; set; }
     
-    public Guid FoodItemId { get; set; }
+    public Guid ItemId { get; set; }
+    
+    public string ItemName { get; set; }
+    
+    public decimal ItemPrice { get; set; }
 }
