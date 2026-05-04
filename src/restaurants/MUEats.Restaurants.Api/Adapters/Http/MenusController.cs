@@ -32,7 +32,7 @@ public class MenusController : ControllerBase
     [Route("{menuId:guid}/items")]
     public async Task<IActionResult> CreateItemAsync(
         [FromRoute] Guid menuId,
-        [FromBody] CreateMenuItemDto dto, 
+        [FromBody] CreateMenuItemDto dto,
         CancellationToken ct)
     {
         var result = await _menusService.AddMenuItemAsync(menuId, dto, ct);
@@ -41,7 +41,7 @@ public class MenusController : ControllerBase
         {
             return BadRequest(result.Error);
         }
-        
+
         return Created();
     }
 
@@ -63,39 +63,27 @@ public class MenusController : ControllerBase
     }
 
     [HttpPost]
-    [Route("{menuId:guid}/items/{itemId:guid}/option-groups/{optionsGroupId:guid}/item-options")]
+    [Route("{menuId:guid}/option-groups/{groupId:guid}/options")]
     public async Task<IActionResult> AddItemOptionAsync([FromRoute] Guid menuId,
-        [FromRoute] Guid itemId,
-        [FromRoute] Guid optionsGroupId,
-        [FromBody] string value,
+        [FromRoute] Guid groupId,
+        [FromBody] AddItemOptionDto dto,
         CancellationToken ct)
     {
-        return Created();
-    }
-
-    [HttpPut]
-    [Route("{menuId:guid}/items/{itemId:guid}")]
-    public async Task<IActionResult> UpdateItemAsync(
-        [FromRoute] Guid menuId,
-        [FromRoute] Guid itemId,
-        [FromBody] UpdateMenuItemDto dto, 
-        CancellationToken ct)
-    {
-        var result = await _menusService.UpdateMenuItemAsync(menuId, itemId, dto, ct);
+        var result = await _menusService.AddItemOptionAsync(menuId, groupId, dto, ct);
 
         if (result.IsFailure)
         {
             return BadRequest(result.Error);
         }
-        
+
         return Created();
     }
-
+    
     [HttpPost]
     [Route("{menuId:guid}/categories")]
     public async Task<IActionResult> CreateCategoryAsync(
         [FromRoute] Guid menuId,
-        [FromBody] CreateCategoryDto dto, 
+        [FromBody] CreateCategoryDto dto,
         CancellationToken ct)
     {
         var result = await _menusService.AddCategoryAsync(menuId, dto, ct);
@@ -104,14 +92,66 @@ public class MenusController : ControllerBase
         {
             return BadRequest(result.Error);
         }
-        
+
         return Created();
+    }
+
+    [HttpPut]
+    [Route("{menuId:guid}/items/{itemId:guid}")]
+    public async Task<IActionResult> UpdateItemAsync(
+        [FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        [FromBody] UpdateMenuItemDto dto,
+        CancellationToken ct)
+    {
+        var result = await _menusService.UpdateMenuItemAsync(menuId, itemId, dto, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok();
     }
     
     [HttpGet]
-    [Route("{restaurantId:guid}")]
-    public async Task<IActionResult> GetAsync([FromRoute] Guid restaurantId, CancellationToken ct)
+    [Route("{menuId:guid}/items/{itemId:guid}")]
+    public async Task<IActionResult> GetItemAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        CancellationToken ct)
     {
-        return Ok(await _menusService.GetDtoByIdAsync(restaurantId, ct));
+        return Ok(await _menusService.GetItemDtoAsync(menuId, itemId, ct)); 
+    }
+
+    [HttpDelete]
+    [Route("{menuId:guid}/option-groups/{groupId:guid}")]
+    public async Task<IActionResult> DeleteOptionsGroupAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid groupId,
+        CancellationToken ct)
+    {
+        var result = await _menusService.DeleteOptionsGroupAsync(menuId, groupId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete]
+    [Route("{menuId:guid}/item-options/{optionId:guid}")]
+    public async Task<IActionResult> DeleteItemOptionAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid optionId,
+        CancellationToken ct)
+    {
+        var result = await _menusService.DeleteItemOptionAsync(menuId, optionId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return NoContent();
     }
 }

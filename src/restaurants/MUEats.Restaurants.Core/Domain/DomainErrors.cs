@@ -18,13 +18,13 @@ public static class DomainErrors
     
     public static class Menu
     {
-        public static readonly Error CategoryAlreadyExists = GeneralError.ValueIsIncorrect("menu.category");
+        public static readonly Error CategoryAlreadyExists = GeneralError.ValueIsIncorrect("menu.category.Name");
         
-        public static readonly Error MenuItemAlreadyExists = GeneralError.ValueIsIncorrect("menu.item");
+        public static readonly Error MenuItemAlreadyExists = GeneralError.ValueIsIncorrect("menu.menuItem.Name");
         
-        public static readonly Error MenuItemDoesNotExist = GeneralError.ValueIsIncorrect("menu.itemId");
+        public static readonly Error MenuItemDoesNotExist = GeneralError.ValueIsIncorrect("menu.menuItem.Id");
         
-        public static readonly Error CategoryDoesNotExists  = GeneralError.ValueIsIncorrect("menu.category");
+        public static readonly Error CategoryDoesNotExists  = GeneralError.ValueIsIncorrect("menu.category.Id");
     }
 
     public static class MenuItem
@@ -33,7 +33,7 @@ public static class DomainErrors
         
         public static readonly Error ItemPriceLessThanZero = GeneralError.ValueIsIncorrect("menuItem.itemPrice");
         
-        public static readonly Error ItemOptionsGroupIsNotFound  = GeneralError.ValueIsIncorrect("menuItem.optionsGroup");
+        public static readonly Error ItemOptionsGroupDoesNotExists  = GeneralError.ValueIsIncorrect("menuItem.optionsGroup.Id");
         
         public static readonly Error ItemOptionsGroupAlreadyExists = GeneralError.ValueIsIncorrect("menuItem.optionsGroup.name");
     }
@@ -48,10 +48,14 @@ public static class DomainErrors
         public static readonly Error OptionAlreadyExists = GeneralError.ValueIsIncorrect("optionsGroup.option");
         
         public static readonly Error OptionsGroupNameIsEmpty = GeneralError.ValueIsIncorrect("optionsGroup.groupName");
+
+        public static readonly Error ItemOptionDoesNotExist = GeneralError.ValueIsIncorrect("optionsGroup.itemOption.Id");
     }
 
     public static class MenuItemOption
     {
         public static readonly Error OptionValueIsEmpty = GeneralError.ValueIsIncorrect("itemOption.value");
+
+        public static readonly Error AdditionalPriceLessThanZero = GeneralError.ValueIsIncorrect("itemOption.additionalPrice");
     }
 }

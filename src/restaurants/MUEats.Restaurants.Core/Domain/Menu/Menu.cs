@@ -135,24 +135,65 @@ public class Menu
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> AddItemOption(Guid itemId,
-        Guid groupId,
-        string optionValue)
+    public UnitResult<Error> DeleteOptionsGroup(Guid groupId)
     {
-        var item = _menuItems.FirstOrDefault(x => x.Id == itemId);
+        var item = _menuItems.FirstOrDefault(x => x.OptionsGroups.Any(g => g.Id == groupId));
 
         if (item is null)
         {
             return DomainErrors.Menu.MenuItemDoesNotExist;
         }
 
-        var result = item.AddItemOption(groupId, optionValue);
+        var result = item.DeleteOptionsGroup(groupId);
 
         if (result.IsFailure)
         {
             return result.Error;
         }
         
+        return UnitResult.Success<Error>();
+    }
+    
+
+    public UnitResult<Error> AddItemOption(Guid groupId,
+        string optionValue,
+        decimal? additionalPrice)
+    {
+        var group = MenuItems.SelectMany(x => x.OptionsGroups)
+            .FirstOrDefault(g => g.Id == groupId);
+        
+        if (group is null)
+        {
+            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
+        }
+
+        var result = group.AddItemOption(optionValue, additionalPrice);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> DeleteItemOption(Guid optionId)
+    {
+        var group = MenuItems.SelectMany(i => i.OptionsGroups)
+            .FirstOrDefault(x => x.ItemOptions.Any(o => o.Id == optionId));
+
+        if (group is null)
+        {
+            return DomainErrors.MenuOptionsGroup.ItemOptionDoesNotExist;
+        }
+
+        var result = group.DeleteItemOption(optionId);
+
+        if (result.IsFailure)
+        {
+            return result.Error;
+        }
+
         return UnitResult.Success<Error>();
     }
 }

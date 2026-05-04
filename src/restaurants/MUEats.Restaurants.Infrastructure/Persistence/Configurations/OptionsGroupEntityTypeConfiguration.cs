@@ -26,5 +26,9 @@ public class OptionsGroupEntityTypeConfiguration : IEntityTypeConfiguration<Opti
             .WithOne()
             .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Metadata
+            .FindNavigation(nameof(OptionsGroup.ItemOptions))?
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

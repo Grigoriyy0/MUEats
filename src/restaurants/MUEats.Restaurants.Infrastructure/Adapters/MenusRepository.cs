@@ -22,6 +22,8 @@ public class MenusRepository : IMenusRepository
             AsSplitQuery().
             Include(x => x.Categories).
             Include(x => x.MenuItems).
+            ThenInclude(m => m.OptionsGroups).
+            ThenInclude(og => og.ItemOptions).
             FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
@@ -48,6 +50,36 @@ public class MenusRepository : IMenusRepository
                     }).ToList()
                 }).ToList()
             }).FirstOrDefaultAsync(ct);
+    }
+
+    public Task<MenuItemDetailsDto?> GetMenuItemDto(Guid menuId, Guid itemId, CancellationToken ct)
+    {
+        return _context.Menus
+            .AsSplitQuery()
+            .Where(x => x.Id == menuId)
+            .Select(x => x.MenuItems.
+                Where(mi => mi.Id == itemId)
+                .Select(i => new MenuItemDetailsDto
+                {
+                    ItemId = i.Id,
+                    ItemName = i.Name,
+                    ItemDescription = i.Description,
+                    ItemPrice = i.Price,
+                    MenuId = i.MenuId,
+                    OptionGroups = i.OptionsGroups.Select(og => new OptionsGroupDto
+                    {
+                        GroupId = og.Id,
+                        MenuItemId = og.MenuItemId,
+                        ItemOpions = og.ItemOptions.Select(io => new ItemOptionDto
+                        {
+                            Id = io.Id,
+                            AdditionalPrice = io.AdditionalPrice,
+                            Value = io.Value
+                        }).ToList() 
+                    }).ToList()
+                })
+                .FirstOrDefault())
+            .FirstOrDefaultAsync(ct);
     }
 
     public Task AddAsync(Menu menu, CancellationToken ct)

@@ -77,25 +77,20 @@ public class MenuItem
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> AddItemOption(Guid optionsGroupId, string value)
+    public UnitResult<Error> DeleteOptionsGroup(Guid groupId)
     {
-        var optionsGroup = _optionsGroups.FirstOrDefault(x => x.Id == optionsGroupId);
+        var optionsGroup = _optionsGroups.FirstOrDefault(x => x.Id == groupId);
 
         if (optionsGroup is null)
         {
-            return DomainErrors.MenuItem.ItemOptionsGroupIsNotFound;
+            return DomainErrors.MenuItem.ItemOptionsGroupDoesNotExists;
         }
-        
-        var itemResult = optionsGroup.AddItemOption(value);
 
-        if (itemResult.IsFailure)
-        {
-            return itemResult.Error;
-        }
-        
-        return  UnitResult.Success<Error>();
+        _optionsGroups.Remove(optionsGroup);
+
+        return UnitResult.Success<Error>();
     }
-
+    
     public UnitResult<Error> Update(string itemName,
         decimal price,
         string? description,

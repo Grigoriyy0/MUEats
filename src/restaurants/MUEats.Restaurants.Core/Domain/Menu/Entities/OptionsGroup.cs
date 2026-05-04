@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using MUEats.Restaurants.Core.Domain.Menu.Entities.ValueObjects;
 using Primitives;
 
 namespace MUEats.Restaurants.Core.Domain.Menu.Entities;
@@ -40,7 +39,7 @@ public class OptionsGroup
         return new OptionsGroup(name, description,  menuItemId);
     }
 
-    public UnitResult<Error> AddItemOption(string optionValue)
+    public UnitResult<Error> AddItemOption(string optionValue, decimal? additionalPrice)
     {
         var check = _itemOptions.Any(x => x.Value == optionValue);
 
@@ -49,7 +48,7 @@ public class OptionsGroup
             return DomainErrors.MenuOptionsGroup.OptionAlreadyExists;
         }
         
-        var itemOption = ItemOption.Create(optionValue, Id);
+        var itemOption = ItemOption.Create(optionValue, Id, additionalPrice);
 
         if (itemOption.IsFailure)
         {
@@ -58,6 +57,20 @@ public class OptionsGroup
         
         _itemOptions.Add(itemOption.Value);
         
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> DeleteItemOption(Guid optionId)
+    {
+        var option = _itemOptions.FirstOrDefault(x => x.Id == optionId);
+
+        if (option is null)
+        {
+            return DomainErrors.MenuOptionsGroup.ItemOptionDoesNotExist;
+        }
+
+        _itemOptions.Remove(option);
+
         return UnitResult.Success<Error>();
     }
 }

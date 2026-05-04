@@ -27,9 +27,9 @@ public class MenusService
     {
         await _unitOfWork.BeginTransactionAsync(ct);
 
-        var restaurantExists = await _restaurantsRepository.AnyAsync(restaurantId, ct);
+        var restaurant = await _restaurantsRepository.GetByIdAsync(restaurantId, ct);
 
-        if (!restaurantExists)
+        if (restaurant is null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
             return ApplicationErrors.Restaurant.RestaurantNotFound;
@@ -44,9 +44,11 @@ public class MenusService
         }
         
         var menuResult = Menu.Create(restaurantId);
-
+        
+        restaurant.AddMenuId(menuResult.Value.Id);
+        
         await _menusRepository.AddAsync(menuResult.Value, ct);
-
+        
         await _unitOfWork.SaveChangesAsync(ct);
         await _unitOfWork.CommitTransactionAsync(ct);
         
@@ -136,10 +138,65 @@ public class MenusService
         return UnitResult.Success<Error>();
     }
 
-    public async Task<UnitResult<Error>> AddItemOptionAsync(Guid menuId,
-        Guid itemId,
+    public async Task<UnitResult<Error>> DeleteOptionsGroupAsync(Guid menuId, 
         Guid groupId,
-        string optionValue,
+        CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu is null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.MenuNotFound;
+        }
+
+        var result = menu.DeleteOptionsGroup(groupId);
+
+        if (result.IsFailure)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return result.Error;
+        }
+        
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> DeleteItemOptionAsync(Guid menuId, 
+        Guid itemId,
+        CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu is null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.MenuNotFound;
+        }
+
+        var result = menu.DeleteItemOption(itemId);
+
+        if (result.IsFailure)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return result.Error;
+        }
+
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> AddItemOptionAsync(Guid menuId,
+        Guid groupId,
+        AddItemOptionDto dto,
         CancellationToken ct)
     {
         await  _unitOfWork.BeginTransactionAsync(ct);
@@ -152,7 +209,7 @@ public class MenusService
             return ApplicationErrors.Menu.MenuNotFound;
         }
         
-        var result = menu.AddItemOption(itemId, groupId, optionValue);
+        var result = menu.AddItemOption(groupId, dto.Value, dto.AdditionalPrice);
 
         if (result.IsFailure)
         {
@@ -202,5 +259,12 @@ public class MenusService
         await _unitOfWork.CommitTransactionAsync(ct);
         
         return UnitResult.Success<Error>();
+    }
+
+    public Task<MenuItemDetailsDto?> GetItemDtoAsync(Guid menuId,
+        Guid itemId,
+        CancellationToken ct)
+    {
+        return _menusRepository.GetMenuItemDto(menuId, itemId, ct);
     }
 }
