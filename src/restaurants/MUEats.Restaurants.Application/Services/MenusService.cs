@@ -27,9 +27,9 @@ public class MenusService
     {
         await _unitOfWork.BeginTransactionAsync(ct);
 
-        var restaurantExists = await _restaurantsRepository.AnyAsync(restaurantId, ct);
+        var restaurant = await _restaurantsRepository.GetByIdAsync(restaurantId, ct);
 
-        if (!restaurantExists)
+        if (restaurant is null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
             return ApplicationErrors.Restaurant.RestaurantNotFound;
@@ -44,9 +44,11 @@ public class MenusService
         }
         
         var menuResult = Menu.Create(restaurantId);
-
+        
+        restaurant.AddMenuId(menuResult.Value.Id);
+        
         await _menusRepository.AddAsync(menuResult.Value, ct);
-
+        
         await _unitOfWork.SaveChangesAsync(ct);
         await _unitOfWork.CommitTransactionAsync(ct);
         
