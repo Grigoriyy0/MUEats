@@ -1,3 +1,5 @@
+using Yarp.ReverseProxy.Transforms;
+
 namespace MUEats.Gateway;
 
 public class Program
@@ -12,7 +14,6 @@ public class Program
 
         builder.Services.AddReverseProxy()
             .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
-        
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
