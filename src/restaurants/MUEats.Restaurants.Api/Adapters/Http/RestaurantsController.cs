@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Restaurants.Application.DTOs;
 using MUEats.Restaurants.Application.Services;

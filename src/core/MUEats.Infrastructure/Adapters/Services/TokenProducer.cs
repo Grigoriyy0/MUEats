@@ -58,13 +58,20 @@ public class TokenProducer(IOptions<AuthOptions> options) : ITokenProducer
         
         var expires = now.Add(TimeSpan.FromMinutes(_options.AccessTokenExpirationMinutes));
 
+        var rsa = RSA.Create();
+        rsa.ImportFromPem(File.ReadAllText(_options.PrivateKeyPath));
+        
+        var signingCredentials = new SigningCredentials(
+            new RsaSecurityKey(rsa), 
+            SecurityAlgorithms.RsaSha256
+        );
+
         var jwt = new JwtSecurityToken(
             options.Value.Issuer,
             options.Value.Audience,
             claims: claims,
             expires: expires,
-            signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key)), SecurityAlgorithms.HmacSha256)
+            signingCredentials: signingCredentials
         );
 
         return new JwtSecurityTokenHandler().WriteToken(jwt);
