@@ -1,5 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Application.Interfaces;
+using MUEats.Application.Ports;
 using MUEats.Application.Services;
+using MUEats.Application.Services.Identity;
 
 namespace MUEats.Application;
 
@@ -10,5 +13,11 @@ public static class DependencyInjection
         services.AddScoped<ShoppingCartsService>();
         services.AddScoped<UserService>();
         services.AddScoped<OrdersService>();
+        
+        services.AddScoped<IClaimStrategy, CustomerClaimStrategy>();
+        services.AddScoped<IClaimStrategy, AdminClaimStrategy>();
+        services.AddScoped<IClaimStrategy, RestaurantManagerStrategy>();
+
+        services.AddScoped<IClaimsService, ClaimsService>();
     }
 }
