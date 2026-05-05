@@ -10,6 +10,9 @@ public class Program
 
         builder.Services.AddOpenApi();
 
+        builder.Services.AddReverseProxy()
+            .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+        
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -18,8 +21,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
         app.UseAuthorization();
+        app.MapReverseProxy();
         
         app.Run();
     }
