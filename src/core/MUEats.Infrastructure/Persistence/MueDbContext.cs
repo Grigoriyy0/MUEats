@@ -29,6 +29,8 @@ public class MueDbContext : DbContext
     
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     
+    public DbSet<UserAttribute> UserAttributes { get; set; }
+    
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
     
     public DbSet<InboxMessage> InboxMessages { get; set; }

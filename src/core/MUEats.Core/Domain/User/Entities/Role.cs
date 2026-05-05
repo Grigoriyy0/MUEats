@@ -1,9 +1,8 @@
-namespace MUEats.Core.Domain.User.Utils;
+namespace MUEats.Core.Domain.User.Entities;
 
 public enum Role
 {
     Customer,
     RestaurantManager,
-    Courier,
     Admin
 }

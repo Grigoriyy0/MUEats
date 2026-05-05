@@ -1,3 +1,4 @@
+using MUEats.Restaurants.Api.Extensions;
 using MUEats.Restaurants.Application;
 using MUEats.Restaurants.Infrastructure;
 
@@ -9,13 +10,15 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddAuthorization();
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerExtensions();
         
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddApplicationServices();
+        
+        builder.Services.AddRsaAuth(builder.Configuration);
+        builder.Services.AddAuthorization();
 
         var app = builder.Build();
 

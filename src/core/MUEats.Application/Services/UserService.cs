@@ -3,18 +3,15 @@ using MUEats.Application.Ports;
 using MUEats.Application.Responses;
 using MUEats.Core.Domain.User;
 using MUEats.Core.Domain.User.Entities;
-using MUEats.Core.Domain.User.Utils;
 
 namespace MUEats.Application.Services;
 
-public class UserService(
-    IUsersRepository usersRepository,
+public class UserService(IUsersRepository usersRepository,
     IHashProvider hashProvider,
     IUnitOfWork uow,
     ITokenProducer tokenProducer,
     IRefreshTokenService refreshTokenService,
-    IPasswordValidator passwordValidator
-    )
+    IPasswordValidator passwordValidator)
 {
     public async Task CreateAsync(CreateUserDto dto, CancellationToken ct)
     {
@@ -45,7 +42,6 @@ public class UserService(
                 LastName = dto.LastName,
                 Email = dto.Email,
                 Username = dto.Username,
-                DefaultAddress = dto.DefaultAddress,
                 PasswordHash = passwordHash,
                 Role = Role.Customer
             };
@@ -115,7 +111,13 @@ public class UserService(
             await uow.BeginTransactionAsync(ct);
             
             var passwordHash = hashProvider.ComputeHash(dto.Password);
-        
+
+            var attribute = new UserAttribute
+            {
+                Key = "restaurant_id",
+                Value = dto.RestaurantId.ToString()
+            };
+            
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -125,43 +127,11 @@ public class UserService(
                 Email = dto.Email,
                 Role = Role.RestaurantManager,
                 PasswordHash = passwordHash,
+                UserAttributes = [attribute]
             };
             
             await usersRepository.AddAsync(user, ct);
         
-            await uow.SaveChangesAsync(ct);
-            await uow.CommitTransactionAsync(ct);
-        }
-        catch (Exception)
-        {
-            await uow.RollbackTransactionAsync(ct);
-            throw;
-        }
-    }
-    
-    public async Task GrantRoleAsync(string role, Guid userId, CancellationToken ct)
-    {
-        try
-        {
-            await uow.BeginTransactionAsync(ct);
-        
-            var user = await usersRepository.GetByIdAsync(userId, ct);
-
-            if (user is null)
-            {
-                throw new ArgumentException("No such user");
-            }
-
-            var roleEnum = Enum.Parse<Role>(role);
-
-            if (roleEnum == Role.Admin)
-            {
-                throw new ArgumentException("You cannot grant admin role");
-            }
-        
-            user.Role = roleEnum;
-        
-            await usersRepository.UpdateAsync(user, ct);
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);
         }

@@ -15,23 +15,7 @@ public class UsersController : ControllerBase
     {
         _userService = userService;
     }
-
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    [Route("{userId:guid}/{roleName}")]
-    public async Task<IActionResult> GrantRoleAsync([FromRoute] Guid userId, [FromRoute] string roleName, CancellationToken ct)
-    {
-        try
-        {
-            await _userService.GrantRoleAsync(roleName, userId, ct);
-            return Created();
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-
+    
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateManagerAsync([FromBody] CreateManagerDto dto, CancellationToken ct)

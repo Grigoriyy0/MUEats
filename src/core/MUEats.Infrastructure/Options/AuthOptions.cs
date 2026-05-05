@@ -11,4 +11,6 @@ public class AuthOptions
     public int AccessTokenExpirationMinutes { get; set; }
     
     public int RefreshTokenExpirationDays { get; set; }
+    
+    public string PrivateKeyPath { get; set; }
 }
