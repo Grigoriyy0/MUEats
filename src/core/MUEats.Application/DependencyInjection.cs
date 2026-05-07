@@ -19,5 +19,6 @@ public static class DependencyInjection
         services.AddScoped<IClaimStrategy, RestaurantManagerStrategy>();
 
         services.AddScoped<IClaimsService, ClaimsService>();
+        services.AddScoped<IAuthService, AuthService>();
     }
 }
