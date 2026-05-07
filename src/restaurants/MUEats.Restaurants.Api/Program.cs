@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using MUEats.Restaurants.Api.Extensions;
 using MUEats.Restaurants.Application;
 using MUEats.Restaurants.Infrastructure;
+using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Api;
 
@@ -29,6 +31,12 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<RestaurantsDbContext>();
+            dbContext.Database.Migrate();
+        }
+        
         app.UseHttpsRedirection();
         app.MapControllers();
         app.UseAuthorization();
