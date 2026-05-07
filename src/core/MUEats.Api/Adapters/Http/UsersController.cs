@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.User;
-using MUEats.Application.Services;
+using MUEats.Application.Interfaces;
 
 namespace MUEats.Adapters.Http;
 
@@ -9,9 +9,9 @@ namespace MUEats.Adapters.Http;
 [ApiController]
 public class UsersController : ControllerBase
 {
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
-    public UsersController(UserService userService)
+    public UsersController(IUserService userService)
     {
         _userService = userService;
     }
@@ -29,5 +29,12 @@ public class UsersController : ControllerBase
         {
             return BadRequest(e.Message);
         }
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetManagersAsync(CancellationToken ct)
+    {
+        return Ok(await _userService.GetManagersAsync(ct));
     }
 }

@@ -1,6 +1,6 @@
 using MUEats.Application.Dto.User;
+using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
-using MUEats.Application.Responses;
 using MUEats.Core.Domain.User;
 using MUEats.Core.Domain.User.Entities;
 
@@ -8,7 +8,7 @@ namespace MUEats.Application.Services;
 
 public class UserService(IUsersRepository usersRepository,
     IHashProvider hashProvider,
-    IUnitOfWork uow)
+    IUnitOfWork uow) : IUserService
 {
     public async Task CreateManagerAsync(CreateManagerDto dto, CancellationToken ct)
     {
@@ -46,5 +46,10 @@ public class UserService(IUsersRepository usersRepository,
             await uow.RollbackTransactionAsync(ct);
             throw;
         }
+    }
+
+    public Task<List<ManagerDto>> GetManagersAsync(CancellationToken ct)
+    {
+        return usersRepository.GetManagersAsync(ct);
     }
 }
