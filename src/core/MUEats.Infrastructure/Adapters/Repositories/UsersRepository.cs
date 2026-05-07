@@ -33,6 +33,7 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
             {
                 Id = y.Id,
                 Email = y.Email,
+                UserName = y.Username,
                 FirstName = y.FirstName,
                 LastName = y.LastName,
                 RestaurantId = y.UserAttributes.FirstOrDefault(z => z.Key == "restaurant_id").Value,

@@ -20,7 +20,18 @@ public class Program
         builder.Services.AddApplicationServices();
         
         builder.Services.AddRsaAuth(builder.Configuration);
-        builder.Services.AddAuthorization();
+        
+        builder.Services.AddAuthorization(opt =>
+        {
+            opt.AddPolicy("Customer", policy => 
+                policy.RequireRole("Customer"));
+            
+            opt.AddPolicy("Admin", policy =>
+                policy.RequireRole("Admin"));
+            
+            opt.AddPolicy("RestaurantManager",  policy =>
+                policy.RequireRole("RestaurantManager"));
+        });
 
         var app = builder.Build();
 

@@ -10,7 +10,7 @@ namespace MUEats;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         
@@ -53,8 +53,6 @@ public class Program
         builder.Services.AddIntegrationEventHandlers(typeof(IIntegrationEventHandler<>).Assembly);
         builder.Services.AddApplicationServices();
         
-        
-        
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -66,8 +64,8 @@ public class Program
 
         using (var scope = app.Services.CreateScope())
         {
-            var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
-            dbContext.Database.Migrate();
+            var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+            await seeder.SeedAsync();
         }
         
         app.UseHttpsRedirection();
