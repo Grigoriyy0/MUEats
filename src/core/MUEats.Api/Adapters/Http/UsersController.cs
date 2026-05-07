@@ -6,6 +6,7 @@ using MUEats.Application.Interfaces;
 namespace MUEats.Adapters.Http;
 
 [Route("api/users")]
+[Authorize(Roles = "Admin")]
 [ApiController]
 public class UsersController : ControllerBase
 {
@@ -17,7 +18,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Route("managers")]
     public async Task<IActionResult> CreateManagerAsync([FromBody] CreateManagerDto dto, CancellationToken ct)
     {
         try
@@ -32,7 +33,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Route("managers")]
     public async Task<IActionResult> GetManagersAsync(CancellationToken ct)
     {
         return Ok(await _userService.GetManagersAsync(ct));
