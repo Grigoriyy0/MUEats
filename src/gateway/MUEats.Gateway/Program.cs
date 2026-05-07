@@ -12,6 +12,16 @@ public class Program
 
         builder.Services.AddOpenApi();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+        
         builder.Services.AddReverseProxy()
             .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
         var app = builder.Build();
@@ -21,6 +31,7 @@ public class Program
             app.MapOpenApi();
         }
 
+        app.UseCors();
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapReverseProxy();

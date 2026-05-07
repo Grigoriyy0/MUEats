@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IOutboxRepository, OutboxRepository>();
         services.AddScoped<IOrderSagaStatesRepository, OrderSagaStatesRepository>();
         services.AddScoped<IEventDispatcher, EventDispatcher>();
+        services.AddScoped<DatabaseSeeder>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();
@@ -40,7 +41,7 @@ public static class DependencyInjection
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));
         services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
-        
+        services.Configure<AdminOptions>(configuration.GetSection(nameof(AdminOptions)));
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<FakeRestaurantService>();

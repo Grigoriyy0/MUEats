@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.User;
-using MUEats.Application.Services;
+using MUEats.Application.Interfaces;
 
 namespace MUEats.Adapters.Http;
 
 [Route("api/auth")]
 [ApiController]
-public class AuthController(UserService userService) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost]
     [Route("signup")]
@@ -14,13 +14,13 @@ public class AuthController(UserService userService) : ControllerBase
     {
         try
         {
-            await userService.CreateAsync(dto, ct);
+            await authService.RegisterAsync(dto, ct);
 
-            return Created();
+            return NoContent();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return BadRequest(e.Message);
+            return BadRequest();
         }
     }
 
@@ -28,16 +28,16 @@ public class AuthController(UserService userService) : ControllerBase
     [Route("signin")]
     public async Task<IActionResult> LoginAsync(AuthDto dto, CancellationToken ct)
     {
-        var tokenPair = await userService.AuthAsync(dto, ct);
+        var tokenPair = await authService.AuthAsync(dto, ct);
 
-        Response.Cookies.Append("refreshToken", tokenPair.RefreshToken);
+        SetRefreshTokenCookie(tokenPair.RefreshToken);
         
         return Ok(new
         {
             tokenPair.AccessToken
         });
     }
-
+    
     [HttpPost]
     [Route("refresh")]
     public async Task<IActionResult> RefreshAsync(CancellationToken ct)
@@ -51,8 +51,10 @@ public class AuthController(UserService userService) : ControllerBase
 
         try
         {
-            var tokenPair = await userService.RefreshAsync(oldRefreshToken, ct);
+            var tokenPair = await authService.RefreshAsync(oldRefreshToken, ct);
 
+            SetRefreshTokenCookie(tokenPair.RefreshToken);
+        
             return Ok(new
             {
                 tokenPair.AccessToken
@@ -64,4 +66,15 @@ public class AuthController(UserService userService) : ControllerBase
         }
     }
     
+    private void SetRefreshTokenCookie(string refreshToken)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        };
+        Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+    }
 }

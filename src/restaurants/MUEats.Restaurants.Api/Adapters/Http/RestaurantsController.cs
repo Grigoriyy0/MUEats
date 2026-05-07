@@ -37,17 +37,4 @@ public class RestaurantsController : ControllerBase
     {
         return Ok(await _menusQueries.GetDtoByIdAsync(restaurantId, ct));
     }
-
-    [HttpPost]
-    public async Task<IActionResult> CreateAsync(CreateRestaurantDto dto, CancellationToken ct)
-    {
-        var result = await _restaurantsService.CreateAsync(dto, ct);
-
-        if (result.IsFailure)
-        {
-            return BadRequest(result.Error);
-        }
-
-        return Created();
-    }
 }

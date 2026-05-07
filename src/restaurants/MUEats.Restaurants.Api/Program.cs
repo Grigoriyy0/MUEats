@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using MUEats.Restaurants.Api.Extensions;
 using MUEats.Restaurants.Application;
 using MUEats.Restaurants.Infrastructure;
+using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Api;
 
@@ -18,7 +20,18 @@ public class Program
         builder.Services.AddApplicationServices();
         
         builder.Services.AddRsaAuth(builder.Configuration);
-        builder.Services.AddAuthorization();
+        
+        builder.Services.AddAuthorization(opt =>
+        {
+            opt.AddPolicy("Customer", policy => 
+                policy.RequireRole("Customer"));
+            
+            opt.AddPolicy("Admin", policy =>
+                policy.RequireRole("Admin"));
+            
+            opt.AddPolicy("RestaurantManager",  policy =>
+                policy.RequireRole("RestaurantManager"));
+        });
 
         var app = builder.Build();
 
@@ -29,6 +42,12 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<RestaurantsDbContext>();
+            dbContext.Database.Migrate();
+        }
+        
         app.UseHttpsRedirection();
         app.MapControllers();
         app.UseAuthorization();
