@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MUEats.Application.Dto.Order;
 using MUEats.Application.Ports;
+using MUEats.Application.Queries;
 using MUEats.Core.Domain.Order.ValueObjects;
 using MUEats.Infrastructure.Persistence;
 
@@ -37,5 +38,10 @@ public class OrdersQueries : IOrdersQueries
                     Price = o.Price
                 }).ToList()
             }).FirstOrDefaultAsync(ct);
+    }
+
+    public Task<List<OrderDto>> GetHistoryAsync(Guid userId, GetOrdersHistoryQuery query, CancellationToken ct)
+    {
+        throw new NotImplementedException();
     }
 }

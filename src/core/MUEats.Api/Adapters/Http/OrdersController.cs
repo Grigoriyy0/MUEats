@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.Order;
 using MUEats.Application.Ports;
+using MUEats.Application.Queries;
 using MUEats.Application.Services;
 using MUEats.Application.Services.Identity;
 
@@ -56,12 +57,11 @@ public class OrdersController : ControllerBase
 
         return Ok(orderDto);
     }
-
-    //todo refactor: timePeriod -> FromDate, ToDate.
+    
     [HttpGet]
     [Route("history")]
     [Authorize(Policy = "Customer")]
-    public async Task<IActionResult> GetHistory([FromQuery] string timePeriod, CancellationToken ct)
+    public async Task<IActionResult> GetHistory([FromQuery] GetOrdersHistoryQuery query, CancellationToken ct)
     {
         var userId = User.FindFirstValue("id");
 
@@ -70,6 +70,6 @@ public class OrdersController : ControllerBase
             return Unauthorized();
         }
         
-        return Ok(await _ordersService.GetHistoryAsync(Guid.Parse(userId), timePeriod, ct));
+        return Ok(await _ordersQueries.GetHistoryAsync(Guid.Parse(userId), query, ct));
     }
 }

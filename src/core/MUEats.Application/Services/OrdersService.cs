@@ -1,5 +1,6 @@
 using MUEats.Application.Dto.Order;
 using MUEats.Application.Ports;
+using MUEats.Application.Queries;
 using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
@@ -70,42 +71,5 @@ public class OrdersService(IShoppingCartsRepository shoppingCartsRepository,
             await uow.RollbackTransactionAsync(ct);
             throw;
         }
-    }
-    
-    public Task<List<OrderDto>> GetHistoryAsync(Guid userId, string timePeriod, CancellationToken ct)
-    {
-        var (startDate, endDate) = GetDateRange(timePeriod);
-        
-        return ordersRepository.GetByRangeAsync(userId, startDate, endDate, ct);
-    }
-
-    private (DateTime, DateTime) GetDateRange(string timePeriod)
-    {
-        var today = DateTime.UtcNow;
-        DateTime startDate;
-        DateTime endDate;
-        
-        switch (timePeriod.ToLower())
-        {
-            case "today":
-                startDate = today;
-                endDate = today.AddDays(1).AddTicks(-1);
-                break;
-            case "week":
-                var diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
-                startDate = today.AddDays(-diff);
-                endDate = startDate.AddDays(7).AddTicks(-1);
-                break;
-            case "month":
-                startDate = new DateTime(today.Year, today.Month, 1);
-                endDate = today.AddDays(1).AddTicks(-1);
-                break;
-            default:
-                startDate = today;
-                endDate = today.AddDays(1).AddTicks(-1);
-                break;
-        }
-        
-        return (startDate.ToUniversalTime(), endDate.ToUniversalTime());
     }
 }
