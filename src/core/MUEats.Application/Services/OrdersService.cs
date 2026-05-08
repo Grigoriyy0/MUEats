@@ -10,20 +10,22 @@ namespace MUEats.Application.Services;
 public class OrdersService(IShoppingCartsRepository shoppingCartsRepository,
     IOrdersRepository ordersRepository,
     IUnitOfWork uow,
-    IOutboxService outboxService)
+    IOutboxService outboxService,
+    ICurrentUserContext currentUserContext)
 {
-    public async Task<Guid> CreateAsync(Guid userId, 
-        CreateOrderDto dto, 
+    public async Task<Guid> CreateAsync(CreateOrderDto dto, 
         CancellationToken ct)
     {
         try
         {
-            await uow.BeginTransactionAsync(ct);
-
-            if (dto.PickUpTime <= DateTime.UtcNow && dto.PickUpTime is not null)
+            if (dto.PickUpTime <= DateTime.UtcNow.AddMinutes(10) && dto.PickUpTime is not null)
             {
                 throw new ArgumentException("Pick up time is incorrect");
             }
+            
+            await uow.BeginTransactionAsync(ct);
+
+            var userId = currentUserContext.GetUserId();
             
             var cart = await shoppingCartsRepository.GetCartDtoAsync(userId, ct);
 

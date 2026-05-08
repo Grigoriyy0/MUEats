@@ -10,5 +10,5 @@ public interface IOrdersQueries
 
     Task<OrderDto?> GetDtoByIdAsync(Guid orderId, CancellationToken ct);
 
-    Task<List<OrderDto>> GetHistoryAsync(Guid userId, GetOrdersHistoryQuery query, CancellationToken ct);
+    Task<List<OrderDto>> GetHistoryAsync(GetOrdersHistoryQuery query, CancellationToken ct);
 }

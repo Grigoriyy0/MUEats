@@ -10,10 +10,12 @@ namespace MUEats.Infrastructure.Adapters.Services;
 public class OrdersQueries : IOrdersQueries
 {
     private readonly MueDbContext _context;
-
-    public OrdersQueries(MueDbContext context)
+    private readonly ICurrentUserContext _currentUserContext;
+    
+    public OrdersQueries(MueDbContext context, ICurrentUserContext currentUserContext)
     {
         _context = context;
+        this._currentUserContext = currentUserContext;
     }
 
     public Task<OrderStatus> GetStatusAsync(Guid id, CancellationToken ct)
@@ -40,8 +42,27 @@ public class OrdersQueries : IOrdersQueries
             }).FirstOrDefaultAsync(ct);
     }
 
-    public Task<List<OrderDto>> GetHistoryAsync(Guid userId, GetOrdersHistoryQuery query, CancellationToken ct)
+    public Task<List<OrderDto>> GetHistoryAsync(GetOrdersHistoryQuery query, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var userId = _currentUserContext.GetUserId();
+        
+        return _context.Orders.Where(x => x.CreatedAt >= query.FromDate && x.CreatedAt <= query.ToDate && x.UserId == userId)
+            .Select(y => new OrderDto
+            {
+                Id = y.Id,
+                OrderDate = y.CreatedAt,
+                RestaurantDetails = y.RestaurantId.ToString(),
+                OrderItems = y.OrderItems.Select(z => new OrderItemDto
+                {
+                    Id = z.Id,
+                    ItemName = z.Name,
+                    Price = z.Price
+                }).ToList(),
+                TotalPrice = y.TotalPrice
+            })
+            .OrderBy(z => z.OrderDate)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(ct);
     }
 }

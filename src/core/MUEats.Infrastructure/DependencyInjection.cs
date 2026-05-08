@@ -21,6 +21,8 @@ public static class DependencyInjection
         services.AddDbContext<MueDbContext>(opt =>
             opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
 
+        services.AddHttpContextAccessor();
+        
         services.AddScoped<IOrdersRepository, OrdersRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IShoppingCartsRepository, ShoppingCartsRepository>();
@@ -32,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<IEventDispatcher, EventDispatcher>();
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<IOrdersQueries, OrdersQueries>();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();

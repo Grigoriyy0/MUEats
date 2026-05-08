@@ -1,11 +1,9 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.Order;
 using MUEats.Application.Ports;
 using MUEats.Application.Queries;
 using MUEats.Application.Services;
-using MUEats.Application.Services.Identity;
 
 namespace MUEats.Adapters.Http;
 
@@ -28,9 +26,9 @@ public class OrdersController : ControllerBase
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> CreateAsync(CreateOrderDto dto, CancellationToken ct)
     {
-        var userId = User.GetUserId();
+        var userId = User;
         
-        var orderId = await _ordersService.CreateAsync(userId, dto, ct);
+        var orderId = await _ordersService.CreateAsync(dto, ct);
 
         return Accepted(new
         {
@@ -63,13 +61,6 @@ public class OrdersController : ControllerBase
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> GetHistory([FromQuery] GetOrdersHistoryQuery query, CancellationToken ct)
     {
-        var userId = User.FindFirstValue("id");
-
-        if (string.IsNullOrEmpty(userId))
-        {
-            return Unauthorized();
-        }
-        
-        return Ok(await _ordersQueries.GetHistoryAsync(Guid.Parse(userId), query, ct));
+        return Ok(await _ordersQueries.GetHistoryAsync(query, ct));
     }
 }

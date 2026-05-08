@@ -16,15 +16,7 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
     {
         try
         {
-            var userId = User.FindFirstValue("id");
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
-
-            
-            await shoppingCartsService.AddToCartAsync(Guid.Parse(userId), dto, ct);
+            await shoppingCartsService.AddToCartAsync(dto, ct);
             return Created();
         }
         catch (Exception e)
