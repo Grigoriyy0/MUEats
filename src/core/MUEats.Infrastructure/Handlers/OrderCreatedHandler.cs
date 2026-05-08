@@ -10,29 +10,29 @@ namespace MUEats.Infrastructure.Handlers;
 public class OrderCreatedHandler : IIntegrationEventHandler<OrderCreatedEvent>
 {
     private readonly IOrderSagaStatesRepository _orderSagaStatesRepository;
-    private readonly IOutboxRepository _outboxRepository;
-    private readonly IOrdersRepository _ordersRepository;
+    private readonly IOutboxService _outboxService;
+    private readonly IOrdersQueries _ordersQueries;
     private readonly IUnitOfWork _unitOfWork;
 
-    public OrderCreatedHandler(
-        IOrderSagaStatesRepository orderSagaStatesRepository, 
-        IOutboxRepository outboxRepository, 
-        IOrdersRepository ordersRepository, 
-        IUnitOfWork unitOfWork)
+    public OrderCreatedHandler(IOrderSagaStatesRepository orderSagaStatesRepository, 
+        IUnitOfWork unitOfWork, 
+        IOrdersQueries ordersQueries, 
+        IOutboxService outboxService)
     {
         _orderSagaStatesRepository = orderSagaStatesRepository;
-        _outboxRepository = outboxRepository;
-        _ordersRepository = ordersRepository;
         _unitOfWork = unitOfWork;
+        _ordersQueries = ordersQueries;
+        _outboxService = outboxService;
     }
 
+    //todo add create sagaState
     public async Task HandleAsync(OrderCreatedEvent message, CancellationToken ct)
     {
         try
         {
             await _unitOfWork.BeginTransactionAsync(ct);
             
-            var order = await _ordersRepository.GetDtoByIdAsync(message.OrderId, ct);
+            var order = await _ordersQueries.GetDtoByIdAsync(message.OrderId, ct);
             var sagaState = await _orderSagaStatesRepository.GetByIdAsync(message.OrderId, ct);
             
             if (order == null)
@@ -47,19 +47,9 @@ public class OrderCreatedHandler : IIntegrationEventHandler<OrderCreatedEvent>
             };
 
             sagaState.State = SagaStatus.WaitingForApproval;
-        
-            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
-
-            var outboxMessage = new OutboxMessage
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                JsonPayload = json,
-                Type = @event.GetType().Name,
-            };
-        
+            
             await _orderSagaStatesRepository.AddAsync(sagaState, ct);
-            await _outboxRepository.AddAsync(outboxMessage, ct);
+            await _outboxService.CreateAsync(@event, ct);
             
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);

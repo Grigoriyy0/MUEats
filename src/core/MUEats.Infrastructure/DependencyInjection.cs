@@ -27,10 +27,11 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IOrderSagaStatesRepository, OrderSagaStatesRepository>();
         services.AddScoped<IEventDispatcher, EventDispatcher>();
         services.AddScoped<DatabaseSeeder>();
+        services.AddScoped<IOrdersQueries, OrdersQueries>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();

@@ -37,7 +37,7 @@ public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
             return;
         }
 
-        order.OrderStatus = OrderStatus.Prepared;
+        order.Status = OrderStatus.Prepared;
         state.State = SagaStatus.Prepared;
         
         await _ordersRepository.UpdateAsync(order, ct);

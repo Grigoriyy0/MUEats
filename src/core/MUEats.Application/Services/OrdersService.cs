@@ -1,30 +1,30 @@
 using MUEats.Application.Dto.Order;
-using MUEats.Application.Helpers;
 using MUEats.Application.Ports;
-using MUEats.Core;
 using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
-using MUEats.Core.Domain.Order.Entities;
 using MUEats.Core.Domain.Order.ValueObjects;
-using Newtonsoft.Json;
 
 namespace MUEats.Application.Services;
 
-public class OrdersService(
-    IShoppingCartsRepository shoppingCartsRepository,
+public class OrdersService(IShoppingCartsRepository shoppingCartsRepository,
     IOrdersRepository ordersRepository,
     IUnitOfWork uow,
-    IOutboxRepository outboxRepository,
-    IOrderSagaStatesRepository sagaStatesRepository
-    )
+    IOutboxService outboxService)
 {
-    public async Task<Guid> CreateAsync(CreateOrderDto dto, CancellationToken ct)
+    public async Task<Guid> CreateAsync(Guid userId, 
+        CreateOrderDto dto, 
+        CancellationToken ct)
     {
         try
         {
             await uow.BeginTransactionAsync(ct);
-        
-            var cart = await shoppingCartsRepository.GetCartDtoAsync(dto.UserId, ct);
+
+            if (dto.PickUpTime <= DateTime.UtcNow && dto.PickUpTime is not null)
+            {
+                throw new ArgumentException("Pick up time is incorrect");
+            }
+            
+            var cart = await shoppingCartsRepository.GetCartDtoAsync(userId, ct);
 
             if (cart is null || cart.Items.Count == 0)
             {
@@ -36,7 +36,6 @@ public class OrdersService(
             var order = new Order
             {
                 Id = Guid.NewGuid(),
-                Address = dto.Address,
                 OrderItems = cart.Items.Select(i => new OrderItem
                 {
                     Id = Guid.NewGuid(),
@@ -45,9 +44,9 @@ public class OrdersService(
                     Quantity = i.Quantity
                 }).ToList(),
                 TotalPrice = totalPrice,
-                OrderStatus = OrderStatus.Created,
-                OrderDate = DateTime.UtcNow,
-                UserId = dto.UserId,
+                PickupTime = dto.PickUpTime,
+                CreatedAt = DateTime.UtcNow,
+                UserId = userId,
                 RestaurantId = cart.RestaurantId,
             };
 
@@ -55,27 +54,11 @@ public class OrdersService(
             {
                 OrderId = order.Id,
             };
-            
-            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
 
-            var outboxMessage = new OutboxMessage
-            {
-                Id = Guid.NewGuid(),
-                Type = @event.GetType().Name,
-                JsonPayload = json,
-                CreatedAt = DateTime.UtcNow,
-            };
-
-            var sagaState = new OrderSagaState
-            {
-                CorrelationId = order.Id,
-                State = SagaStatus.Created
-            };
+            await outboxService.CreateAsync(@event, ct);
             
             await ordersRepository.AddAsync(order, ct);
-            await outboxRepository.AddAsync(outboxMessage, ct);
             await shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
-            await sagaStatesRepository.AddAsync(sagaState, ct);
             
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);
@@ -88,28 +71,7 @@ public class OrdersService(
             throw;
         }
     }
-
-    public async Task<string> GetStatusAsync(Guid orderId, CancellationToken ct)
-    {
-        //todo add customerID check
-        
-        var status = await ordersRepository.GetStatusAsync(orderId, ct);
-        
-        return status.ToString();
-    }
-
-    public async Task<OrderDto?> GetByIdAsync(Guid orderId, CancellationToken ct)
-    {
-        var dto = await ordersRepository.GetDtoByIdAsync(orderId, ct);
-
-        if (dto is null)
-        {
-            throw new ArgumentException($"Order with {orderId} is not found");
-        }
-
-        return dto;
-    }
-
+    
     public Task<List<OrderDto>> GetHistoryAsync(Guid userId, string timePeriod, CancellationToken ct)
     {
         var (startDate, endDate) = GetDateRange(timePeriod);

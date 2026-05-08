@@ -41,7 +41,7 @@ public class OrderAcceptedHandler : IIntegrationEventHandler<OrderAcceptedEvent>
             }
         
             sagaState.State = SagaStatus.Accepted;
-            order.OrderStatus =  OrderStatus.Accepted;
+            order.Status =  OrderStatus.Accepted;
         
             await _ordersRepository.UpdateAsync(order, ct);
             await _orderSagaStatesRepository.UpdateAsync(sagaState, ct);

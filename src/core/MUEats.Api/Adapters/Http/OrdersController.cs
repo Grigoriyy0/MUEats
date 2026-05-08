@@ -2,19 +2,34 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.Order;
+using MUEats.Application.Ports;
 using MUEats.Application.Services;
+using MUEats.Application.Services.Identity;
 
 namespace MUEats.Adapters.Http;
 
 [Route("api/orders")]
 [ApiController]
-public class OrdersController(OrdersService ordersService) : ControllerBase
+public class OrdersController : ControllerBase
 {
+    private readonly OrdersService _ordersService;
+    private readonly IOrdersQueries _ordersQueries;
+
+    public OrdersController(OrdersService ordersService, 
+        IOrdersQueries ordersQueries)
+    {
+        _ordersService = ordersService;
+        _ordersQueries = ordersQueries;
+    }
+
+
     [HttpPost]
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> CreateAsync(CreateOrderDto dto, CancellationToken ct)
     {
-        var orderId = await ordersService.CreateAsync(dto, ct);
+        var userId = User.GetUserId();
+        
+        var orderId = await _ordersService.CreateAsync(userId, dto, ct);
 
         return Accepted(new
         {
@@ -27,7 +42,7 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> GetStatusAsync(Guid orderId, CancellationToken ct)
     {
-        var orderStatus = await ordersService.GetStatusAsync(orderId, ct);
+        var orderStatus = await _ordersQueries.GetStatusAsync(orderId, ct);
 
         return Ok(orderStatus);
     }
@@ -37,11 +52,12 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> GetByIdAsync(Guid orderId, CancellationToken ct)
     {
-        var orderDto = await ordersService.GetByIdAsync(orderId, ct);
+        var orderDto = await _ordersQueries.GetDtoByIdAsync(orderId, ct);
 
         return Ok(orderDto);
     }
 
+    //todo refactor: timePeriod -> FromDate, ToDate.
     [HttpGet]
     [Route("history")]
     [Authorize(Policy = "Customer")]
@@ -54,6 +70,6 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
             return Unauthorized();
         }
         
-        return Ok(await ordersService.GetHistoryAsync(Guid.Parse(userId), timePeriod, ct));
+        return Ok(await _ordersService.GetHistoryAsync(Guid.Parse(userId), timePeriod, ct));
     }
 }
