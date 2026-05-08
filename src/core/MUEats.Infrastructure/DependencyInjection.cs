@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MUEats.Application.Interfaces;
-using MUEats.Application.Options;
 using MUEats.Application.Ports;
 using MUEats.Infrastructure.Adapters.Kafka;
 using MUEats.Infrastructure.Adapters.Repositories;

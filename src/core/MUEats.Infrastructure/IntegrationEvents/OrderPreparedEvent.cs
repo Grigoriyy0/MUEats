@@ -1,4 +1,3 @@
-using MUEats.Core.Domain.Events;
 
 namespace MUEats.Infrastructure.IntegrationEvents;
 

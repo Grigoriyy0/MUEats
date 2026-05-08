@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MueDbContext))]
-    [Migration("20260508133758_Add_Columns_ToTable_InboxMessages")]
+    [Migration("20260508135530_Add_Columns_ToTable_InboxMessages")]
     partial class Add_Columns_ToTable_InboxMessages
     {
         /// <inheritdoc />
@@ -260,8 +260,9 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                     b.Property<int>("RetryCount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Type")
                         .IsRequired()

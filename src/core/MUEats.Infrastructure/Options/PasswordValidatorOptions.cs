@@ -1,4 +1,4 @@
-namespace MUEats.Application.Options;
+namespace MUEats.Infrastructure.Options;
 
 public class PasswordValidatorOptions
 {
