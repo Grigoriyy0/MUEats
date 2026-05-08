@@ -273,7 +273,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                     b.Property<string>("LastError")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("LockId")
+                    b.Property<Guid?>("LockId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("NextRetryAt")

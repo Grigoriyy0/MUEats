@@ -32,8 +32,8 @@ internal sealed class OutboxProcessingWorker(IServiceScopeFactory serviceScopeFa
 
             var idList = await dbContext.Database.SqlQueryRaw<Guid>("""
                                                                           UPDATE  "OutboxMessages" set "LockId" = {0}
-                                                                          WHERE IN (
-                                                                            SELECT "Id" FROM "OutboxMessages" WHERE "Status" == {1} and
+                                                                          WHERE "Id" IN (
+                                                                            SELECT "Id" FROM "OutboxMessages" WHERE "Status" = {1} and
                                                                               ("NextRetryAt" <= {2} or "NextRetryAt" is null) and
                                                                               ("RetryCount" < {3}) and
                                                                               ("LockId" is null or "LockId" = {0})
@@ -59,16 +59,16 @@ internal sealed class OutboxProcessingWorker(IServiceScopeFactory serviceScopeFa
             foreach (var message in messages)
             {
                 await ProcessMessageAsync(message, ct);
+
+                message.LockId = null;
             }
+
+            await dbContext.SaveChangesAsync(ct);
         }
     }
 
     private async Task ProcessMessageAsync(OutboxMessage message, CancellationToken ct)
     {
-        await using var scope = serviceScopeFactory.CreateAsyncScope();
-
-        var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
-
         try
         {
             var @event = JsonConvert.DeserializeObject<DomainEvent>(message.JsonPayload, JsonSerializerHelper.Settings);
@@ -93,10 +93,9 @@ internal sealed class OutboxProcessingWorker(IServiceScopeFactory serviceScopeFa
             }
             else
             {
-                message.NextRetryAt = DateTime.UtcNow.AddMinutes(1);
+                var delay = Math.Pow(2, message.RetryCount - 1);
+                message.NextRetryAt = DateTime.UtcNow.AddMinutes(delay);
             }
         }
-        
-        await dbContext.SaveChangesAsync(ct);
     }
 }

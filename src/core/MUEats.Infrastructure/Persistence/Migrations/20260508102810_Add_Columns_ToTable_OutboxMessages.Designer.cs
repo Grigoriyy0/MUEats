@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MueDbContext))]
-    [Migration("20260508091428_Add_Columns_ToTable_OutboxMessages")]
+    [Migration("20260508102810_Add_Columns_ToTable_OutboxMessages")]
     partial class Add_Columns_ToTable_OutboxMessages
     {
         /// <inheritdoc />
@@ -276,7 +276,7 @@ namespace MUEats.Infrastructure.Persistence.Migrations
                     b.Property<string>("LastError")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("LockId")
+                    b.Property<Guid?>("LockId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("NextRetryAt")

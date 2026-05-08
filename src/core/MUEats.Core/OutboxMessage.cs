@@ -18,7 +18,7 @@ public sealed class OutboxMessage
 
     public string? LastError { get; set; }
     
-    public Guid LockId { get; set; }
+    public Guid? LockId { get; set; }
 
     public OutboxStatus Status { get; set; }
 }
