@@ -21,16 +21,20 @@ public static class DependencyInjection
         services.AddDbContext<MueDbContext>(opt =>
             opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
 
+        services.AddHttpContextAccessor();
+        
         services.AddScoped<IOrdersRepository, OrdersRepository>();
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IShoppingCartsRepository, ShoppingCartsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IOrderSagaStatesRepository, OrderSagaStatesRepository>();
         services.AddScoped<IEventDispatcher, EventDispatcher>();
         services.AddScoped<DatabaseSeeder>();
+        services.AddScoped<IOrdersQueries, OrdersQueries>();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();

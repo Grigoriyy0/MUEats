@@ -37,7 +37,7 @@ public class OrderPreparingHandler : IIntegrationEventHandler<OrderPreparingEven
         }
 
         sagaState.State = SagaStatus.Preparing;
-        order.OrderStatus = OrderStatus.Preparing;
+        order.Status = OrderStatus.Preparing;
 
         await _unitOfWork.SaveChangesAsync(ct);
         await _unitOfWork.CommitTransactionAsync(ct);

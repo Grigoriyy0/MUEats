@@ -5,15 +5,19 @@ using MUEats.Core.Domain.ShoppingCart.ValueObjects;
 
 namespace MUEats.Application.Services;
 
-public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsRepository, IUnitOfWork uow)
+public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsRepository, 
+    IUnitOfWork uow,
+    ICurrentUserContext currentUserContext)
 {
-    public async Task AddToCartAsync(Guid userId, 
+    public async Task AddToCartAsync(
         AddFoodItemDto dto, 
         CancellationToken ct)
     {
         try
         {
             await uow.BeginTransactionAsync(ct);
+
+            var userId = currentUserContext.GetUserId();
             
             var cart = await shoppingCartsRepository.GetByUserIdAsync(userId, ct);
 

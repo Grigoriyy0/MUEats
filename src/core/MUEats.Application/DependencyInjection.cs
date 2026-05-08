@@ -11,7 +11,7 @@ public static class DependencyInjection
     public static void AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<ShoppingCartsService>();
-        services.AddScoped<OrdersService>();
+        services.AddScoped<IOrdersService, OrdersService>();
         
         services.AddScoped<IClaimStrategy, CustomerClaimStrategy>();
         services.AddScoped<IClaimStrategy, AdminClaimStrategy>();

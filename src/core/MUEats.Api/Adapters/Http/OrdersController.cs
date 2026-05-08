@@ -1,20 +1,35 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.Order;
+using MUEats.Application.Interfaces;
+using MUEats.Application.Ports;
+using MUEats.Application.Queries;
 using MUEats.Application.Services;
 
 namespace MUEats.Adapters.Http;
 
 [Route("api/orders")]
 [ApiController]
-public class OrdersController(OrdersService ordersService) : ControllerBase
+public class OrdersController : ControllerBase
 {
+    private readonly IOrdersService _ordersService;
+    private readonly IOrdersQueries _ordersQueries;
+
+    public OrdersController(IOrdersService ordersService, 
+        IOrdersQueries ordersQueries)
+    {
+        _ordersService = ordersService;
+        _ordersQueries = ordersQueries;
+    }
+
+
     [HttpPost]
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> CreateAsync(CreateOrderDto dto, CancellationToken ct)
     {
-        var orderId = await ordersService.CreateAsync(dto, ct);
+        var userId = User;
+        
+        var orderId = await _ordersService.CreateAsync(dto, ct);
 
         return Accepted(new
         {
@@ -27,7 +42,7 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> GetStatusAsync(Guid orderId, CancellationToken ct)
     {
-        var orderStatus = await ordersService.GetStatusAsync(orderId, ct);
+        var orderStatus = await _ordersQueries.GetStatusAsync(orderId, ct);
 
         return Ok(orderStatus);
     }
@@ -37,23 +52,16 @@ public class OrdersController(OrdersService ordersService) : ControllerBase
     [Authorize(Policy = "Customer")]
     public async Task<IActionResult> GetByIdAsync(Guid orderId, CancellationToken ct)
     {
-        var orderDto = await ordersService.GetByIdAsync(orderId, ct);
+        var orderDto = await _ordersQueries.GetDtoByIdAsync(orderId, ct);
 
         return Ok(orderDto);
     }
-
+    
     [HttpGet]
     [Route("history")]
     [Authorize(Policy = "Customer")]
-    public async Task<IActionResult> GetHistory([FromQuery] string timePeriod, CancellationToken ct)
+    public async Task<IActionResult> GetHistory([FromQuery] GetOrdersHistoryQuery query, CancellationToken ct)
     {
-        var userId = User.FindFirstValue("id");
-
-        if (string.IsNullOrEmpty(userId))
-        {
-            return Unauthorized();
-        }
-        
-        return Ok(await ordersService.GetHistoryAsync(Guid.Parse(userId), timePeriod, ct));
+        return Ok(await _ordersQueries.GetHistoryAsync(query, ct));
     }
 }

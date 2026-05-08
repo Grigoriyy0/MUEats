@@ -15,7 +15,7 @@ public sealed class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Orde
             .HasForeignKey(oi => oi.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(o => o.OrderStatus)
+        builder.Property(o => o.Status)
             .HasConversion<string>();
     }
 }
