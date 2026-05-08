@@ -25,7 +25,8 @@ public class OutboxService : IOutboxService
             Id = Guid.NewGuid(),
             JsonPayload = json,
             CreatedAt = DateTime.UtcNow,
-            Type = @event.GetType().Name
+            Type = @event.GetType().Name,
+            Status = OutboxStatus.Pending,
         };
         
         await _context.OutboxMessages.AddAsync(outboxMessage, ct);
