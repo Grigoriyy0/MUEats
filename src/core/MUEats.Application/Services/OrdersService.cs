@@ -1,20 +1,34 @@
 using MUEats.Application.Dto.Order;
+using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
-using MUEats.Application.Queries;
 using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
 
 namespace MUEats.Application.Services;
 
-public class OrdersService(IShoppingCartsRepository shoppingCartsRepository,
-    IOrdersRepository ordersRepository,
-    IUnitOfWork uow,
-    IOutboxService outboxService,
-    ICurrentUserContext currentUserContext)
+public class OrdersService : IOrdersService
 {
-    public async Task<Guid> CreateAsync(CreateOrderDto dto, 
-        CancellationToken ct)
+    private readonly IShoppingCartsRepository _shoppingCartsRepository;
+    private readonly IOrdersRepository _ordersRepository;
+    private readonly IUnitOfWork _uow;
+    private readonly IOutboxService _outboxService;
+    private readonly ICurrentUserContext _currentUserContext;
+
+    public OrdersService(IShoppingCartsRepository shoppingCartsRepository,
+        IOrdersRepository ordersRepository,
+        IUnitOfWork uow,
+        IOutboxService outboxService,
+        ICurrentUserContext currentUserContext)
+    {
+        _shoppingCartsRepository = shoppingCartsRepository;
+        _ordersRepository = ordersRepository;
+        _uow = uow;
+        _outboxService = outboxService;
+        _currentUserContext = currentUserContext;
+    }
+
+    public async Task<Guid> CreateAsync(CreateOrderDto dto, CancellationToken ct)
     {
         try
         {
@@ -23,11 +37,11 @@ public class OrdersService(IShoppingCartsRepository shoppingCartsRepository,
                 throw new ArgumentException("Pick up time is incorrect");
             }
             
-            await uow.BeginTransactionAsync(ct);
+            await _uow.BeginTransactionAsync(ct);
 
-            var userId = currentUserContext.GetUserId();
+            var userId = _currentUserContext.GetUserId();
             
-            var cart = await shoppingCartsRepository.GetCartDtoAsync(userId, ct);
+            var cart = await _shoppingCartsRepository.GetCartDtoAsync(userId, ct);
 
             if (cart is null || cart.Items.Count == 0)
             {
@@ -58,19 +72,19 @@ public class OrdersService(IShoppingCartsRepository shoppingCartsRepository,
                 OrderId = order.Id,
             };
 
-            await outboxService.CreateAsync(@event, ct);
+            await _outboxService.CreateAsync(@event, ct);
             
-            await ordersRepository.AddAsync(order, ct);
-            await shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
+            await _ordersRepository.AddAsync(order, ct);
+            await _shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
             
-            await uow.SaveChangesAsync(ct);
-            await uow.CommitTransactionAsync(ct);
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
         
             return order.Id;
         }
         catch (Exception)
         {
-            await uow.RollbackTransactionAsync(ct);
+            await _uow.RollbackTransactionAsync(ct);
             throw;
         }
     }

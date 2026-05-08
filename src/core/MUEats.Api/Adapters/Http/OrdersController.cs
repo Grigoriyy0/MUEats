@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.Order;
+using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Application.Queries;
 using MUEats.Application.Services;
@@ -11,10 +12,10 @@ namespace MUEats.Adapters.Http;
 [ApiController]
 public class OrdersController : ControllerBase
 {
-    private readonly OrdersService _ordersService;
+    private readonly IOrdersService _ordersService;
     private readonly IOrdersQueries _ordersQueries;
 
-    public OrdersController(OrdersService ordersService, 
+    public OrdersController(IOrdersService ordersService, 
         IOrdersQueries ordersQueries)
     {
         _ordersService = ordersService;
