@@ -2,12 +2,13 @@
 using MUEats.Application.Ports;
 using MUEats.Core;
 using MUEats.Core.Domain.Events;
+using MUEats.Infrastructure.IntegrationEvents;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
-public class OutboxService : IOutboxService
+public class OutboxService
 {
     private readonly MueDbContext _context;
 
@@ -16,7 +17,7 @@ public class OutboxService : IOutboxService
         _context = context;
     }
 
-    public async Task CreateAsync(DomainEvent @event, CancellationToken ct)
+    public async Task CreateAsync(IntegrationEvent @event, CancellationToken ct)
     {
         var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
 

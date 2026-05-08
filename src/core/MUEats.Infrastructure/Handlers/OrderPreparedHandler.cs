@@ -1,6 +1,6 @@
 using MUEats.Application.Ports;
-using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
+using MUEats.Infrastructure.IntegrationEvents;
 
 namespace MUEats.Infrastructure.Handlers;
 

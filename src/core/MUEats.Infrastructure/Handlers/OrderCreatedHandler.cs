@@ -1,8 +1,9 @@
 using MUEats.Application.Helpers;
 using MUEats.Application.Ports;
 using MUEats.Core;
-using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
+using MUEats.Infrastructure.Adapters.Services;
+using MUEats.Infrastructure.IntegrationEvents;
 using Newtonsoft.Json;
 
 namespace MUEats.Infrastructure.Handlers;
@@ -10,14 +11,14 @@ namespace MUEats.Infrastructure.Handlers;
 public class OrderCreatedHandler : IIntegrationEventHandler<OrderCreatedEvent>
 {
     private readonly IOrderSagaStatesRepository _orderSagaStatesRepository;
-    private readonly IOutboxService _outboxService;
+    private readonly OutboxService _outboxService;
     private readonly IOrdersQueries _ordersQueries;
     private readonly IUnitOfWork _unitOfWork;
 
     public OrderCreatedHandler(IOrderSagaStatesRepository orderSagaStatesRepository, 
         IUnitOfWork unitOfWork, 
         IOrdersQueries ordersQueries, 
-        IOutboxService outboxService)
+        OutboxService outboxService)
     {
         _orderSagaStatesRepository = orderSagaStatesRepository;
         _unitOfWork = unitOfWork;

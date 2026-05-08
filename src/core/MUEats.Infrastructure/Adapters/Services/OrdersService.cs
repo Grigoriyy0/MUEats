@@ -1,24 +1,24 @@
 using MUEats.Application.Dto.Order;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
-using MUEats.Core.Domain.Events.Order;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
+using MUEats.Infrastructure.IntegrationEvents;
 
-namespace MUEats.Application.Services;
+namespace MUEats.Infrastructure.Adapters.Services;
 
 public class OrdersService : IOrdersService
 {
     private readonly IShoppingCartsRepository _shoppingCartsRepository;
     private readonly IOrdersRepository _ordersRepository;
     private readonly IUnitOfWork _uow;
-    private readonly IOutboxService _outboxService;
+    private readonly OutboxService _outboxService;
     private readonly ICurrentUserContext _currentUserContext;
 
     public OrdersService(IShoppingCartsRepository shoppingCartsRepository,
         IOrdersRepository ordersRepository,
         IUnitOfWork uow,
-        IOutboxService outboxService,
+        OutboxService outboxService,
         ICurrentUserContext currentUserContext)
     {
         _shoppingCartsRepository = shoppingCartsRepository;

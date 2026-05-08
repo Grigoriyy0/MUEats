@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Application.Interfaces;
 using MUEats.Application.Options;
 using MUEats.Application.Ports;
 using MUEats.Infrastructure.Adapters.Kafka;
@@ -29,12 +30,14 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IOrderSagaStatesRepository, OrderSagaStatesRepository>();
         services.AddScoped<IEventDispatcher, EventDispatcher>();
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<IOrdersQueries, OrdersQueries>();
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+        services.AddScoped<OutboxService>();
+        services.AddScoped<InboxService>();
+        services.AddScoped<IOrdersService, OrdersService>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();

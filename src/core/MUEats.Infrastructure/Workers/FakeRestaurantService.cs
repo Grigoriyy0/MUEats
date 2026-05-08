@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using MUEats.Application.Helpers;
 using MUEats.Core;
-using MUEats.Core.Domain.Events.Order;
+using MUEats.Infrastructure.IntegrationEvents;
 using MUEats.Infrastructure.Options;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;

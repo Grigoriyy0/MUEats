@@ -1,76 +1,113 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MUEats.Application.Helpers;
 using MUEats.Application.Ports;
 using MUEats.Core;
-using MUEats.Infrastructure.Adapters.Services;
+using MUEats.Infrastructure.IntegrationEvents;
 using MUEats.Infrastructure.Persistence;
+using Newtonsoft.Json;
 
 namespace MUEats.Infrastructure.Workers;
 
 internal sealed class InboxProcessingWorker : BackgroundService
 {
+    private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(500);
+
+    private const int BatchSize = 50;
+    
+    private const int RetryMaxCount = 3;
+    
     private readonly IServiceScopeFactory _scopeFactory;
 
     public InboxProcessingWorker(IServiceScopeFactory scopeFactory)
     {
-        _scopeFactory = scopeFactory;
+        this._scopeFactory = scopeFactory;
     }
 
-    protected override Task ExecuteAsync(CancellationToken ct)
-    {
-        return WorkingLoop(ct);
-    }
-
-    private async Task WorkingLoop(CancellationToken ct)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested)
         {
-            ct.ThrowIfCancellationRequested();
-            
             await using var scope = _scopeFactory.CreateAsyncScope();
 
-            var dbCtx = scope.ServiceProvider.GetRequiredService<MueDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
 
-            var messages = await dbCtx.InboxMessages
-                .Where(im => im.ProcessedAt == null)
-                .OrderBy(im => im.CreatedAt)
-                .Take(50)
+            await dbContext.Database.BeginTransactionAsync(ct);
+            
+            var lockId = Guid.NewGuid();
+
+            var idList = await dbContext.Database.SqlQueryRaw<Guid>("""
+                                                                          UPDATE  "InboxMessages" set "LockId" = {0}
+                                                                          WHERE "Id" IN (
+                                                                            SELECT "Id" FROM "InboxMessages" WHERE "Status" = {1} and
+                                                                              ("NextRetryAt" <= {2} or "NextRetryAt" is null) and
+                                                                              ("RetryCount" < {3}) and
+                                                                              ("LockId" is null or "LockId" = {0})
+                                                                              ORDER BY "CreatedAt"
+                                                                              LIMIT {4}
+                                                                              FOR UPDATE SKIP LOCKED) RETURNING "Id" 
+                                                                          """, lockId, nameof(InboxStatus.Pending), DateTime.UtcNow, RetryMaxCount, BatchSize)
                 .ToListAsync(ct);
-
-            if (messages.Count == 0)
+            
+            
+            await dbContext.Database.CommitTransactionAsync(ct);
+            
+            if (idList.Count == 0)
             {
-                await Task.Delay(1000, ct);
+                await Task.Delay(Delay, ct);
                 continue;
             }
+
+            var messages = await dbContext.InboxMessages
+                .Where(x => idList.Contains(x.Id))
+                .ToListAsync(ct);
             
             foreach (var message in messages)
             {
                 await ProcessMessageAsync(message, ct);
+
+                message.LockId = null;
             }
+
+            await dbContext.SaveChangesAsync(ct);
         }
     }
 
     private async Task ProcessMessageAsync(InboxMessage message, CancellationToken ct)
     {
-        ct.ThrowIfCancellationRequested();
-        
         await using var scope = _scopeFactory.CreateAsyncScope();
-
-        var dbCtx = scope.ServiceProvider.GetRequiredService<MueDbContext>();
-        var eventDispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
-
+        
         try
         {
-            await eventDispatcher.DispatchAsync(message.Type, message.JsonPayload, ct);
+            var @event = JsonConvert.DeserializeObject<IntegrationEvent>(message.JsonPayload, JsonSerializerHelper.Settings);
 
+            if (@event is null)
+            {
+                return;
+            }
+
+            var dispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
+            
+            // todo
+            
             message.ProcessedAt = DateTime.UtcNow;
+            message.Status = InboxStatus.Processed;
         }
         catch (Exception e)
         {
             message.LastError = e.Message;
+            message.RetryCount++;
+
+            if (message.RetryCount >= RetryMaxCount)
+            {
+                message.Status = InboxStatus.Failed;
+            }
+            else
+            {
+                var delay = Math.Pow(2, message.RetryCount - 1);
+                message.NextRetryAt = DateTime.UtcNow.AddMinutes(delay);
+            }
         }
-        
-        await dbCtx.SaveChangesAsync(ct);
     }
 }

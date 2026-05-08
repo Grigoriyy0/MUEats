@@ -1,4 +1,4 @@
-using MUEats.Core.Domain.Events.Order;
+using MUEats.Infrastructure.IntegrationEvents;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
