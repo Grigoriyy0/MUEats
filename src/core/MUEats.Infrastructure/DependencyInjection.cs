@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MUEats.Application.Handlers;
-using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Infrastructure.Adapters.Kafka;
