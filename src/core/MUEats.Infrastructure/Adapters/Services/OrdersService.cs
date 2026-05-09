@@ -1,9 +1,9 @@
 using MUEats.Application.Dto.Order;
+using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.Order;
 using MUEats.Core.Domain.Order.ValueObjects;
-using MUEats.Infrastructure.IntegrationEvents;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 

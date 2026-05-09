@@ -1,44 +1,22 @@
 using Microsoft.Extensions.DependencyInjection;
-using MUEats.Application.Helpers;
-using MUEats.Application.Ports;
-using MUEats.Infrastructure.Handlers;
-using Newtonsoft.Json;
+using MUEats.Application.Handlers;
+using MUEats.Application.IntegrationEvents;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
-public class EventDispatcher : IEventDispatcher
+public class EventDispatcher
 {
-    private readonly EventsRegistry _eventsRegistry;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IServiceProvider _serviceProvider;
 
-    public EventDispatcher(EventsRegistry eventsRegistry, IServiceScopeFactory serviceScopeFactory)
+    public EventDispatcher(IServiceProvider serviceProvider)
     {
-        _eventsRegistry = eventsRegistry;
-        _serviceScopeFactory = serviceScopeFactory;
+        _serviceProvider = serviceProvider;
     }
 
-    public async Task DispatchAsync(string eventType, string message, CancellationToken ct)
+    public Task DispatchAsync<T>(T @event, CancellationToken ct) where T : IntegrationEvent
     {
-        var type = _eventsRegistry.GetType(eventType);
+        var handler = _serviceProvider.GetRequiredService<IIntegrationEventHandler<T>>();
         
-        if (type == null)
-        {
-            return;
-        }
-        
-        await using var scope = _serviceScopeFactory.CreateAsyncScope();
-        
-        var @event = JsonConvert.DeserializeObject(message, type, JsonSerializerHelper.Settings);
-        
-        var handlerType = typeof(IIntegrationEventHandler<>).MakeGenericType(type);
-        
-        var handler = scope.ServiceProvider.GetService(handlerType);
-
-        if (handler != null)
-        {
-            var method = handlerType.GetMethod("HandleAsync");
-            
-            await (Task)method!.Invoke(handler, [@event, ct])!;
-        }
+        return handler.HandleAsync(@event, ct);
     }
 }

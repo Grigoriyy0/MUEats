@@ -1,5 +1,5 @@
 
-namespace MUEats.Infrastructure.IntegrationEvents;
+namespace MUEats.Application.IntegrationEvents;
 
 public class OrderFailedEvent : IntegrationEvent
 {

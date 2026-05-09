@@ -3,7 +3,6 @@ using Microsoft.OpenApi;
 using MUEats.Application;
 using MUEats.Extensions;
 using MUEats.Infrastructure;
-using MUEats.Infrastructure.Handlers;
 using MUEats.Infrastructure.Persistence;
 
 namespace MUEats;
@@ -50,7 +49,6 @@ public class Program
         });
         
         builder.Services.AddInfrastructureServices(builder.Configuration);
-        builder.Services.AddIntegrationEventHandlers(typeof(IIntegrationEventHandler<>).Assembly);
         builder.Services.AddApplicationServices();
         
         var app = builder.Build();

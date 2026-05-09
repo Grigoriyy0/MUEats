@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using MUEats.Application.Helpers;
+using MUEats.Application.IntegrationEvents;
 using MUEats.Core;
-using MUEats.Infrastructure.IntegrationEvents;
 using MUEats.Infrastructure.Options;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
@@ -92,36 +92,11 @@ internal sealed class FakeRestaurantService : BackgroundService
         await dbContext.OutboxMessages.AddAsync(outboxMessage, ct);
         await dbContext.SaveChangesAsync(ct);
 
-        await AddToKitchenWorker(@event.OrderId, ct);
+        AddToKitchenWorker(@event.OrderId, ct);
     }
 
-    private async Task AddToKitchenWorker(Guid orderId, CancellationToken ct)
+    private void AddToKitchenWorker(Guid orderId, CancellationToken ct)
     {
-        await using var scope = _scopeFactory.CreateAsyncScope();
-
-        var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
-        
-        var added = _kitchenWorker.AddOrder(orderId);
-
-        if (added)
-        {
-            var @event = new OrderPreparingEvent
-            {
-                OrderId = orderId
-            };
-            
-            var json = JsonConvert.SerializeObject(@event, JsonSerializerHelper.Settings);
-
-            var outboxMessage = new OutboxMessage
-            {
-                Id = Guid.NewGuid(),
-                JsonPayload = json,
-                CreatedAt = DateTime.UtcNow,
-                Type = @event.GetType().Name
-            };
-            
-            await dbContext.OutboxMessages.AddAsync(outboxMessage, ct);
-            await dbContext.SaveChangesAsync(ct);
-        }
+        _kitchenWorker.AddOrder(orderId);
     }
 }

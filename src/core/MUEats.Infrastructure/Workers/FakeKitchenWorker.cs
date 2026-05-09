@@ -2,8 +2,8 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Application.Helpers;
+using MUEats.Application.IntegrationEvents;
 using MUEats.Core;
-using MUEats.Infrastructure.IntegrationEvents;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
 

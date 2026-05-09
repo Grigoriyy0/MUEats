@@ -2,9 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Application.Helpers;
+using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Ports;
 using MUEats.Core;
-using MUEats.Infrastructure.IntegrationEvents;
+using MUEats.Infrastructure.Adapters.Services;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
 
@@ -76,6 +77,8 @@ internal sealed class InboxProcessingWorker : BackgroundService
 
     private async Task ProcessMessageAsync(InboxMessage message, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        
         await using var scope = _scopeFactory.CreateAsyncScope();
         
         try
@@ -87,9 +90,9 @@ internal sealed class InboxProcessingWorker : BackgroundService
                 return;
             }
 
-            var dispatcher = scope.ServiceProvider.GetRequiredService<IEventDispatcher>();
+            var dispatcher = scope.ServiceProvider.GetRequiredService<EventDispatcher>();
             
-            // todo
+            await dispatcher.DispatchAsync(@event, ct);
             
             message.ProcessedAt = DateTime.UtcNow;
             message.Status = InboxStatus.Processed;

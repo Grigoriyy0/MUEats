@@ -1,4 +1,4 @@
-namespace MUEats.Infrastructure.IntegrationEvents;
+namespace MUEats.Application.IntegrationEvents;
 
 public class OrderPickedUpEvent : IntegrationEvent
 {

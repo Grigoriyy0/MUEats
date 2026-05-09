@@ -1,4 +1,4 @@
-namespace MUEats.Infrastructure.Handlers;
+namespace MUEats.Application.Handlers;
 
 public interface IIntegrationEventHandler<in TMessage>
 {

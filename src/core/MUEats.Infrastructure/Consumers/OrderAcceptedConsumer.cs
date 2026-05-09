@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MUEats.Application.IntegrationEvents;
 using MUEats.Infrastructure.Adapters.Services;
-using MUEats.Infrastructure.IntegrationEvents;
 using MUEats.Infrastructure.Options;
 
 namespace MUEats.Infrastructure.Consumers;

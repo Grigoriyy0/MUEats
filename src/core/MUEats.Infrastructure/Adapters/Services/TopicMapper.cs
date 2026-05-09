@@ -1,4 +1,4 @@
-using MUEats.Infrastructure.IntegrationEvents;
+using MUEats.Application.IntegrationEvents;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
@@ -9,9 +9,7 @@ public class TopicMapper
     public TopicMapper()
     {
         _topics[typeof(OrderCreatedEvent)] = "restaurants";
-        _topics[typeof(OrderSentEvent)] = "orders";
         _topics[typeof(OrderAcceptedEvent)] = "orders";
-        _topics[typeof(OrderPreparingEvent)] = "orders";
         _topics[typeof(OrderPreparedEvent)] = "orders";
         _topics[typeof(OrderPickedUpEvent)] = "orders";
     }
