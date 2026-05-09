@@ -4,6 +4,7 @@ using MUEats.Application;
 using MUEats.Extensions;
 using MUEats.Infrastructure;
 using MUEats.Infrastructure.Persistence;
+using Prometheus;
 
 namespace MUEats;
 
@@ -68,6 +69,9 @@ public class Program
         
         app.UseHttpsRedirection();
 
+        app.UseHttpMetrics();
+        app.MapMetrics();
+        
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();

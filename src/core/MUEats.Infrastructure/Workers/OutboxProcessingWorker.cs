@@ -5,6 +5,7 @@ using MUEats.Application.Helpers;
 using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Ports;
 using MUEats.Core;
+using MUEats.Infrastructure.Metrics;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
 
@@ -81,9 +82,13 @@ internal sealed class OutboxProcessingWorker(IServiceScopeFactory serviceScopeFa
             await producer.ProduceAsync(@event, ct);
             message.ProcessedAt = DateTime.UtcNow;
             message.Status = OutboxStatus.Processed;
+            
+            OutboxMetrics.OutboxLag.Observe((DateTime.UtcNow - message.CreatedAt).TotalSeconds);
+            OutboxMetrics.OutboxProcessed.WithLabels("success").Inc();
         }
         catch (Exception e)
         {
+            OutboxMetrics.OutboxProcessed.WithLabels("failure").Inc();
             message.LastError = e.Message;
             message.RetryCount++;
 

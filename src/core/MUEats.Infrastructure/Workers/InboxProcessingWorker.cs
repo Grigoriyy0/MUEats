@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Application.Helpers;
 using MUEats.Application.IntegrationEvents;
-using MUEats.Application.Ports;
 using MUEats.Core;
 using MUEats.Infrastructure.Adapters.Services;
+using MUEats.Infrastructure.Metrics;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
 
@@ -33,7 +33,7 @@ internal sealed class InboxProcessingWorker : BackgroundService
             await using var scope = _scopeFactory.CreateAsyncScope();
 
             var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
-
+            
             await dbContext.Database.BeginTransactionAsync(ct);
             
             var lockId = Guid.NewGuid();
@@ -96,9 +96,14 @@ internal sealed class InboxProcessingWorker : BackgroundService
             
             message.ProcessedAt = DateTime.UtcNow;
             message.Status = InboxStatus.Processed;
+            
+            InboxMetrics.InboxProcessed.WithLabels("success").Inc();
+            InboxMetrics.InboxLag.Observe((DateTime.UtcNow - message.CreatedAt).TotalSeconds);
         }
         catch (Exception e)
         {
+            InboxMetrics.InboxProcessed.WithLabels("failure").Inc();
+
             message.LastError = e.Message;
             message.RetryCount++;
 
