@@ -1,8 +1,8 @@
-﻿using MUEats.Core.Domain.Events;
+﻿using MUEats.Application.IntegrationEvents;
 
 namespace MUEats.Application.Ports;
 
 public interface IOutboxService
 {
-    Task CreateAsync(DomainEvent @event, CancellationToken ct);
+    Task CreateAsync(IntegrationEvent @event, CancellationToken ct);
 }

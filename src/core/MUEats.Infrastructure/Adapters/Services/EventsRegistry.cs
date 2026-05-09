@@ -1,4 +1,4 @@
-using MUEats.Core.Domain.Events.Order;
+using MUEats.Application.IntegrationEvents;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
@@ -11,7 +11,6 @@ public class EventsRegistry
         _types.Add("OrderPreparedEvent", typeof(OrderPreparedEvent));
         _types.Add("OrderCreatedEvent", typeof(OrderCreatedEvent));
         _types.Add("OrderAcceptedEvent", typeof(OrderAcceptedEvent));
-        _types.Add("OrderPreparingEvent", typeof(OrderPreparingEvent));
     }
 
     public Type? GetType(string eventType)

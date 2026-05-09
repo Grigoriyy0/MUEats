@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
-using MUEats.Application.Options;
 using MUEats.Application.Ports;
+using MUEats.Infrastructure.Options;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 

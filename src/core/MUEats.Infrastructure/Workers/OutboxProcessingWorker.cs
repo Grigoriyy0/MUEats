@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Application.Helpers;
+using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Ports;
 using MUEats.Core;
-using MUEats.Core.Domain.Events;
 using MUEats.Infrastructure.Persistence;
 using Newtonsoft.Json;
 
@@ -71,7 +71,7 @@ internal sealed class OutboxProcessingWorker(IServiceScopeFactory serviceScopeFa
     {
         try
         {
-            var @event = JsonConvert.DeserializeObject<DomainEvent>(message.JsonPayload, JsonSerializerHelper.Settings);
+            var @event = JsonConvert.DeserializeObject<IntegrationEvent>(message.JsonPayload, JsonSerializerHelper.Settings);
 
             if (@event is null)
             {

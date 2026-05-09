@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Application.Handlers;
+using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Application.Services;
@@ -11,7 +13,6 @@ public static class DependencyInjection
     public static void AddApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<ShoppingCartsService>();
-        services.AddScoped<IOrdersService, OrdersService>();
         
         services.AddScoped<IClaimStrategy, CustomerClaimStrategy>();
         services.AddScoped<IClaimStrategy, AdminClaimStrategy>();
@@ -20,6 +21,9 @@ public static class DependencyInjection
         services.AddScoped<IClaimsService, ClaimsService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
-
+        
+        services.AddScoped<IIntegrationEventHandler<OrderAcceptedEvent>, OrderAcceptedHandler>();
+        services.AddScoped<IIntegrationEventHandler<OrderCreatedEvent>, OrderCreatedHandler>();
+        services.AddScoped<IIntegrationEventHandler<OrderPreparedEvent>, OrderPreparedHandler>();
     }
 }
