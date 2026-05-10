@@ -1,4 +1,5 @@
-﻿using MUEats.Application.Dto.User;
+﻿using System.Security;
+using MUEats.Application.Dto.User;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Application.Responses;
@@ -50,31 +51,56 @@ public class AuthService : IAuthService
         var tokenResponse = _tokenProducer.ProduceTokenPair(user);
 
         await _refreshTokenService.SaveAsync(user.Id, tokenResponse.RefreshToken, ct);
-
+        
         return tokenResponse;
     }
     
     public async Task<TokenResponse> RefreshAsync(string refreshToken, CancellationToken ct)
     {
-        var token = await _refreshTokenService.GetAsync(refreshToken, ct);
-
-        if (token is null)
+        await _uow.BeginTransactionAsync(ct);
+        try 
         {
-            throw new ArgumentException("No such token");
-        }
+            var token = await _refreshTokenService.GetAsync(refreshToken, ct);
 
-        var user = await _usersRepository.GetByIdAsync(token.UserId, ct);
+            if (token is null)
+            {
+                throw new Exception("Token not found");
+            }
 
-        if (user is null)
-        {
-            throw new ArgumentException("No such user");
-        }
+            // Защита от повторного использования (Reuse Detection)
+            if (token.IsRevoked)
+            {
+                await _refreshTokenService.RevokeAllForUserAsync(token.UserId, ct);
+                await _uow.SaveChangesAsync(ct);
+                await _uow.CommitTransactionAsync(ct);
+                throw new SecurityException("Token reuse detected. All sessions revoked.");
+            }
 
-        var newTokenPair = _tokenProducer.ProduceTokenPair(user);
+            if (token.ExpiresOn <= DateTime.UtcNow)
+                throw new Exception("Token expired");
 
-        await _refreshTokenService.SaveAsync(user.Id, newTokenPair.RefreshToken, ct);
+            var user = await _usersRepository.GetByIdAsync(token.UserId, ct);
+            
+            if (user is null)
+            {
+                throw new Exception("User unavailable");
+            }
+
+            var newTokenPair = _tokenProducer.ProduceTokenPair(user);
+            
+            token.IsRevoked = true;
+            await _refreshTokenService.SaveAsync(user.Id, newTokenPair.RefreshToken, ct);
+
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
         
-        return newTokenPair;
+            return newTokenPair;
+        }
+        catch
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            throw;
+        }
     }
     
     public async Task RegisterAsync(CreateUserDto dto, CancellationToken ct)

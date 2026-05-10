@@ -24,14 +24,17 @@ public static class AuthExtensions
                 var rsaKey = new RsaSecurityKey(rsa);
                 
                 options.TokenValidationParameters = new TokenValidationParameters
-                {
+                { 
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = rsaKey,
                     ValidateIssuer = true,
                     ValidIssuer = configuration["AuthOptions:Issuer"],
                     ValidateAudience = true,
                     ValidAudience = configuration["AuthOptions:Audience"],
-                    CryptoProviderFactory = new CryptoProviderFactory{CacheSignatureProviders = true}
+                    CryptoProviderFactory = new CryptoProviderFactory{CacheSignatureProviders = true},
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidAlgorithms = [SecurityAlgorithms.RsaSha256]
                 };
             });
     }
