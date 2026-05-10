@@ -75,7 +75,7 @@ public class OrdersService : IOrdersService
             await _outboxService.CreateAsync(@event, ct);
             
             await _ordersRepository.AddAsync(order, ct);
-            await _shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
+            //await _shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
             
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);

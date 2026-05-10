@@ -37,7 +37,7 @@ internal sealed class FakeRestaurantService : BackgroundService
         _consumer = new ConsumerBuilder<Null, string>(consumerConfig)
             .Build();
         
-        if (!options.Value.ConsumerOptions.TryGetValue("Restaurant", out var consumerOptions))
+        if (!options.Value.ConsumerOptions.TryGetValue("Restaurants", out var consumerOptions))
         {
             throw new Exception("Restaurants consumer options not found");
         }
