@@ -12,13 +12,13 @@ public class OrdersService : IOrdersService
     private readonly IShoppingCartsRepository _shoppingCartsRepository;
     private readonly IOrdersRepository _ordersRepository;
     private readonly IUnitOfWork _uow;
-    private readonly OutboxService _outboxService;
+    private readonly IOutboxService _outboxService;
     private readonly ICurrentUserContext _currentUserContext;
 
     public OrdersService(IShoppingCartsRepository shoppingCartsRepository,
         IOrdersRepository ordersRepository,
         IUnitOfWork uow,
-        OutboxService outboxService,
+        IOutboxService outboxService,
         ICurrentUserContext currentUserContext)
     {
         _shoppingCartsRepository = shoppingCartsRepository;
