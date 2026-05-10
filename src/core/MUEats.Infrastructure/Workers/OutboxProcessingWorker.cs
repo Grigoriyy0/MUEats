@@ -78,11 +78,11 @@ internal sealed class OutboxProcessingWorker(IServiceScopeFactory serviceScopeFa
             {
                 return;
             }
-        
+
             await producer.ProduceAsync(@event, ct);
             message.ProcessedAt = DateTime.UtcNow;
             message.Status = OutboxStatus.Processed;
-            
+
             OutboxMetrics.OutboxLag.Observe((DateTime.UtcNow - message.CreatedAt).TotalSeconds);
             OutboxMetrics.OutboxProcessed.WithLabels("success").Inc();
         }

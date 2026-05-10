@@ -15,7 +15,7 @@ public class OrdersQueries : IOrdersQueries
     public OrdersQueries(MueDbContext context, ICurrentUserContext currentUserContext)
     {
         _context = context;
-        this._currentUserContext = currentUserContext;
+        _currentUserContext = currentUserContext;
     }
 
     public Task<OrderStatus> GetStatusAsync(Guid id, CancellationToken ct)

@@ -5,6 +5,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{8C250B44-453A-4FA0-9DD1-B1A16F304749}"
 	ProjectSection(SolutionItems) = preProject
 		solution items\docker-compose.yml = solution items\docker-compose.yml
+		solution items\prometheus.yml = solution items\prometheus.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{05B05B86-CAFA-486D-B740-7F0492443515}"

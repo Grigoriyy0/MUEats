@@ -49,7 +49,6 @@ public static class DependencyInjection
         services.Configure<AdminOptions>(configuration.GetSection(nameof(AdminOptions)));
         
         services.AddHostedService<FakeRestaurantService>();
-        services.AddHostedService<OrdersConsumer>();
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<InboxProcessingWorker>();

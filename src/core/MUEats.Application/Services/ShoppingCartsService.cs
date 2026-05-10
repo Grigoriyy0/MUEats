@@ -9,9 +9,7 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
     IUnitOfWork uow,
     ICurrentUserContext currentUserContext)
 {
-    public async Task AddToCartAsync(
-        AddFoodItemDto dto, 
-        CancellationToken ct)
+    public async Task AddToCartAsync(AddFoodItemDto dto, CancellationToken ct)
     {
         try
         {
@@ -21,7 +19,7 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
             
             var cart = await shoppingCartsRepository.GetByUserIdAsync(userId, ct);
 
-            cart = await EnsureShoppingCartAsync(cart, userId, dto.RestaurantId, ct);
+            cart = await EnsureShoppingCartAsync(cart, userId, dto.RestaurantId, dto.RestaurantName, ct);
             
             await AddOrIncreaseItem(dto, cart, ct);
             
@@ -103,6 +101,7 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
     private async Task<ShoppingCart> EnsureShoppingCartAsync(ShoppingCart? cart, 
         Guid userId, 
         Guid restaurantId, 
+        string restaurantName,
         CancellationToken ct)
     {
         if (cart != null && cart.RestaurantId == restaurantId)
@@ -114,7 +113,8 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            RestaurantId = restaurantId
+            RestaurantId = restaurantId,
+            RestaurantName = restaurantName
         };
         
         await shoppingCartsRepository.AddAsync(newCart, ct);
@@ -122,8 +122,8 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         return newCart;
     }
 
-    public async Task<CartDto?> GetShoppingCartAsync(Guid userId, CancellationToken ct)
+    public Task<CartDto?> GetShoppingCartAsync(Guid userId, CancellationToken ct)
     {
-        return await shoppingCartsRepository.GetCartDtoAsync(userId, ct);
+        return shoppingCartsRepository.GetCartDtoAsync(userId, ct);
     }
 }
