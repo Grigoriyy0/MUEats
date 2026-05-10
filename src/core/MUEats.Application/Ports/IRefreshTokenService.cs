@@ -7,4 +7,6 @@ public interface IRefreshTokenService
     Task SaveAsync(Guid userId, string token, CancellationToken ct);
 
     Task<RefreshToken?> GetAsync(string token, CancellationToken ct);
+
+    Task RevokeAllForUserAsync(Guid userId, CancellationToken ct);
 }
