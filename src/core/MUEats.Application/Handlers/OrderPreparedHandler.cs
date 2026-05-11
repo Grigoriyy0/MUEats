@@ -6,13 +6,12 @@ namespace MUEats.Application.Handlers;
 
 public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
 {
-    private readonly IOrderSagaStatesRepository _orderSagaStatesRepository;
+    private readonly IOrderSagasRepository _orderSagasRepository;
     private readonly IOrdersRepository _ordersRepository;
 
-    public OrderPreparedHandler(IOrderSagaStatesRepository orderSagaStatesRepository,
-        IOrdersRepository ordersRepository)
+    public OrderPreparedHandler(IOrderSagasRepository orderSagasRepository, IOrdersRepository ordersRepository)
     {
-        _orderSagaStatesRepository = orderSagaStatesRepository;
+        _orderSagasRepository = orderSagasRepository;
         _ordersRepository = ordersRepository;
     }
 
@@ -20,7 +19,7 @@ public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
     {
         var order = await _ordersRepository.GetByIdAsync(message.OrderId, ct);
 
-        var state = await _orderSagaStatesRepository.GetByIdAsync(message.OrderId, ct);
+        var state = await _orderSagasRepository.GetByIdAsync(message.OrderId, ct);
 
         if (order == null || state == null)
         {
@@ -28,6 +27,11 @@ public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
         }
         
         order.Status = OrderStatus.Prepared;
-        state.State = SagaStatus.Prepared;
+        
+        state.State = SagaState.Prepared;
+        state.UpdatedAt = DateTime.UtcNow;
+        
+        //refactor in future
+        state.PickUpDeadline = DateTime.UtcNow.AddMinutes(20);
     }
 }

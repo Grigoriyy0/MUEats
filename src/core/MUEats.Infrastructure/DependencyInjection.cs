@@ -28,20 +28,19 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ITokenProducer, TokenProducer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-        services.AddScoped<IOrderSagaStatesRepository, OrderSagaStatesRepository>();
-        services.AddScoped<EventDispatcher>();
+        services.AddScoped<IOrderSagasRepository, OrderSagasRepository>();
+        services.AddScoped<IEventDispatcher, EventDispatcher>();
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<IOrdersQueries, OrdersQueries>();
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         services.AddScoped<IOutboxService, OutboxService>();
-        services.AddScoped<InboxService>();
+        services.AddScoped<IInboxService, InboxService>();
         services.AddScoped<IOrdersService, OrdersService>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<TopicMapper>();
         services.AddSingleton<IProducer, KafkaProducer>();
-        services.AddSingleton<EventsRegistry>();
         
         services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
         services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));
@@ -52,7 +51,10 @@ public static class DependencyInjection
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<InboxProcessingWorker>();
+        
         services.AddHostedService<OrderAcceptedConsumer>();
+        services.AddHostedService<OrderFailedConsumer>();
+        services.AddHostedService<OrderPreparedConsumer>();
         
         services.AddSingleton<FakeKitchenWorker>();
         services.AddHostedService(sp => sp.GetRequiredService<FakeKitchenWorker>());

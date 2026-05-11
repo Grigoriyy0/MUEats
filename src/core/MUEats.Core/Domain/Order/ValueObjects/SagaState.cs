@@ -1,12 +1,10 @@
 namespace MUEats.Core.Domain.Order.ValueObjects;
 
-public enum SagaStatus
+public enum SagaState
 {
     Created,
-    WaitingForApproval,
     Accepted,
-    Preparing,
     Prepared,
-    Rejected,
-    Cancelled
+    Completed,
+    Failed
 }

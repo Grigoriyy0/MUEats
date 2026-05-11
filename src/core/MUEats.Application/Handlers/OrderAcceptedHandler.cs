@@ -6,20 +6,18 @@ namespace MUEats.Application.Handlers;
 
 public class OrderAcceptedHandler : IIntegrationEventHandler<OrderAcceptedEvent>
 {
-    private readonly IOrderSagaStatesRepository _orderSagaStatesRepository;
+    private readonly IOrderSagasRepository _orderSagasRepository;
     private readonly IOrdersRepository _ordersRepository;
 
-    public OrderAcceptedHandler(
-        IOrderSagaStatesRepository orderSagaStatesRepository,
-        IOrdersRepository ordersRepository)
+    public OrderAcceptedHandler(IOrderSagasRepository orderSagasRepository, IOrdersRepository ordersRepository)
     {
-        _orderSagaStatesRepository = orderSagaStatesRepository;
+        _orderSagasRepository = orderSagasRepository;
         _ordersRepository = ordersRepository;
     }
 
     public async Task HandleAsync(OrderAcceptedEvent message, CancellationToken ct)
     {
-        var sagaState = await _orderSagaStatesRepository.GetByIdAsync(message.OrderId, ct);
+        var sagaState = await _orderSagasRepository.GetByIdAsync(message.OrderId, ct);
 
         var order = await _ordersRepository.GetByIdAsync(message.OrderId, ct);
 
@@ -28,12 +26,14 @@ public class OrderAcceptedHandler : IIntegrationEventHandler<OrderAcceptedEvent>
             return;
         }
 
-        if (sagaState.State > SagaStatus.WaitingForApproval)
+        if (sagaState.State != SagaState.Created)
         {
             return;
         }
 
-        sagaState.State = SagaStatus.Accepted;
+        sagaState.State = SagaState.Accepted;
+        sagaState.UpdatedAt = DateTime.UtcNow;
+        
         order.Status = OrderStatus.Accepted;
     }
 }
