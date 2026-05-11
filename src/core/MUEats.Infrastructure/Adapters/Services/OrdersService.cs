@@ -3,6 +3,7 @@ using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.Order;
+using MUEats.Core.Domain.Order.Entities;
 using MUEats.Core.Domain.Order.ValueObjects;
 
 namespace MUEats.Infrastructure.Adapters.Services;
@@ -14,18 +15,21 @@ public class OrdersService : IOrdersService
     private readonly IUnitOfWork _uow;
     private readonly IOutboxService _outboxService;
     private readonly ICurrentUserContext _currentUserContext;
-
+    private readonly IOrderSagasRepository _sagas;
+    
     public OrdersService(IShoppingCartsRepository shoppingCartsRepository,
         IOrdersRepository ordersRepository,
         IUnitOfWork uow,
         IOutboxService outboxService,
-        ICurrentUserContext currentUserContext)
+        ICurrentUserContext currentUserContext, 
+        IOrderSagasRepository sagas)
     {
         _shoppingCartsRepository = shoppingCartsRepository;
         _ordersRepository = ordersRepository;
         _uow = uow;
         _outboxService = outboxService;
         _currentUserContext = currentUserContext;
+        _sagas = sagas;
     }
 
     public async Task<Guid> CreateAsync(CreateOrderDto dto, CancellationToken ct)
@@ -67,13 +71,24 @@ public class OrdersService : IOrdersService
                 RestaurantId = cart.RestaurantId,
             };
 
+            var saga = new OrderSaga
+            {
+                CorrelationId = order.Id,
+                State = SagaState.Created,
+                AcknowledgeDeadline = DateTime.UtcNow.AddMinutes(5),
+                RestaurantId = order.RestaurantId,
+                CustomerId = order.UserId,
+                CreatedAt = DateTime.UtcNow,
+                OrderTotal =  order.TotalPrice,
+            };
+            
             var @event = new OrderCreatedEvent
             {
                 OrderId = order.Id,
             };
 
             await _outboxService.CreateAsync(@event, ct);
-            
+            await _sagas.AddAsync(saga, ct);
             await _ordersRepository.AddAsync(order, ct);
             //await _shoppingCartsRepository.ClearCartAsync(cart.Id, ct);
             

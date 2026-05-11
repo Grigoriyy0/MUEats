@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Application.Helpers;
 using MUEats.Application.IntegrationEvents;
+using MUEats.Application.Ports;
 using MUEats.Core;
 using MUEats.Infrastructure.Adapters.Services;
 using MUEats.Infrastructure.Metrics;
@@ -14,16 +15,13 @@ namespace MUEats.Infrastructure.Workers;
 internal sealed class InboxProcessingWorker : BackgroundService
 {
     private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(500);
-
     private const int BatchSize = 50;
-    
     private const int RetryMaxCount = 3;
-    
     private readonly IServiceScopeFactory _scopeFactory;
 
     public InboxProcessingWorker(IServiceScopeFactory scopeFactory)
     {
-        this._scopeFactory = scopeFactory;
+        _scopeFactory = scopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken ct)
@@ -33,6 +31,7 @@ internal sealed class InboxProcessingWorker : BackgroundService
             await using var scope = _scopeFactory.CreateAsyncScope();
 
             var dbContext = scope.ServiceProvider.GetRequiredService<MueDbContext>();
+            var inboxService = scope.ServiceProvider.GetRequiredService<IInboxService>();
             
             await dbContext.Database.BeginTransactionAsync(ct);
             
@@ -66,55 +65,7 @@ internal sealed class InboxProcessingWorker : BackgroundService
             
             foreach (var message in messages)
             {
-                await ProcessMessageAsync(message, ct);
-
-                message.LockId = null;
-            }
-
-            await dbContext.SaveChangesAsync(ct);
-        }
-    }
-
-    private async Task ProcessMessageAsync(InboxMessage message, CancellationToken ct)
-    {
-        ct.ThrowIfCancellationRequested();
-        
-        await using var scope = _scopeFactory.CreateAsyncScope();
-        
-        try
-        {
-            var @event = JsonConvert.DeserializeObject<IntegrationEvent>(message.JsonPayload, JsonSerializerHelper.Settings);
-
-            if (@event is null)
-            {
-                return;
-            }
-
-            var dispatcher = scope.ServiceProvider.GetRequiredService<EventDispatcher>();
-            
-            await dispatcher.DispatchAsync(@event, ct);
-            
-            message.ProcessedAt = DateTime.UtcNow;
-            message.Status = InboxStatus.Processed;
-            
-            InboxMetrics.InboxProcessed.WithLabels("success").Inc();
-            InboxMetrics.InboxLag.Observe((DateTime.UtcNow - message.CreatedAt).TotalSeconds);
-        }
-        catch (Exception e)
-        {
-            InboxMetrics.InboxProcessed.WithLabels("failure").Inc();
-
-            message.LastError = e.Message;
-            message.RetryCount++;
-
-            if (message.RetryCount >= RetryMaxCount)
-            {
-                message.Status = InboxStatus.Failed;
-            }
-            else
-            {
-                var delay = Math.Pow(2, message.RetryCount - 1);
-                message.NextRetryAt = DateTime.UtcNow.AddMinutes(delay);
+                await inboxService.ProcessMessageAsync(message, ct);
             }
         }
     }

@@ -4,9 +4,9 @@ using MUEats.Core.Domain.Order.Entities;
 
 namespace MUEats.Infrastructure.Persistence.Configurations;
 
-public class OrderSagaStateEntityTypeConfiguration : IEntityTypeConfiguration<OrderSagaState>
+public class OrderSagaEntityTypeConfiguration : IEntityTypeConfiguration<OrderSaga>
 {
-    public void Configure(EntityTypeBuilder<OrderSagaState> builder)
+    public void Configure(EntityTypeBuilder<OrderSaga> builder)
     {
         builder.HasKey(o => o.CorrelationId);
 
