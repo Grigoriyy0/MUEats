@@ -47,8 +47,10 @@ public class InboxService : IInboxService
     public async Task ProcessMessageAsync(InboxMessage message, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-
+        
         await using var tx = await _context.Database.BeginTransactionAsync(ct);
+
+        message.LockId = null;
         
         try
         {

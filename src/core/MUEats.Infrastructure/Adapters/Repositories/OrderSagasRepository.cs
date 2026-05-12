@@ -22,11 +22,12 @@ public class OrderSagasRepository : IOrderSagasRepository
 
     public Task<OrderSaga?> GetByIdAsync(Guid correlationId, CancellationToken ct)
     {
-        return _dbContext.Database.SqlQueryRaw<OrderSaga?>("""
-                                                    SELECT * FROM "OrderSagas"
-                                                    WHERE "CorrelationId" = {0}
-                                                    FOR UPDATE
-                                                    """, correlationId)
+        return _dbContext.OrderSagas
+            .FromSqlInterpolated($"""
+                                  SELECT * FROM "OrderSagas" 
+                                  WHERE "CorrelationId" = {correlationId} 
+                                  FOR UPDATE
+                                  """)
             .FirstOrDefaultAsync(ct);
     }
 }

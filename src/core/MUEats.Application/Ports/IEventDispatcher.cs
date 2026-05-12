@@ -4,5 +4,5 @@ namespace MUEats.Application.Ports;
 
 public interface IEventDispatcher
 {
-    Task DispatchAsync<T>(T @event, CancellationToken ct) where T : IntegrationEvent;
+    Task DispatchAsync(IntegrationEvent @event, CancellationToken ct);
 }

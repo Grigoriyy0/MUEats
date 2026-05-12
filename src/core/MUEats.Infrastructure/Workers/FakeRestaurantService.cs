@@ -30,7 +30,6 @@ internal sealed class FakeRestaurantService : BackgroundService
             BootstrapServers = options.Value.BootstrapServers,
             AllowAutoCreateTopics = false,
             AutoOffsetReset = AutoOffsetReset.Earliest,
-            Acks = Acks.Leader,
             GroupId = "Restaurants"
         };
         

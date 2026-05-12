@@ -30,7 +30,7 @@ internal sealed class FakeKitchenWorker : BackgroundService
     
         while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync(ct))
         {
-            var cutoff = DateTime.UtcNow.AddMinutes(-1);
+            var cutoff = DateTime.UtcNow.AddMinutes(-2);
         
             // Find orders ready to be processed
             var readyOrderIds = _orders

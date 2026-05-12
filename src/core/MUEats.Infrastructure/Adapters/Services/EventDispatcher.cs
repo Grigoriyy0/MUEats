@@ -14,12 +14,18 @@ public class EventDispatcher : IEventDispatcher
         _serviceProvider = serviceProvider;
     }
 
-    public Task DispatchAsync<T>(T @event, CancellationToken ct) where T : IntegrationEvent
+    public async Task DispatchAsync(IntegrationEvent @event, CancellationToken ct)
     {
-        var handler = _serviceProvider.GetRequiredService<IIntegrationEventHandler<T>>();
-        
-        
-        
-        return handler.HandleAsync(@event, ct);
+        var eventType = @event.GetType();
+        var handlerType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
+    
+        var handler = _serviceProvider.GetRequiredService(handlerType);
+
+        var method = handlerType.GetMethod(nameof(IIntegrationEventHandler<>.HandleAsync));
+    
+        if (method != null)
+        {
+            await (Task)method.Invoke(handler, [@event, ct])!;
+        }
     }
 }
