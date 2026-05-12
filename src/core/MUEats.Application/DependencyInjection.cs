@@ -25,5 +25,6 @@ public static class DependencyInjection
         services.AddScoped<IIntegrationEventHandler<OrderAcceptedEvent>, OrderAcceptedHandler>();
         services.AddScoped<IIntegrationEventHandler<OrderPreparedEvent>, OrderPreparedHandler>();
         services.AddScoped<IIntegrationEventHandler<OrderRejectedEvent>, OrderRejectedHandler>();
+        services.AddScoped<IIntegrationEventHandler<OrderCancelledEvent>, OrderCancelledHandler>();
     }
 }
