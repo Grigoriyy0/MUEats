@@ -1,24 +1,23 @@
-using MUEats.Application.IntegrationEvents;
+﻿using MUEats.Application.IntegrationEvents;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.Order.ValueObjects;
 
 namespace MUEats.Application.Handlers;
 
-public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
+public class OrderRejectedHandler : IIntegrationEventHandler<OrderRejectedEvent>
 {
     private readonly IOrderSagasRepository _orderSagasRepository;
     private readonly IOrdersRepository _ordersRepository;
 
-    public OrderPreparedHandler(IOrderSagasRepository orderSagasRepository, IOrdersRepository ordersRepository)
+    public OrderRejectedHandler(IOrderSagasRepository orderSagasRepository, IOrdersRepository ordersRepository)
     {
         _orderSagasRepository = orderSagasRepository;
         _ordersRepository = ordersRepository;
     }
 
-    public async Task HandleAsync(OrderPreparedEvent message, CancellationToken ct)
+    public async Task HandleAsync(OrderRejectedEvent message, CancellationToken ct)
     {
         var order = await _ordersRepository.GetByIdAsync(message.OrderId, ct);
-
         var saga = await _orderSagasRepository.GetByIdAsync(message.OrderId, ct);
 
         if (order == null || saga == null)
@@ -26,17 +25,15 @@ public class OrderPreparedHandler : IIntegrationEventHandler<OrderPreparedEvent>
             return;
         }
 
-        if (saga.State != SagaState.Accepted)
+        if (saga.State != SagaState.Created)
         {
             return;
         }
         
-        order.Status = OrderStatus.Prepared;
-        
-        saga.State = SagaState.Prepared;
+        saga.State = SagaState.Rejected;
         saga.UpdatedAt = DateTime.UtcNow;
         
-        //refactor in future
-        saga.PickUpDeadline = DateTime.UtcNow.AddMinutes(20);
+        order.Status = OrderStatus.Rejected;
+        order.RejectReason = message.Reason;
     }
 }

@@ -6,16 +6,16 @@ using MUEats.Infrastructure.Options;
 
 namespace MUEats.Infrastructure.Consumers;
 
-public class OrderFailedConsumer : BaseConsumer<OrderFailedEvent>
+public class OrderCancelledConsumer : BaseConsumer<OrderCancelledEvent>
 {
     private readonly IServiceScopeFactory _scopeFactory;
     
-    public OrderFailedConsumer(IOptions<KafkaOptions> options, IServiceScopeFactory scopeFactory) : base(options)
+    public OrderCancelledConsumer(IOptions<KafkaOptions> options, IServiceScopeFactory scopeFactory) : base(options)
     {
         _scopeFactory = scopeFactory;
     }
 
-    protected override async Task ProcessMessageAsync(OrderFailedEvent message, CancellationToken ct)
+    protected override async Task ProcessMessageAsync(OrderCancelledEvent message, CancellationToken ct)
     {
         await using var scope =  _scopeFactory.CreateAsyncScope();
         

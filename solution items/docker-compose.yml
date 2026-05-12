@@ -54,10 +54,10 @@ services:
 
       echo -e 'Creating kafka topics'
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.accepted --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.failed --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.prepared --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.created --replication-factor 1 --partitions 1
-
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.rejected --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.cancelled --replication-factor 1 --partitions 1
       "
   kowl:
     image: quay.io/cloudhut/kowl:v1.4.0

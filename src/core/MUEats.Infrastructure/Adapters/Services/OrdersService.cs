@@ -103,4 +103,35 @@ public class OrdersService : IOrdersService
             throw;
         }
     }
+
+    public async Task CancelAsync(Guid orderId, CancellationToken ct)
+    {
+        await _uow.BeginTransactionAsync(ct);
+        
+        var order =  await _ordersRepository.GetByIdAsync(orderId, ct);
+
+        if (order is null)
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            throw new ArgumentException("Order not found");
+        }
+        
+        var userId =  _currentUserContext.GetUserId();
+
+        if (order.UserId != userId)
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            throw new ArgumentException("Failed to cancel");
+        }
+        
+        var @event = new OrderCancelledEvent
+        {
+            OrderId = orderId,
+        };
+        
+        await _outboxService.CreateAsync(@event, ct);
+        
+        await _uow.SaveChangesAsync(ct);
+        await _uow.CommitTransactionAsync(ct);
+    }
 }

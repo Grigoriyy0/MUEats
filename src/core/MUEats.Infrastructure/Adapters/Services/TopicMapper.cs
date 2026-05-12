@@ -11,7 +11,6 @@ public class TopicMapper
         _topics[typeof(OrderCreatedEvent)] = "orders.created";
         _topics[typeof(OrderAcceptedEvent)] = "orders.accepted";
         _topics[typeof(OrderPreparedEvent)] = "orders.prepared";
-        _topics[typeof(OrderFailedEvent)] = "orders.failed";
     }
 
     public string? TryGetTopic(Type type)
