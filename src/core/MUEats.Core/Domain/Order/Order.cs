@@ -18,5 +18,7 @@ public class Order
     
     public DateTime CreatedAt { get; init; }
     
+    public string? RejectReason { get; set; }
+    
     public List<OrderItem> OrderItems { get; set; } = [];
 }

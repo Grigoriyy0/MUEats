@@ -6,5 +6,6 @@ public enum SagaState
     Accepted,
     Prepared,
     Completed,
-    Failed
+    Cancelled,
+    Rejected
 }

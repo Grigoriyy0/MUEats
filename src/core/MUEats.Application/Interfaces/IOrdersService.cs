@@ -5,4 +5,6 @@ namespace MUEats.Application.Interfaces;
 public interface IOrdersService
 {
     Task<Guid> CreateAsync(CreateOrderDto dto, CancellationToken ct);
+
+    Task CancelAsync(Guid orderId, CancellationToken ct);
 }

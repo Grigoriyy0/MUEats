@@ -25,10 +25,8 @@ public class OrdersController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = "Customer")]
-    public async Task<IActionResult> CreateAsync(CreateOrderDto dto, CancellationToken ct)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateOrderDto dto, CancellationToken ct)
     {
-        var userId = User;
-        
         var orderId = await _ordersService.CreateAsync(dto, ct);
 
         return Accepted(new
@@ -37,10 +35,26 @@ public class OrdersController : ControllerBase
         });
     }
 
+    [HttpPut]
+    [Authorize(Policy = "Customer")]
+    [Route("{orderId:guid}/cancel")]
+    public async Task<IActionResult> CancelAsync([FromRoute] Guid orderId, CancellationToken ct)
+    {
+        try
+        {
+            await _ordersService.CancelAsync(orderId, ct);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
     [HttpGet]
     [Route("{orderId:guid}/status")]
     [Authorize(Policy = "Customer")]
-    public async Task<IActionResult> GetStatusAsync(Guid orderId, CancellationToken ct)
+    public async Task<IActionResult> GetStatusAsync([FromRoute] Guid orderId, CancellationToken ct)
     {
         var orderStatus = await _ordersQueries.GetStatusAsync(orderId, ct);
 
@@ -50,7 +64,7 @@ public class OrdersController : ControllerBase
     [HttpGet]
     [Route("{orderId:guid}")]
     [Authorize(Policy = "Customer")]
-    public async Task<IActionResult> GetByIdAsync(Guid orderId, CancellationToken ct)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid orderId, CancellationToken ct)
     {
         var orderDto = await _ordersQueries.GetDtoByIdAsync(orderId, ct);
 
