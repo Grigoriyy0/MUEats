@@ -7,6 +7,7 @@ using MUEats.Restaurants.Infrastructure.Adapters.Kafka.Consumers;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Services;
 using MUEats.Restaurants.Infrastructure.Services.Interfaces;
+using MUEats.Restaurants.Infrastructure.Workers;
 using StackExchange.Redis;
 
 namespace MUEats.Restaurants.Infrastructure;
@@ -29,5 +30,7 @@ public static class DependencyInjection
         services.AddSingleton<IPresenceService, PresenceService>();
 
         services.AddHostedService<OrderCreatedConsumer>();
+        services.AddHostedService<OutboxProcessingWorker>();
+        services.AddHostedService<InboxProcessingWorker>();
     }
 }
