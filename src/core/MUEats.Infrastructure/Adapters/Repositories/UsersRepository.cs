@@ -17,12 +17,15 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
 
     public Task<User?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        return context.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
+        return context.Users.
+            Include(u => u.UserAttributes)
+            .FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
     public Task<User?> GetByEmailAsync(string email, CancellationToken ct)
     {
         return context.Users.AsNoTracking()
+            .Include(u => u.UserAttributes)
             .FirstOrDefaultAsync(x => x.Email == email, ct);
     }
 
