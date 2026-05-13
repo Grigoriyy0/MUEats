@@ -14,7 +14,9 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+      <PackageReference Include="StackExchange.Redis" Version="2.13.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Options\" />
       <Folder Include="Persistence\Migrations\" />
     </ItemGroup>
 

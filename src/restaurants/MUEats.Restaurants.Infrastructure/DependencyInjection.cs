@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure.Adapters;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
+using StackExchange.Redis;
 
 namespace MUEats.Restaurants.Infrastructure;
 
@@ -18,5 +19,10 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IRestaurantsRepository, RestaurantsRepository>();
         services.AddScoped<IMenusRepository, MenusRepository>();
+        services.AddScoped<IPresenceService, PresenceService>();
+        
+        
+        services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
+        services.AddSingleton<IPresenceService, PresenceService>();
     }
 }

@@ -89,6 +89,20 @@ services:
       - prometheus
     volumes:
       - grafana-storage:/var/lib/grafana
+  
+  redis:
+    image: redis:latest
+    container_name: my-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    environment:
+      - REDIS_ARGS=--requirepass your_password_here --appendonly yes
+    restart: unless-stopped
 
+    
 volumes:
     grafana-storage: { }
+    redis-data: 
+      driver: local

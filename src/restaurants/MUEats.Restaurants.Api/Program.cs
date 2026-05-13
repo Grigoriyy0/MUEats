@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Restaurants.Api.Adapters.Realtime;
 using MUEats.Restaurants.Api.Extensions;
 using MUEats.Restaurants.Application;
 using MUEats.Restaurants.Infrastructure;
@@ -20,6 +21,8 @@ public class Program
         builder.Services.AddApplicationServices();
         
         builder.Services.AddRsaAuth(builder.Configuration);
+        builder.Services.AddSignalR()
+            .AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis")!);
         
         builder.Services.AddAuthorization(opt =>
         {
@@ -51,7 +54,8 @@ public class Program
         app.UseHttpsRedirection();
         app.MapControllers();
         app.UseAuthorization();
-
+        app.MapHub<OrdersHub>("/hub/orders");
+        
         app.Run();
     }
 }
