@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MUEats.Restaurants.Infrastructure.ExternalServices.Api;
+using MUEats.Restaurants.Core.Projections.Order;
 using MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
@@ -68,6 +68,7 @@ public class OrderSnapshotCreatedWorker : BackgroundService
             foreach (var snapshot in shapshots)
             {
                 await ProcessAsync(snapshot, ct);
+                
             }
         }
     }

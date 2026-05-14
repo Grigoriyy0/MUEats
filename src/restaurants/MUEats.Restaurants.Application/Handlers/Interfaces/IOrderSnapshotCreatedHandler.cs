@@ -1,4 +1,4 @@
-using MUEats.Restaurants.Infrastructure.ExternalServices.Api;
+using MUEats.Restaurants.Core.Projections.Order;
 
 namespace MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
 

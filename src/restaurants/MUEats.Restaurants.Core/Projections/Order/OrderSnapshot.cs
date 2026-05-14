@@ -1,4 +1,4 @@
-namespace MUEats.Restaurants.Infrastructure.ExternalServices.Api;
+namespace MUEats.Restaurants.Core.Projections.Order;
 
 public class OrderSnapshot
 {

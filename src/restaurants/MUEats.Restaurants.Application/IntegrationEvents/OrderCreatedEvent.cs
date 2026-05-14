@@ -1,4 +1,4 @@
-namespace MUEats.Restaurants.Infrastructure.ExternalServices.IntegrationEvents;
+namespace MUEats.Restaurants.Application.IntegrationEvents;
 
 public class OrderCreatedEvent : IntegrationEvent
 {

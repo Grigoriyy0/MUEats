@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using MUEats.Restaurants.Application.Services;
+using MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
 
 namespace MUEats.Restaurants.Application;
 
@@ -10,5 +11,7 @@ public static class DependencyInjection
         services.AddScoped<MenusService>();
         services.AddScoped<RestaurantsService>();
         services.AddScoped<MenusQueries>();
+        services.AddScoped<IOrderSnapshotCreatedHandler, IOrderSnapshotCreatedHandler>();
+
     }
 }
