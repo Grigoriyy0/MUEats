@@ -11,4 +11,16 @@ public class OrderSnapshot
     public Guid RestaurantId { get; set; }
     
     public OrderStatus Status { get; set; }
+    
+    public Guid? LockId { get; set; }
+    
+    public int RetryCount { get; set; }
+    
+    public string? LastError { get; set; }
+    
+    public DateTime? NextAttemptAt { get; set; }
+    
+    public DateTime CreatedAt { get; set; }
+    
+    public DateTime? UpdatedAt { get; set; }
 }

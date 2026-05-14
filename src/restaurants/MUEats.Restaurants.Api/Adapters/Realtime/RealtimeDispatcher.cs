@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.SignalR;
-using MUEats.Restaurants.Infrastructure.ExternalServices.Api;
+using MUEats.Restaurants.Application.DTOs;
+using MUEats.Restaurants.Application.Ports;
 
 namespace MUEats.Restaurants.Api.Adapters.Realtime;
 
-public class RealtimeDispatcher
+public class RealtimeDispatcher : IRealtimeDispatcher
 {
     private readonly IHubContext<OrdersHub> _context;
 
@@ -12,9 +13,9 @@ public class RealtimeDispatcher
         _context = context;
     }
 
-    public Task DispatchAsync(Guid restaurantId, OrderSnapshot snapshot, CancellationToken ct)
+    public Task DispatchAsync(Guid restaurantId, OrderCreatedDto dto, CancellationToken ct)
     {
         return _context.Clients.Groups(OrdersHub.BuildRestaurantGroup(restaurantId))
-            .SendAsync("order_created", snapshot, ct);
+            .SendAsync("order_created", dto, ct);
     }
 }
