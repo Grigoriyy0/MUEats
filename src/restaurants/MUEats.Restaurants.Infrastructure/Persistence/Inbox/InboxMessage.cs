@@ -12,6 +12,8 @@ public class InboxMessage
     
     public DateTime? ProcessedAt { get; set; }
     
+    public DateTime? NextAttemptAt { get; set; }
+    
     public Guid? LockId { get; set; }
     
     public InboxStatus Status { get; set; }
