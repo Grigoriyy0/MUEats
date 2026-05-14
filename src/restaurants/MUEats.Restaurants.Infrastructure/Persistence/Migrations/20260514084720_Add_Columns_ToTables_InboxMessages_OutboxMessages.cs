@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Add_Columns_ToTables_Outbox_Inbox : Migration
+    public partial class Add_Columns_ToTables_InboxMessages_OutboxMessages : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,6 +25,12 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 type: "uuid",
                 nullable: true);
 
+            migrationBuilder.AddColumn<DateTime>(
+                name: "next_attempt_at",
+                table: "outbox_messages",
+                type: "timestamp with time zone",
+                nullable: true);
+
             migrationBuilder.AddColumn<string>(
                 name: "status",
                 table: "outbox_messages",
@@ -46,6 +52,12 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 type: "uuid",
                 nullable: true);
 
+            migrationBuilder.AddColumn<DateTime>(
+                name: "next_attempt_at",
+                table: "inbox_messages",
+                type: "timestamp with time zone",
+                nullable: true);
+
             migrationBuilder.AddColumn<string>(
                 name: "status",
                 table: "inbox_messages",
@@ -62,11 +74,19 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 table: "outbox_messages");
 
             migrationBuilder.DropColumn(
+                name: "next_attempt_at",
+                table: "outbox_messages");
+
+            migrationBuilder.DropColumn(
                 name: "status",
                 table: "outbox_messages");
 
             migrationBuilder.DropColumn(
                 name: "lock_id",
+                table: "inbox_messages");
+
+            migrationBuilder.DropColumn(
+                name: "next_attempt_at",
                 table: "inbox_messages");
 
             migrationBuilder.DropColumn(

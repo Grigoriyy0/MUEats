@@ -295,6 +295,10 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("lock_id");
 
+                    b.Property<DateTime?>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
+
                     b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("processed_at");
@@ -342,6 +346,10 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("LockId")
                         .HasColumnType("uuid")
                         .HasColumnName("lock_id");
+
+                    b.Property<DateTime?>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
 
                     b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("timestamp with time zone")

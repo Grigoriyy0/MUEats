@@ -12,6 +12,8 @@ public class OutboxMessage
     
     public DateTime? ProcessedAt { get; set; }
     
+    public DateTime? NextAttemptAt { get; set; }
+    
     public Guid? LockId { get; set; }
     
     public OutboxStatus Status { get; set; }

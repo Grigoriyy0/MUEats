@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RestaurantsDbContext))]
-    [Migration("20260513151323_Add_Columns_ToTables_Outbox_Inbox")]
-    partial class Add_Columns_ToTables_Outbox_Inbox
+    [Migration("20260514084720_Add_Columns_ToTables_InboxMessages_OutboxMessages")]
+    partial class Add_Columns_ToTables_InboxMessages_OutboxMessages
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -298,6 +298,10 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("lock_id");
 
+                    b.Property<DateTime?>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
+
                     b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("processed_at");
@@ -345,6 +349,10 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("LockId")
                         .HasColumnType("uuid")
                         .HasColumnName("lock_id");
+
+                    b.Property<DateTime?>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
 
                     b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("timestamp with time zone")
