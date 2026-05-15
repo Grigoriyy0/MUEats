@@ -1,8 +1,8 @@
 using MUEats.Restaurants.Application.DTOs;
+using MUEats.Restaurants.Application.Handlers.Interfaces;
 using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Projections.Order;
-using MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
 
 namespace MUEats.Restaurants.Application.Handlers;
 
@@ -11,11 +11,15 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
     private readonly IRealtimeDispatcher _dispatcher;
     private readonly IPresenceService _presenceService;
     private const int MaxRetryCount = 3;
+    private readonly IOutboxService _outboxService;
     
-    public OrderSnapshotCreatedHandler(IRealtimeDispatcher dispatcher, IPresenceService presenceService)
+    public OrderSnapshotCreatedHandler(IRealtimeDispatcher dispatcher, 
+        IPresenceService presenceService, 
+        IOutboxService outboxService)
     {
         _dispatcher = dispatcher;
         _presenceService = presenceService;
+        _outboxService = outboxService;
     }
 
     public async Task HandleAsync(OrderSnapshot snapshot, CancellationToken ct)
@@ -36,7 +40,7 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
                 
                 var delay = Math.Pow(2, snapshot.RetryCount - 1);
                 snapshot.NextAttemptAt = DateTime.UtcNow.AddMinutes(delay);
-
+                
                 return;
             }   
             
@@ -47,8 +51,8 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
                 OrderId = snapshot.OrderId,
                 Reason = "Restaurant is offline"
             };
-            
-            // publish
+
+            await _outboxService.AddAsync(@event, ct);
 
             return;
         }

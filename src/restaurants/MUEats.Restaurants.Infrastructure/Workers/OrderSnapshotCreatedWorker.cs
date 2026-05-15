@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MUEats.Restaurants.Application.Handlers.Interfaces;
+using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Projections.Order;
-using MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Infrastructure.Workers;
@@ -78,7 +79,20 @@ public class OrderSnapshotCreatedWorker : BackgroundService
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
 
         var handler = scope.ServiceProvider.GetRequiredService<IOrderSnapshotCreatedHandler>();
+        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        
+        try
+        {
+            await uow.BeginTransactionAsync(ct);
+            await handler.HandleAsync(snapshot, ct);
+            await uow.SaveChangesAsync(ct);
+            await uow.CommitTransactionAsync(ct);
+        }
+        catch (Exception)
+        {
+            await uow.RollbackTransactionAsync(ct);
+            throw;
+        }
 
-        await handler.HandleAsync(snapshot, ct);
     }
 }

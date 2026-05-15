@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Restaurants.Application.Handlers.Interfaces;
 using MUEats.Restaurants.Application.Services;
-using MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
 
 namespace MUEats.Restaurants.Application;
 

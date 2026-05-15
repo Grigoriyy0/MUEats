@@ -1,6 +1,6 @@
 using MUEats.Restaurants.Core.Projections.Order;
 
-namespace MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
+namespace MUEats.Restaurants.Application.Handlers.Interfaces;
 
 public interface IOrderSnapshotCreatedHandler
 {

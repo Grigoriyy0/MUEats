@@ -5,7 +5,6 @@ using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure.Adapters;
 using MUEats.Restaurants.Infrastructure.Adapters.Kafka.Consumers;
 using MUEats.Restaurants.Infrastructure.Adapters.Kafka.Producers;
-using MUEats.Restaurants.Infrastructure.Handlers.Interfaces;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Services;
 using MUEats.Restaurants.Infrastructure.Services.Interfaces;
@@ -27,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IMenusRepository, MenusRepository>();
         services.AddScoped<IPresenceService, PresenceService>();
         services.AddScoped<IInboxService, InboxService>();
+        services.AddScoped<IOutboxService, OutboxService>();
         
         services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
         services.AddSingleton<IPresenceService, PresenceService>();

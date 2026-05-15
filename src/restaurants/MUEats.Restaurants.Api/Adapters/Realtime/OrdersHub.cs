@@ -20,7 +20,7 @@ public sealed class OrdersHub : Hub
         var group = BuildRestaurantGroup(restaurantId);
         
         await Groups.AddToGroupAsync(Context.ConnectionId, group);
-        await _presenceService.RegisterConnectionAsync(restaurantId, Context.ConnectionId);
+        await _presenceService.RegisterConnectionAsync(restaurantId, Context.ConnectionId, CancellationToken.None);
         
         await base.OnConnectedAsync();
     }
@@ -31,7 +31,7 @@ public sealed class OrdersHub : Hub
         var group = BuildRestaurantGroup(restaurantId);
         
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
-        await _presenceService.UnregisterConnectionAsync(restaurantId, Context.ConnectionId);
+        await _presenceService.UnregisterConnectionAsync(restaurantId, Context.ConnectionId, CancellationToken.None);
         
         await base.OnDisconnectedAsync(exception);
     }
