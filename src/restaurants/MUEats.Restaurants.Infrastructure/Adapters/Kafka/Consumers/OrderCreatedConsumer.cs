@@ -43,7 +43,9 @@ public class OrderCreatedConsumer : BaseConsumer<OrderCreatedEvent>
             {
                 Id = Guid.NewGuid(),
                 FoodItemId = x.Id,
+                ItemName = x.ItemName,
                 Price = x.Price,
+                Quantity = x.Quantity,
                 RestaurantId = message.Dto.RestaurantId
             }).ToList(),
             CreatedAt = DateTime.UtcNow

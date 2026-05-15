@@ -6,6 +6,8 @@ public class OrderItemSnapshot
     
     public Guid FoodItemId { get; set; }
     
+    public string ItemName { get; set; }
+    
     public Guid RestaurantId { get; set; }
     
     public Guid OrderId { get; set; }

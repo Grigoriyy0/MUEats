@@ -220,6 +220,11 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("food_item_id");
 
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("item_name");
+
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");

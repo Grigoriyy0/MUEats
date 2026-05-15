@@ -64,6 +64,7 @@ public class OrderSnapshotCreatedWorker : BackgroundService
             }
 
             var shapshots = await dbCtx.OrderSnapshots.Where(x => idList.Contains(x.Id))
+                .Include(y => y.OrderItems)
                 .ToListAsync(ct);
 
             foreach (var snapshot in shapshots)
