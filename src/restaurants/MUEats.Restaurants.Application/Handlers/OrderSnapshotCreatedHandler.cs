@@ -73,6 +73,6 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
         snapshot.Status = OrderStatus.Pending;
         snapshot.UpdatedAt = DateTime.UtcNow;
         
-        //await _dispatcher.DispatchAsync(snapshot.RestaurantId, dto, ct);
+        await _dispatcher.DispatchAsync(snapshot.RestaurantId, dto, ct);
     }
 }
