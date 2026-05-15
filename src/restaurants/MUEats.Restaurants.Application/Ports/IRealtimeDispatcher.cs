@@ -4,5 +4,5 @@ namespace MUEats.Restaurants.Application.Ports;
 
 public interface IRealtimeDispatcher
 {
-    Task DispatchAsync(Guid restaurantId, OrderCreatedDto snapshot, CancellationToken ct);
+    Task DispatchAsync(Guid restaurantId, OrderDto dto, CancellationToken ct);
 }

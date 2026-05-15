@@ -37,7 +37,16 @@ public class OrderCreatedConsumer : BaseConsumer<OrderCreatedEvent>
         {
             Id = Guid.NewGuid(),
             OrderId = message.OrderId,
-            Status = OrderStatus.Created
+            Status = OrderStatus.Created,
+            RestaurantId = message.Dto.RestaurantId,
+            OrderItems = message.Dto.OrderItems.Select(x => new OrderItemSnapshot
+            {
+                Id = Guid.NewGuid(),
+                FoodItemId = x.Id,
+                Price = x.Price,
+                RestaurantId = message.Dto.RestaurantId
+            }).ToList(),
+            CreatedAt = DateTime.UtcNow
         };
 
         await ctx.OrderSnapshots.AddAsync(orderSnapshot, ct);

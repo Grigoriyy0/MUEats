@@ -13,7 +13,7 @@ public class RealtimeDispatcher : IRealtimeDispatcher
         _context = context;
     }
 
-    public Task DispatchAsync(Guid restaurantId, OrderCreatedDto dto, CancellationToken ct)
+    public Task DispatchAsync(Guid restaurantId, OrderDto dto, CancellationToken ct)
     {
         return _context.Clients.Groups(OrdersHub.BuildRestaurantGroup(restaurantId))
             .SendAsync("order_created", dto, ct);

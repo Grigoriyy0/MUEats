@@ -11,6 +11,8 @@ public class OrderSnapshot
     public Guid RestaurantId { get; set; }
     
     public OrderStatus Status { get; set; }
+
+    public List<OrderItemSnapshot> OrderItems { get; set; } = [];
     
     public Guid? LockId { get; set; }
     

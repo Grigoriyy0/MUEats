@@ -6,11 +6,19 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Add_MetadataColumns_ToTable_OrderSnapshots : Migration
+    public partial class AddColumns_ToTable_OrderSnapshot : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterColumn<string>(
+                name: "status",
+                table: "order_snapshots",
+                type: "text",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "integer");
+
             migrationBuilder.AddColumn<DateTime>(
                 name: "created_at",
                 table: "order_snapshots",
@@ -48,11 +56,39 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 table: "order_snapshots",
                 type: "timestamp with time zone",
                 nullable: true);
+
+            migrationBuilder.AddColumn<Guid>(
+                name: "order_id",
+                table: "order_item_snapshots",
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.CreateIndex(
+                name: "ix_order_item_snapshots_order_id",
+                table: "order_item_snapshots",
+                column: "order_id");
+
+            migrationBuilder.AddForeignKey(
+                name: "fk_order_item_snapshots_order_snapshots_order_id",
+                table: "order_item_snapshots",
+                column: "order_id",
+                principalTable: "order_snapshots",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "fk_order_item_snapshots_order_snapshots_order_id",
+                table: "order_item_snapshots");
+
+            migrationBuilder.DropIndex(
+                name: "ix_order_item_snapshots_order_id",
+                table: "order_item_snapshots");
+
             migrationBuilder.DropColumn(
                 name: "created_at",
                 table: "order_snapshots");
@@ -76,6 +112,18 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
             migrationBuilder.DropColumn(
                 name: "updated_at",
                 table: "order_snapshots");
+
+            migrationBuilder.DropColumn(
+                name: "order_id",
+                table: "order_item_snapshots");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "status",
+                table: "order_snapshots",
+                type: "integer",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "text");
         }
     }
 }

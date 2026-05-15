@@ -56,12 +56,10 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
 
             return;
         }
-
-        var dto = new OrderCreatedDto();
-
+        
         snapshot.Status = OrderStatus.Pending;
         snapshot.UpdatedAt = DateTime.UtcNow;
         
-        await _dispatcher.DispatchAsync(snapshot.RestaurantId, dto, ct);
+        //await _dispatcher.DispatchAsync(snapshot.RestaurantId, dto, ct);
     }
 }
