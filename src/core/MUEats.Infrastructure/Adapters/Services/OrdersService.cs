@@ -85,6 +85,20 @@ public class OrdersService : IOrdersService
             var @event = new OrderCreatedEvent
             {
                 OrderId = order.Id,
+                Dto = new OrderDto
+                {
+                    Id = order.Id,
+                    RestaurantId = order.RestaurantId,
+                    TotalPrice = order.TotalPrice,
+                    OrderDate = DateTime.UtcNow,
+                    OrderItems = order.OrderItems.Select(oi => new OrderItemDto
+                    {
+                        Id = oi.Id,
+                        ItemName = oi.Name,
+                        Price = oi.Price,
+                        Quantity = oi.Quantity
+                    }).ToList()
+                }
             };
 
             await _outboxService.CreateAsync(@event, ct);

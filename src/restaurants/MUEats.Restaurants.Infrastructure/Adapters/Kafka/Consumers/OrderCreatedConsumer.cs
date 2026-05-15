@@ -1,9 +1,12 @@
 using Confluent.Kafka;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using MUEats.Restaurants.Infrastructure.ExternalServices.IntegrationEvents;
+using MUEats.Restaurants.Application.IntegrationEvents;
+using MUEats.Restaurants.Core.Projections.Order;
 using MUEats.Restaurants.Infrastructure.Options;
+using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Services.Interfaces;
 
 namespace MUEats.Restaurants.Infrastructure.Adapters.Kafka.Consumers;
@@ -21,8 +24,33 @@ public class OrderCreatedConsumer : BaseConsumer<OrderCreatedEvent>
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
 
-        var inboxService = scope.ServiceProvider.GetRequiredService<IInboxService>();
+        var ctx = scope.ServiceProvider.GetRequiredService<RestaurantsDbContext>();
 
-        await inboxService.AddAsync(message, ct);
+        var exists = await ctx.OrderSnapshots.AnyAsync(x => x.OrderId == message.OrderId, ct);
+
+        if (exists)
+        {
+            return;
+        }
+
+        var orderSnapshot = new OrderSnapshot
+        {
+            Id = Guid.NewGuid(),
+            OrderId = message.OrderId,
+            Status = OrderStatus.Created,
+            RestaurantId = message.Dto.RestaurantId,
+            OrderItems = message.Dto.OrderItems.Select(x => new OrderItemSnapshot
+            {
+                Id = Guid.NewGuid(),
+                FoodItemId = x.Id,
+                ItemName = x.ItemName,
+                Price = x.Price,
+                Quantity = x.Quantity,
+                RestaurantId = message.Dto.RestaurantId
+            }).ToList(),
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await ctx.OrderSnapshots.AddAsync(orderSnapshot, ct);
     }
 }

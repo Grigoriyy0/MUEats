@@ -1,4 +1,4 @@
-namespace MUEats.Application.Dto.Order;
+namespace MUEats.Restaurants.Application.DTOs;
 
 public class OrderItemDto
 {

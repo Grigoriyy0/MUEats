@@ -12,23 +12,29 @@ public class PresenceService : IPresenceService
         _database = redis.GetDatabase();
     }
 
-    public async Task RegisterConnectionAsync(Guid restaurantId, string connectionId)
+    public async Task RegisterConnectionAsync(Guid restaurantId, string connectionId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        
         var key = $"presence:restaurantId:{restaurantId}";
 
         await _database.SetAddAsync(key, connectionId);
         await _database.KeyExpireAsync(key, TimeSpan.FromHours(1));
     }
 
-    public async Task UnregisterConnectionAsync(Guid restaurantId, string connectionId)
+    public async Task UnregisterConnectionAsync(Guid restaurantId, string connectionId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        
         var key = $"presence:restaurantId:{restaurantId}";
 
         await _database.SetRemoveAsync(key, connectionId);
     }
 
-    public Task<bool> IsConnected(Guid restaurantId)
+    public Task<bool> IsConnectedAsync(Guid restaurantId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        
         return _database.KeyExistsAsync($"presence:restaurantId:{restaurantId}");
     }
 }

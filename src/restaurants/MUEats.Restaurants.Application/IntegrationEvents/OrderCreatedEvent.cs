@@ -1,7 +1,6 @@
+using MUEats.Restaurants.Application.DTOs;
 
-using MUEats.Application.Dto.Order;
-
-namespace MUEats.Application.IntegrationEvents;
+namespace MUEats.Restaurants.Application.IntegrationEvents;
 
 public class OrderCreatedEvent : IntegrationEvent
 {

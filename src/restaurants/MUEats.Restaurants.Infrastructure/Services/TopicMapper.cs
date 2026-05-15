@@ -1,4 +1,4 @@
-using MUEats.Restaurants.Infrastructure.ExternalServices.IntegrationEvents;
+using MUEats.Restaurants.Application.IntegrationEvents;
 
 namespace MUEats.Restaurants.Infrastructure.Services;
 

@@ -19,7 +19,10 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     type = table.Column<string>(type: "text", nullable: false),
                     json_payload = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    next_attempt_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    lock_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    status = table.Column<string>(type: "text", nullable: false),
                     attempts_count = table.Column<int>(type: "integer", nullable: false),
                     last_error = table.Column<string>(type: "text", nullable: true)
                 },
@@ -42,21 +45,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "order_item_snapshots",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    food_item_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    restaurant_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    quantity = table.Column<int>(type: "integer", nullable: false),
-                    price = table.Column<decimal>(type: "numeric", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_order_item_snapshots", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "order_snapshots",
                 columns: table => new
                 {
@@ -64,7 +52,13 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     order_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     restaurant_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    status = table.Column<int>(type: "integer", nullable: false)
+                    status = table.Column<string>(type: "text", nullable: false),
+                    lock_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    retry_count = table.Column<int>(type: "integer", nullable: false),
+                    last_error = table.Column<string>(type: "text", nullable: true),
+                    next_attempt_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -79,7 +73,10 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     type = table.Column<string>(type: "text", nullable: false),
                     json_payload = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    processed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    next_attempt_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    lock_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    status = table.Column<string>(type: "text", nullable: false),
                     attempts_count = table.Column<int>(type: "integer", nullable: false),
                     last_error = table.Column<string>(type: "text", nullable: true)
                 },
@@ -148,6 +145,29 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "order_item_snapshots",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    food_item_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    item_name = table.Column<string>(type: "text", nullable: false),
+                    restaurant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    order_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    quantity = table.Column<int>(type: "integer", nullable: false),
+                    price = table.Column<decimal>(type: "numeric", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_order_item_snapshots", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_order_item_snapshots_order_snapshots_order_id",
+                        column: x => x.order_id,
+                        principalTable: "order_snapshots",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "options_groups",
                 columns: table => new
                 {
@@ -173,7 +193,8 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     group_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    value = table.Column<string>(type: "text", nullable: false)
+                    value = table.Column<string>(type: "text", nullable: false),
+                    additional_price = table.Column<decimal>(type: "numeric", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -205,6 +226,11 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 name: "ix_options_groups_menu_item_id",
                 table: "options_groups",
                 column: "menu_item_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_order_item_snapshots_order_id",
+                table: "order_item_snapshots",
+                column: "order_id");
         }
 
         /// <inheritdoc />
@@ -223,9 +249,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                 name: "order_item_snapshots");
 
             migrationBuilder.DropTable(
-                name: "order_snapshots");
-
-            migrationBuilder.DropTable(
                 name: "outbox_messages");
 
             migrationBuilder.DropTable(
@@ -233,6 +256,9 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "options_groups");
+
+            migrationBuilder.DropTable(
+                name: "order_snapshots");
 
             migrationBuilder.DropTable(
                 name: "menu_items");

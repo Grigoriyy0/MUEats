@@ -209,7 +209,7 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     b.ToTable("restaurants", (string)null);
                 });
 
-            modelBuilder.Entity("MUEats.Restaurants.Infrastructure.ExternalServices.Api.OrderItemSnapshot", b =>
+            modelBuilder.Entity("MUEats.Restaurants.Core.Projections.Order.OrderItemSnapshot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,6 +219,15 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("FoodItemId")
                         .HasColumnType("uuid")
                         .HasColumnName("food_item_id");
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("item_name");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric")
@@ -235,15 +244,34 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_order_item_snapshots");
 
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_order_item_snapshots_order_id");
+
                     b.ToTable("order_item_snapshots", (string)null);
                 });
 
-            modelBuilder.Entity("MUEats.Restaurants.Infrastructure.ExternalServices.Api.OrderSnapshot", b =>
+            modelBuilder.Entity("MUEats.Restaurants.Core.Projections.Order.OrderSnapshot", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("text")
+                        .HasColumnName("last_error");
+
+                    b.Property<Guid?>("LockId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lock_id");
+
+                    b.Property<DateTime?>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone")
@@ -257,9 +285,18 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("restaurant_id");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("RetryCount")
                         .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("pk_order_snapshots");
@@ -411,6 +448,18 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_options_groups_menu_items_menu_item_id");
                 });
 
+            modelBuilder.Entity("MUEats.Restaurants.Core.Projections.Order.OrderItemSnapshot", b =>
+                {
+                    b.HasOne("MUEats.Restaurants.Core.Projections.Order.OrderSnapshot", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_item_snapshots_order_snapshots_order_id");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Menu.Entities.MenuItem", b =>
                 {
                     b.Navigation("OptionsGroups");
@@ -426,6 +475,11 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("MenuItems");
+                });
+
+            modelBuilder.Entity("MUEats.Restaurants.Core.Projections.Order.OrderSnapshot", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }

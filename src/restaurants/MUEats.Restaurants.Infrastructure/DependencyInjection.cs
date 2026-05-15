@@ -26,14 +26,14 @@ public static class DependencyInjection
         services.AddScoped<IMenusRepository, MenusRepository>();
         services.AddScoped<IPresenceService, PresenceService>();
         services.AddScoped<IInboxService, InboxService>();
+        services.AddScoped<IOutboxService, OutboxService>();
         
         services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
         services.AddSingleton<IPresenceService, PresenceService>();
         services.AddSingleton<TopicMapper>();
         services.AddSingleton<IMessageBus, KafkaProducer>();
-
+        
         services.AddHostedService<OrderCreatedConsumer>();
         services.AddHostedService<OutboxProcessingWorker>();
-        services.AddHostedService<InboxProcessingWorker>();
     }
 }
