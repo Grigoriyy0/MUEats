@@ -95,7 +95,8 @@ public class OrdersService : IOrdersService
                     {
                         Id = oi.Id,
                         ItemName = oi.Name,
-                        Price = oi.Price
+                        Price = oi.Price,
+                        Quantity = oi.Quantity
                     }).ToList()
                 }
             };

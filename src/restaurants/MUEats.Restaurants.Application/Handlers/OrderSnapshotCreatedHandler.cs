@@ -56,6 +56,19 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
 
             return;
         }
+
+        var dto = new OrderDto
+        {
+            Id = snapshot.Id,
+            OrderDate = snapshot.OrderDate,
+            RestaurantId = snapshot.RestaurantId,
+            OrderItems = snapshot.OrderItems.Select(x => new OrderItemDto
+            {
+                Id = x.FoodItemId,
+                Price = x.Price,
+                Quantity = x.Quantity
+            }).ToList()
+        };
         
         snapshot.Status = OrderStatus.Pending;
         snapshot.UpdatedAt = DateTime.UtcNow;
