@@ -30,4 +30,8 @@
       <Folder Include="Persistence\Migrations\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Adapters\CurrentUserContext.cs" />
+    </ItemGroup>
+
 </Project>

@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IPresenceService, PresenceService>();
         services.AddScoped<IInboxService, InboxService>();
         services.AddScoped<IOutboxService, OutboxService>();
+        services.AddScoped<IOrderSnapshotsRepository, OrderSnapshotsRepository>();
         
         services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
         services.AddSingleton<IPresenceService, PresenceService>();

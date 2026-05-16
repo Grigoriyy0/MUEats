@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MUEats.Restaurants.Api.Adapters.Realtime;
 using MUEats.Restaurants.Api.Extensions;
+using MUEats.Restaurants.Api.Utils;
 using MUEats.Restaurants.Application;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure;
@@ -21,7 +22,8 @@ public class Program
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddApplicationServices();
         builder.Services.AddScoped<IRealtimeDispatcher, RealtimeDispatcher>();
-        
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<CurrentUserContext>();
         
         builder.Services.AddRsaAuth(builder.Configuration);
         builder.Services.AddSignalR()
