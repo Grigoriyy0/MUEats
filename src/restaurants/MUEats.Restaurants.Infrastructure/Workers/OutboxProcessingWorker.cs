@@ -37,15 +37,15 @@ public class OutboxProcessingWorker : BackgroundService
             var lockId = Guid.NewGuid();
 
             var idList = await dbContext.Database.SqlQueryRaw<Guid>("""
-                                                                          UPDATE  "OutboxMessages" set "LockId" = {0}
-                                                                          WHERE "Id" IN (
-                                                                            SELECT "Id" FROM "OutboxMessages" WHERE "Status" = {1} and
-                                                                              ("NextRetryAt" <= {2} or "NextRetryAt" is null) and
-                                                                              ("RetryCount" < {3}) and
-                                                                              ("LockId" is null or "LockId" = {0})
-                                                                              ORDER BY "CreatedAt"
+                                                                          UPDATE  "outbox_messages" set "lock_id" = {0}
+                                                                          WHERE "id" IN (
+                                                                            SELECT "id" FROM "outbox_messages" WHERE "status" = {1} and
+                                                                              ("next_attempt_at" <= {2} or "next_attempt_at" is null) and
+                                                                              ("attempts_count" < {3}) and
+                                                                              ("lock_id" is null or "lock_id" = {0})
+                                                                              ORDER BY "created_at"
                                                                               LIMIT {4}
-                                                                              FOR UPDATE SKIP LOCKED) RETURNING "Id" 
+                                                                              FOR UPDATE SKIP LOCKED) RETURNING "id" 
                                                                           """, lockId, nameof(OutboxStatus.Pending), DateTime.UtcNow, RetryMaxCount, BatchSize)
                 .ToListAsync(ct);
             

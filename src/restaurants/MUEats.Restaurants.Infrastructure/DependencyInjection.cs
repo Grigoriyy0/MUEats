@@ -5,6 +5,7 @@ using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure.Adapters;
 using MUEats.Restaurants.Infrastructure.Adapters.Kafka.Consumers;
 using MUEats.Restaurants.Infrastructure.Adapters.Kafka.Producers;
+using MUEats.Restaurants.Infrastructure.Options;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Services;
 using MUEats.Restaurants.Infrastructure.Services.Interfaces;
@@ -36,5 +37,7 @@ public static class DependencyInjection
         
         services.AddHostedService<OrderCreatedConsumer>();
         services.AddHostedService<OutboxProcessingWorker>();
+
+        services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
     }
 }

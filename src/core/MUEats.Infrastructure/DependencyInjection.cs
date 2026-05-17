@@ -47,8 +47,6 @@ public static class DependencyInjection
         services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
         services.Configure<AdminOptions>(configuration.GetSection(nameof(AdminOptions)));
         
-        services.AddHostedService<FakeRestaurantService>();
-        
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<InboxProcessingWorker>();
         
@@ -56,8 +54,5 @@ public static class DependencyInjection
         services.AddHostedService<OrderPreparedConsumer>();
         services.AddHostedService<OrderRejectedConsumer>();
         services.AddHostedService<OrderCancelledConsumer>();
-        
-        services.AddSingleton<FakeKitchenWorker>();
-        services.AddHostedService(sp => sp.GetRequiredService<FakeKitchenWorker>());
     }
 }

@@ -8,14 +8,14 @@ using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Infrastructure.Workers;
 
-public class OrderSnapshotCreatedWorker : BackgroundService
+internal sealed class OrderSnapshotCreatedWorker : BackgroundService
 {
     private const int BatchSize = 50;
     private readonly TimeSpan _delay = TimeSpan.FromSeconds(1);
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private const int MaxRetryCount = 3;
 
-    public OrderSnapshotCreatedWorker(IServiceScopeFactory serviceScopeFactory)
+    internal OrderSnapshotCreatedWorker(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
