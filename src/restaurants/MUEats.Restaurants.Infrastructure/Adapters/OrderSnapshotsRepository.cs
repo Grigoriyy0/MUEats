@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MUEats.Restaurants.Application.DTOs;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Projections.Order;
@@ -9,7 +10,7 @@ namespace MUEats.Restaurants.Infrastructure.Adapters;
 public class OrderSnapshotsRepository : IOrderSnapshotsRepository
 {
     private readonly RestaurantsDbContext _context;
-
+    
     public OrderSnapshotsRepository(RestaurantsDbContext context)
     {
         _context = context;
@@ -35,9 +36,16 @@ public class OrderSnapshotsRepository : IOrderSnapshotsRepository
             .ToListAsync(ct);
     }
 
-    public Task<OrderSnapshot?> GetByIdAsync(Guid orderId, CancellationToken ct)
+    public Task<OrderSnapshot?> GetByOrderId(Guid orderId, CancellationToken ct)
     {
-        return _context.OrderSnapshots.Where(x => x.Id == orderId)
-            .FirstOrDefaultAsync(ct);
+        return _context.OrderSnapshots
+            .FirstOrDefaultAsync(x => x.OrderId == orderId, ct);
+    }
+
+    public Task<OrderSnapshot?> GetWithItemsByIdAsync(Guid snapshotId, CancellationToken ct)
+    {
+        return _context.OrderSnapshots
+            .Include(y => y.OrderItems)
+            .FirstOrDefaultAsync(x => x.Id == snapshotId, ct);
     }
 }

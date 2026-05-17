@@ -7,5 +7,7 @@ public interface IOrderSnapshotsRepository
 {
     Task<List<OrderDto>> GetPendingAsync(Guid restaurantId, CancellationToken ct);
 
-    Task<OrderSnapshot?> GetByIdAsync(Guid orderId, CancellationToken ct);
+    Task<OrderSnapshot?> GetByOrderId(Guid orderId, CancellationToken ct);
+
+    Task<OrderSnapshot?> GetWithItemsByIdAsync(Guid orderId, CancellationToken ct);
 }

@@ -31,7 +31,7 @@ public class OrderSnapshotsService
     {
         await _uow.BeginTransactionAsync(ct);
         
-        var orderSnapshot = await _repository.GetByIdAsync(orderId, ct);
+        var orderSnapshot = await _repository.GetByOrderId(orderId, ct);
 
         if (orderSnapshot is null)
         {
@@ -65,7 +65,7 @@ public class OrderSnapshotsService
     {
         await _uow.BeginTransactionAsync(ct);
         
-        var orderSnapshot = await _repository.GetByIdAsync(orderId, ct);
+        var orderSnapshot = await _repository.GetByOrderId(orderId, ct);
 
         if (orderSnapshot is null)
         {

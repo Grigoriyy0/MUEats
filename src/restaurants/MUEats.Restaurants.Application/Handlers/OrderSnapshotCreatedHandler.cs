@@ -10,24 +10,37 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
 {
     private readonly IRealtimeDispatcher _dispatcher;
     private readonly IPresenceService _presenceService;
-    private const int MaxRetryCount = 3;
     private readonly IOutboxService _outboxService;
+    private readonly IUnitOfWork _uow;
+    private readonly IOrderSnapshotsRepository _repository;
+    
+    private const int MaxRetryCount = 3;
     
     public OrderSnapshotCreatedHandler(IRealtimeDispatcher dispatcher, 
         IPresenceService presenceService, 
-        IOutboxService outboxService)
+        IOutboxService outboxService, 
+        IUnitOfWork uow, IOrderSnapshotsRepository repository)
     {
         _dispatcher = dispatcher;
         _presenceService = presenceService;
         _outboxService = outboxService;
+        _uow = uow;
+        _repository = repository;
     }
 
-    public async Task HandleAsync(OrderSnapshot snapshot, CancellationToken ct)
+    public async Task HandleAsync(Guid snapshotId, CancellationToken ct)
     {
-        if (snapshot.Status != OrderStatus.Created)
+        await _uow.BeginTransactionAsync(ct);
+
+        var snapshot = await _repository.GetWithItemsByIdAsync(snapshotId, ct);
+        
+        if (snapshot.Status != OrderStatus.Created || snapshot is null)
         {
+            await _uow.RollbackTransactionAsync(ct);
             return;
         }
+
+        snapshot.LockId = null;
         
         var isAvailable = await _presenceService.IsConnectedAsync(snapshot.RestaurantId, ct);
         
@@ -40,7 +53,9 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
                 
                 var delay = Math.Pow(2, snapshot.RetryCount - 1);
                 snapshot.NextAttemptAt = DateTime.UtcNow.AddMinutes(delay);
-                
+
+                await _uow.SaveChangesAsync(ct);
+                await _uow.CommitTransactionAsync(ct);
                 return;
             }   
             
@@ -54,6 +69,9 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
 
             await _outboxService.AddAsync(@event, ct);
 
+            
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
             return;
         }
 
@@ -74,5 +92,8 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
         snapshot.UpdatedAt = DateTime.UtcNow;
         
         await _dispatcher.DispatchAsync(snapshot.RestaurantId, dto, ct);
+        
+        await _uow.SaveChangesAsync(ct);
+        await _uow.CommitTransactionAsync(ct);
     }
 }

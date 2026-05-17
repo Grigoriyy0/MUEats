@@ -4,5 +4,5 @@ namespace MUEats.Restaurants.Application.Handlers.Interfaces;
 
 public interface IOrderSnapshotCreatedHandler
 {
-    Task HandleAsync(OrderSnapshot snapshot, CancellationToken ct);
+    Task HandleAsync(Guid snapshotId, CancellationToken ct);
 }

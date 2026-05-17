@@ -37,6 +37,7 @@ public static class DependencyInjection
         
         services.AddHostedService<OrderCreatedConsumer>();
         services.AddHostedService<OutboxProcessingWorker>();
+        services.AddHostedService<OrderSnapshotCreatedWorker>();
 
         services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
     }
