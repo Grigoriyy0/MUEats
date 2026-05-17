@@ -9,7 +9,7 @@ namespace MUEats;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         
@@ -63,9 +63,11 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-            await seeder.SeedAsync();
+            //todo fix
+            seeder.SeedAsync().Wait();
         }
-        
+        app.MapControllers();
+
         app.UseHttpsRedirection();
 
         app.UseHttpMetrics();
@@ -73,7 +75,7 @@ public class Program
         
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
+        
         app.Run();
     }
 }

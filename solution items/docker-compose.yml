@@ -1,5 +1,18 @@
 name: "mueats"
 
+networks:
+  public-net:
+    driver: bridge
+  internal-net:
+    driver: bridge
+  
+volumes:
+  grafana-storage: { }
+  redis-data:
+    driver: local
+  #core-db-data:
+  #restaurants-db-data:
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
@@ -100,9 +113,3 @@ services:
     environment:
       - REDIS_ARGS=--requirepass your_password_here --appendonly yes
     restart: unless-stopped
-
-    
-volumes:
-    grafana-storage: { }
-    redis-data: 
-      driver: local

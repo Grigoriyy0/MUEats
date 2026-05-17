@@ -30,7 +30,7 @@ public class MenusService
         if (restaurant is null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Restaurant.RestaurantNotFound;
+            return ApplicationErrors.Restaurant.NotFound;
         }
 
         var menuExists = await _menusRepository.AnyAsync(restaurantId, ct);
@@ -38,7 +38,7 @@ public class MenusService
         if (menuExists)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Menu.MenuAlreadyExists;
+            return ApplicationErrors.Menu.AlreadyExists;
         }
         
         var menuResult = Menu.Create(restaurantId);
@@ -64,7 +64,7 @@ public class MenusService
         if (menu == null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Menu.MenuNotFound;
+            return ApplicationErrors.Menu.NotFound;
         }
         
         var menuItemResult = menu.AddMenuItem(dto.ItemName, dto.ItemDescription, dto.ItemPrice, dto.CategoryId);
@@ -90,7 +90,7 @@ public class MenusService
         if (menu == null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Menu.MenuNotFound;
+            return ApplicationErrors.Menu.NotFound;
         }
         
         var categoryResult = menu.AddCategory(dto.Name, dto.Description);
@@ -119,7 +119,7 @@ public class MenusService
         if (menu == null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Menu.MenuNotFound;
+            return ApplicationErrors.Menu.NotFound;
         }
 
         var result = menu.AddOptionsGroup(itemId, dto.Name, dto.Description);
@@ -147,7 +147,7 @@ public class MenusService
         if (menu is null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Menu.MenuNotFound;
+            return ApplicationErrors.Menu.NotFound;
         }
 
         var result = menu.DeleteOptionsGroup(groupId);
@@ -175,7 +175,7 @@ public class MenusService
         if (menu is null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Menu.MenuNotFound;
+            return ApplicationErrors.Menu.NotFound;
         }
 
         var result = menu.DeleteItemOption(itemId);
@@ -204,7 +204,7 @@ public class MenusService
         if (menu == null)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Menu.MenuNotFound;
+            return ApplicationErrors.Menu.NotFound;
         }
         
         var result = menu.AddItemOption(groupId, dto.Value, dto.AdditionalPrice);
@@ -232,7 +232,7 @@ public class MenusService
 
         if (menu == null)
         {
-            return ApplicationErrors.Menu.MenuNotFound;
+            return ApplicationErrors.Menu.NotFound;
         }
         
         var updateResult = menu.UpdateMenuItem(itemId, 

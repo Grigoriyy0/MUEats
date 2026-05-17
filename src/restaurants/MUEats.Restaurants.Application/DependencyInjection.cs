@@ -13,6 +13,6 @@ public static class DependencyInjection
         services.AddScoped<RestaurantsService>();
         services.AddScoped<MenusQueries>();
         services.AddScoped<IOrderSnapshotCreatedHandler, OrderSnapshotCreatedHandler>();
-
+        services.AddScoped<OrderSnapshotsService>();
     }
 }

@@ -27,7 +27,7 @@ public class RestaurantsService
         if (restaurantExists)
         {
             await _unitOfWork.RollbackTransactionAsync(ct);
-            return ApplicationErrors.Restaurant.RestaurantAlreadyExists;
+            return ApplicationErrors.Restaurant.AlreadyExists;
         }
         
         var businessHoursResult = BusinessHours.Create(dto.OpeningTime, dto.ClosingTime);

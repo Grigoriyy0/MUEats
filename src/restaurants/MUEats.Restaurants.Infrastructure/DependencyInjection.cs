@@ -5,6 +5,7 @@ using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure.Adapters;
 using MUEats.Restaurants.Infrastructure.Adapters.Kafka.Consumers;
 using MUEats.Restaurants.Infrastructure.Adapters.Kafka.Producers;
+using MUEats.Restaurants.Infrastructure.Options;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Services;
 using MUEats.Restaurants.Infrastructure.Services.Interfaces;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IPresenceService, PresenceService>();
         services.AddScoped<IInboxService, InboxService>();
         services.AddScoped<IOutboxService, OutboxService>();
+        services.AddScoped<IOrderSnapshotsRepository, OrderSnapshotsRepository>();
         
         services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
         services.AddSingleton<IPresenceService, PresenceService>();
@@ -35,5 +37,8 @@ public static class DependencyInjection
         
         services.AddHostedService<OrderCreatedConsumer>();
         services.AddHostedService<OutboxProcessingWorker>();
+        services.AddHostedService<OrderSnapshotCreatedWorker>();
+
+        services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
     }
 }

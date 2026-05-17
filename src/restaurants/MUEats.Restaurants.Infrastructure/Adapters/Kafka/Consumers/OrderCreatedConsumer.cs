@@ -1,13 +1,10 @@
-using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Core.Projections.Order;
 using MUEats.Restaurants.Infrastructure.Options;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
-using MUEats.Restaurants.Infrastructure.Services.Interfaces;
 
 namespace MUEats.Restaurants.Infrastructure.Adapters.Kafka.Consumers;
 
@@ -52,5 +49,6 @@ public class OrderCreatedConsumer : BaseConsumer<OrderCreatedEvent>
         };
 
         await ctx.OrderSnapshots.AddAsync(orderSnapshot, ct);
+        await ctx.SaveChangesAsync(ct);
     }
 }

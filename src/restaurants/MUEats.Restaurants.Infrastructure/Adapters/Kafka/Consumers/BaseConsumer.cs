@@ -40,7 +40,7 @@ public abstract class BaseConsumer<T> : BackgroundService
         {
             var messageResult = _consumer.Consume(ct);
             
-            var message = JsonConvert.DeserializeObject<T>(messageResult.Message.Value, JsonSerializerHelper.Settings);
+            var message = JsonConvert.DeserializeObject<T>(messageResult.Message.Value);
 
             if (message == null)
             {

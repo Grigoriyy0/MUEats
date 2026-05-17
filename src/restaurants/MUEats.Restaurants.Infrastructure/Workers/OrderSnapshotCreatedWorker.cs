@@ -2,13 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Restaurants.Application.Handlers.Interfaces;
-using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Projections.Order;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Infrastructure.Workers;
 
-public class OrderSnapshotCreatedWorker : BackgroundService
+internal sealed class OrderSnapshotCreatedWorker : BackgroundService
 {
     private const int BatchSize = 50;
     private readonly TimeSpan _delay = TimeSpan.FromSeconds(1);
@@ -52,7 +51,7 @@ public class OrderSnapshotCreatedWorker : BackgroundService
                                                                           FOR UPDATE SKIP LOCKED
                                                                       ) 
                                                                       RETURNING "id"
-                                                                      """, lockId, DateTime.UtcNow, MaxRetryCount, nameof(OrderStatus.Created), BatchSize)
+                                                                      """, lockId, DateTime.UtcNow, MaxRetryCount, "Created", BatchSize)
                 .ToListAsync(ct);
 
             await dbCtx.Database.CommitTransactionAsync(ct);
@@ -62,38 +61,20 @@ public class OrderSnapshotCreatedWorker : BackgroundService
                 await Task.Delay(_delay, ct);
                 continue;
             }
-
-            var shapshots = await dbCtx.OrderSnapshots.Where(x => idList.Contains(x.Id))
-                .Include(y => y.OrderItems)
-                .ToListAsync(ct);
-
-            foreach (var snapshot in shapshots)
+            
+            foreach (var snapshotId in idList)
             {
-                await ProcessAsync(snapshot, ct);
-                
+                await ProcessAsync(snapshotId, ct);
             }
         }
     }
 
-    private async Task ProcessAsync(OrderSnapshot snapshot, CancellationToken ct)
+    private async Task ProcessAsync(Guid snapshotId, CancellationToken ct)
     {
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
 
         var handler = scope.ServiceProvider.GetRequiredService<IOrderSnapshotCreatedHandler>();
-        var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        
-        try
-        {
-            await uow.BeginTransactionAsync(ct);
-            await handler.HandleAsync(snapshot, ct);
-            await uow.SaveChangesAsync(ct);
-            await uow.CommitTransactionAsync(ct);
-        }
-        catch (Exception)
-        {
-            await uow.RollbackTransactionAsync(ct);
-            throw;
-        }
 
+        await handler.HandleAsync(snapshotId, ct);
     }
 }

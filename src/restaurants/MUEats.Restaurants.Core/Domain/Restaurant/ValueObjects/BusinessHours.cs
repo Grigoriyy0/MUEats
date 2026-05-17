@@ -5,6 +5,11 @@ namespace MUEats.Restaurants.Core.Domain.Restaurant.ValueObjects;
 
 public class BusinessHours : ValueObject
 {
+    public BusinessHours()
+    {
+        
+    }
+    
     private BusinessHours(TimeSpan openingTime, TimeSpan closingTime)
     {
         OpeningTime = openingTime;
