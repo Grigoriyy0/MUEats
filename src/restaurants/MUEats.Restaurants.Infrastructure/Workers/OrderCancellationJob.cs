@@ -21,9 +21,9 @@ internal sealed class OrderCancellationJob : BackgroundService
         _logger = logger;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return WorkingLoop(ct);
     }
 
     private async Task WorkingLoop(CancellationToken ct)
