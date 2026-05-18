@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Restaurants.Application.Handlers.Interfaces;
-using MUEats.Restaurants.Core.Projections.Order;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Infrastructure.Workers;

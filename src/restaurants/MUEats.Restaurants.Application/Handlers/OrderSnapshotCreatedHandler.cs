@@ -34,7 +34,7 @@ public class OrderSnapshotCreatedHandler : IOrderSnapshotCreatedHandler
 
         var snapshot = await _repository.GetWithItemsByIdAsync(snapshotId, ct);
         
-        if (snapshot.Status != OrderStatus.Created || snapshot is null)
+        if (snapshot is null || snapshot.Status != OrderStatus.Created)
         {
             await _uow.RollbackTransactionAsync(ct);
             return;

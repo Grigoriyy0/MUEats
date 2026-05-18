@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace MUEats.Restaurants.Infrastructure.Workers;
 
-public class OutboxProcessingWorker : BackgroundService
+internal sealed class OutboxProcessingWorker : BackgroundService
 {
     private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(500);
     private const int BatchSize = 50;
