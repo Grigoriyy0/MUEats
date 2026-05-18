@@ -9,6 +9,7 @@ public class TopicMapper
     public TopicMapper()
     {
         _topics[typeof(OrderCreatedEvent)] = "orders.created";
+        _topics[typeof(OrderRejectedEvent)] = "orders.rejected";
     }
 
     public string? TryGetTopic(Type type)

@@ -36,10 +36,16 @@ public class OrderSnapshotsRepository : IOrderSnapshotsRepository
             .ToListAsync(ct);
     }
 
-    public Task<OrderSnapshot?> GetByOrderId(Guid orderId, CancellationToken ct)
+    public Task<OrderSnapshot?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
     {
         return _context.OrderSnapshots
             .FirstOrDefaultAsync(x => x.OrderId == orderId, ct);
+    }
+
+    public Task<OrderSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
+    {
+        return _context.OrderSnapshots
+            .FirstOrDefaultAsync(x => x.Id == snapshotId, ct);
     }
 
     public Task<OrderSnapshot?> GetWithItemsByIdAsync(Guid snapshotId, CancellationToken ct)

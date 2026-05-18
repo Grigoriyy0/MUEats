@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MUEats.Restaurants.Application.Handlers.Interfaces;
-using MUEats.Restaurants.Core.Projections.Order;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Infrastructure.Workers;
@@ -39,7 +38,7 @@ internal sealed class OrderCancellationJob : BackgroundService
                 await ctx.Database.BeginTransactionAsync(ct);
 
                 var lockId = Guid.NewGuid();
-            
+
                 var ids = await ctx.Database.SqlQueryRaw<Guid>("""
                                                                UPDATE "order_snapshots" SET "lock_id" = {0}
                                                                WHERE "id" IN (
@@ -63,12 +62,9 @@ internal sealed class OrderCancellationJob : BackgroundService
                     continue;
                 }
 
-                var snapshots = await ctx.OrderSnapshots.Where(x => ids.Contains(x.Id))
-                    .ToListAsync(ct);
-            
-                foreach (var snapshot in snapshots)
+                foreach (var id in ids)
                 {
-                    await ProcessAsync(snapshot, ct);
+                    await ProcessAsync(id, ct);
                 }
             }
             catch (Exception e)
@@ -79,12 +75,12 @@ internal sealed class OrderCancellationJob : BackgroundService
         }
     }
 
-    private async Task ProcessAsync(OrderSnapshot snapshot, CancellationToken ct)
+    private async Task ProcessAsync(Guid snapshotId, CancellationToken ct)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
         
         var handler = scope.ServiceProvider.GetRequiredService<IOrderSnapshotCancelHandler>();
 
-        await handler.HandleAsync(snapshot, ct);
+        await handler.HandleAsync(snapshotId, ct);
     }
 }
