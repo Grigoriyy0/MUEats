@@ -1,0 +1,8 @@
+namespace MUEats.Restaurants.Infrastructure.Options;
+
+public class KafkaOptions
+{
+    public string BootstrapServers { get; set; }
+    
+    public Dictionary<string, ConsumerOptions> ConsumerOptions { get; set; }
+}

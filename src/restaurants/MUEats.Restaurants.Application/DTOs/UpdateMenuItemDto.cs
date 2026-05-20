@@ -1,0 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace MUEats.Restaurants.Application.DTOs;
+
+public sealed record UpdateMenuItemDto
+{
+    [Required]
+    [StringLength(128)]
+    public string ItemName { get; set; }
+    
+    public string? ItemDescription { get; set; }
+    
+    [Required]
+    [Range(0, double.MaxValue)]
+    public decimal ItemPrice { get; set; }
+    
+    public bool IsAvailable { get; set; }
+    
+    public Guid CategoryId { get; set; }
+}
