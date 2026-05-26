@@ -39,16 +39,16 @@ public class AdminRestaurantsController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "RestaurantManager")]
-    [Route("menus/{id:guid}")]
-    public async Task<IActionResult> GetMenuAsync(Guid id, CancellationToken ct)
+    [Route("{restaurantId:guid}/menu")]
+    public async Task<IActionResult> GetMenuAsync(Guid restaurantId, CancellationToken ct)
     {
-        var restaurantId = _context.GetRestaurantId();
+        var currentUserRestaurantId = _context.GetRestaurantId();
 
-        if (restaurantId != id)
+        if (currentUserRestaurantId != restaurantId)
         {
             throw new UnauthorizedAccessException();
         }
         
-        return Ok(await _menusQueries.GetAdminViewDtoByIdAsync(id, ct));
+        return Ok(await _menusQueries.GetAdminViewDtoByIdAsync(restaurantId, ct));
     }
 }
