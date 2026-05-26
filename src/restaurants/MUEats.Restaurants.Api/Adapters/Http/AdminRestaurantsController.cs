@@ -46,7 +46,7 @@ public class AdminRestaurantsController : ControllerBase
 
         if (currentUserRestaurantId != restaurantId)
         {
-            throw new UnauthorizedAccessException();
+            return Forbid();
         }
         
         return Ok(await _menusQueries.GetAdminViewDtoByIdAsync(restaurantId, ct));

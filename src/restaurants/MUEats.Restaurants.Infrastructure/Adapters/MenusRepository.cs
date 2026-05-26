@@ -27,7 +27,7 @@ public class MenusRepository : IMenusRepository
             FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
-    public Task<MenuDto?> GetDtoByIdAsync(Guid restaurantId, CancellationToken ct)
+    public Task<MenuDto?> GetDtoByIdAsync(Guid restaurantId, bool includeUnavailable, CancellationToken ct)
     {
         return _context.Menus
             .AsSplitQuery()
@@ -41,38 +41,13 @@ public class MenusRepository : IMenusRepository
                     Id = c.Id,
                     Name = c.Name,
                     MenuItems = x.MenuItems
-                        .Where(y => y.CategoryId == c.Id && y.IsAvailable)
+                        .Where(y => y.CategoryId == c.Id && (includeUnavailable || y.IsAvailable))
                         .Select(i => new MenuItemDto
                     {
                         Id = i.Id,
                         Name = i.Name,
                         Price = i.Price,
                     }).ToList()
-                }).ToList()
-            }).FirstOrDefaultAsync(ct);
-    }
-
-    public Task<MenuDto?> GetAdminViewByIdAsync(Guid restaurantId, CancellationToken ct)
-    {
-        return _context.Menus
-            .AsSplitQuery()
-            .Where(x => x.RestaurantId == restaurantId)
-            .Select(x => new MenuDto
-            {
-                Id = x.Id,
-                RestaurantId = restaurantId,
-                MenuCategories = x.Categories.Select(c => new MenuCategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    MenuItems = x.MenuItems
-                        .Where(y => y.CategoryId == c.Id)
-                        .Select(i => new MenuItemDto
-                        {
-                            Id = i.Id,
-                            Name = i.Name,
-                            Price = i.Price,
-                        }).ToList()
                 }).ToList()
             }).FirstOrDefaultAsync(ct);
     }
