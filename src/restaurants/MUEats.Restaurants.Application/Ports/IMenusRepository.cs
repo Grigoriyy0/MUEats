@@ -9,6 +9,8 @@ public interface IMenusRepository
     
     Task<MenuDto?> GetDtoByIdAsync(Guid restaurantId, CancellationToken ct);
 
+    Task<MenuDto?> GetAdminViewByIdAsync(Guid restaurantId, CancellationToken ct);
+
     Task<MenuItemDetailsDto?> GetMenuItemDto(Guid menuId, Guid itemId, CancellationToken ct);
     
     Task AddAsync(Menu menu, CancellationToken ct);

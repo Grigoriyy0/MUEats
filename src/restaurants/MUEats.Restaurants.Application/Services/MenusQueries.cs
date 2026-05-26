@@ -23,4 +23,9 @@ public class MenusQueries
     {
         return _repository.GetMenuItemDto(menuId, itemId, ct);
     }
+
+    public Task<MenuDto?> GetAdminViewDtoByIdAsync(Guid restaurantId, CancellationToken ct)
+    {
+        return _repository.GetAdminViewByIdAsync(restaurantId, ct);
+    }
 }

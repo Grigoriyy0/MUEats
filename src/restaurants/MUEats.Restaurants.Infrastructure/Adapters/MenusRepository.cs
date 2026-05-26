@@ -52,6 +52,31 @@ public class MenusRepository : IMenusRepository
             }).FirstOrDefaultAsync(ct);
     }
 
+    public Task<MenuDto?> GetAdminViewByIdAsync(Guid restaurantId, CancellationToken ct)
+    {
+        return _context.Menus
+            .AsSplitQuery()
+            .Where(x => x.RestaurantId == restaurantId)
+            .Select(x => new MenuDto
+            {
+                Id = x.Id,
+                RestaurantId = restaurantId,
+                MenuCategories = x.Categories.Select(c => new MenuCategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    MenuItems = x.MenuItems
+                        .Where(y => y.CategoryId == c.Id)
+                        .Select(i => new MenuItemDto
+                        {
+                            Id = i.Id,
+                            Name = i.Name,
+                            Price = i.Price,
+                        }).ToList()
+                }).ToList()
+            }).FirstOrDefaultAsync(ct);
+    }
+
     public Task<MenuItemDetailsDto?> GetMenuItemDto(Guid menuId, Guid itemId, CancellationToken ct)
     {
         return _context.Menus
