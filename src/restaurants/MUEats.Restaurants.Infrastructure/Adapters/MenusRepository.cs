@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using MUEats.Restaurants.Application.DTOs;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Domain.Menu;
-using MUEats.Restaurants.Core.Domain.Menu.Entities;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Restaurants.Infrastructure.Adapters;
@@ -27,10 +26,9 @@ public class MenusRepository : IMenusRepository
             FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
-    public Task<MenuDto?> GetDtoByIdAsync(Guid restaurantId, CancellationToken ct)
+    public Task<MenuDto?> GetDtoByIdAsync(Guid restaurantId, bool includeUnavailable, CancellationToken ct)
     {
         return _context.Menus
-            .AsSplitQuery()
             .Where(x => x.RestaurantId == restaurantId)
             .Select(x => new MenuDto
             {
@@ -41,7 +39,7 @@ public class MenusRepository : IMenusRepository
                     Id = c.Id,
                     Name = c.Name,
                     MenuItems = x.MenuItems
-                        .Where(y => y.CategoryId == c.Id && y.IsAvailable)
+                        .Where(y => y.CategoryId == c.Id && (includeUnavailable || y.IsAvailable))
                         .Select(i => new MenuItemDto
                     {
                         Id = i.Id,
@@ -55,7 +53,6 @@ public class MenusRepository : IMenusRepository
     public Task<MenuItemDetailsDto?> GetMenuItemDto(Guid menuId, Guid itemId, CancellationToken ct)
     {
         return _context.Menus
-            .AsSplitQuery()
             .Where(x => x.Id == menuId)
             .Select(x => x.MenuItems.
                 Where(mi => mi.Id == itemId)
@@ -87,13 +84,7 @@ public class MenusRepository : IMenusRepository
         return _context.AddAsync(menu, ct)
             .AsTask();
     }
-
-    public Task UpdateAsync(Menu menu, CancellationToken ct)
-    {
-        _context.Update(menu);
-        return Task.CompletedTask;
-    }
-
+    
     public Task DeleteAsync(Menu menu, CancellationToken ct)
     {
         _context.Remove(menu);
