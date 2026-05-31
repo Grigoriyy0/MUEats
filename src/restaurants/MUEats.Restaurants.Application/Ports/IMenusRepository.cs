@@ -13,8 +13,6 @@ public interface IMenusRepository
     
     Task AddAsync(Menu menu, CancellationToken ct);
     
-    Task UpdateAsync(Menu menu, CancellationToken ct);
-    
     Task DeleteAsync(Menu menu, CancellationToken ct);
     
     Task<bool> AnyAsync(Guid id, CancellationToken ct);
