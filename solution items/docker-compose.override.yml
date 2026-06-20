@@ -1,0 +1,19 @@
+services:
+  core-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__Postgres=Host=core-postgres;Port=5432;Username=core-user;Password=corepassword;Database=mue.master;
+      - KafkaOptions__BootstrapServers=kafka:19092;
+  
+  gateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+  
+  restaurants:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__Postgres=Host=restaurants-postgres;Port=5432;Username=restaurants-user;Password=restaurantspassword;Database=mue.restaurants;
+      - KafkaOptions__BootstrapServers=kafka:19092;

@@ -10,8 +10,8 @@ volumes:
   grafana-storage: { }
   redis-data:
     driver: local
-  #core-db-data:
-  #restaurants-db-data:
+  core-postgres-data:
+  restaurants-postgres-data:
 
 services:
   zookeeper:
@@ -105,11 +105,68 @@ services:
   
   redis:
     image: redis:latest
-    container_name: my-redis
+    container_name: mueats.redis
     ports:
       - '6379:6379'
     volumes:
       - redis-data:/data
     environment:
       - REDIS_ARGS=--requirepass your_password_here --appendonly yes
+    restart: unless-stopped
+  
+  core-postgres:
+    image: postgres:16
+    container_name: mueats.core.postgres
+    ports:
+      - '5433:5432'
+    expose:
+      - '5432'
+    environment:
+      POSTGRES_USER: core-user
+      POSTGRES_PASSWORD: corepassword
+      POSTGRES_DB: postgres
+    volumes:
+      - core-postgres-data:/data
+    restart: unless-stopped
+  
+  restaurants-postgres:
+    image: postgres:16
+    container_name: mueats.restaurants.postgres
+    ports:
+      - '5434:5432'
+    expose:
+      - '5432'
+    environment:
+      POSTGRES_USER: restaurants-user
+      POSTGRES_PASSWORD: restaurantspassword
+      POSTGRES_DB: postgres
+    volumes:
+      - restaurants-postgres-data:/data
+    restart: unless-stopped
+  
+  core-api:
+    build:
+      context: ..
+      dockerfile: ./src/core/MUEats.Api/Dockerfile
+    container_name: mueats.core
+    ports:
+      - '5555:8080'
+    restart: unless-stopped
+    
+  gateway:
+    build:
+      context: ..
+      dockerfile: ./src/gateway/MUEats.Gateway/Dockerfile
+    container_name: mueats.gateway
+    ports:
+      - '5556:8080'
+    restart: unless-stopped
+  
+  restaurants:
+    build:
+      context: ..
+      dockerfile: ./src/restaurants/MUEats.Restaurants.Api/Dockerfile
+    container_name: mueats.restaurants
+    ports:
+      - '5557:8080'
     restart: unless-stopped
