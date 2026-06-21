@@ -13,6 +13,7 @@ volumes:
   core-postgres-data:
   restaurants-postgres-data:
 
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.2
@@ -126,8 +127,14 @@ services:
       POSTGRES_PASSWORD: corepassword
       POSTGRES_DB: postgres
     volumes:
-      - core-postgres-data:/data
+      - core-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U core-user -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   
   restaurants-postgres:
     image: postgres:16
@@ -141,8 +148,14 @@ services:
       POSTGRES_PASSWORD: restaurantspassword
       POSTGRES_DB: postgres
     volumes:
-      - restaurants-postgres-data:/data
+      - restaurants-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U restaurants-user -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   
   core-api:
     build:
@@ -151,7 +164,12 @@ services:
     container_name: mueats.core
     ports:
       - '5555:8080'
+    expose:
+      - '8080'
     restart: unless-stopped
+    depends_on:
+      core-postgres:
+        condition: service_healthy
     
   gateway:
     build:
@@ -159,7 +177,7 @@ services:
       dockerfile: ./src/gateway/MUEats.Gateway/Dockerfile
     container_name: mueats.gateway
     ports:
-      - '5556:8080'
+      - '5556:5000'
     restart: unless-stopped
   
   restaurants:
@@ -169,4 +187,9 @@ services:
     container_name: mueats.restaurants
     ports:
       - '5557:8080'
+    expose:
+      - '8080'
     restart: unless-stopped
+    depends_on:
+      restaurants-postgres:
+        condition: service_healthy

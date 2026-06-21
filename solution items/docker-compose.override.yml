@@ -10,6 +10,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
+      - Clusters__restaurants_cluster__Destinations__destination1__Address=http://restaurants:8080
+      - Clusters__api_cluster__Destinations__destination1__Address=http://core-api:8080
   
   restaurants:
     environment:
