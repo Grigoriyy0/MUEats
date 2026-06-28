@@ -10,11 +10,11 @@ namespace MUEats.Adapters.Http;
 [ApiController]
 public class UsersController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly IUsersService _usersService;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUsersService usersService)
     {
-        _userService = userService;
+        _usersService = usersService;
     }
     
     [HttpPost]
@@ -23,7 +23,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            await  _userService.CreateManagerAsync(dto, ct);
+            //await  _usersService.CreateAsync(dto, ct);
             return Created();
         }
         catch (Exception e)
@@ -36,6 +36,6 @@ public class UsersController : ControllerBase
     [Route("managers")]
     public async Task<IActionResult> GetManagersAsync(CancellationToken ct)
     {
-        return Ok(await _userService.GetManagersAsync(ct));
+        return Ok(await _usersService.GetManagersAsync(ct));
     }
 }

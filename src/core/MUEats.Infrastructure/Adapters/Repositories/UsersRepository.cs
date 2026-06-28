@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MUEats.Application.Dto.User;
 using MUEats.Application.Ports;
+using MUEats.Core.Domain.Constants;
 using MUEats.Core.Domain.User;
 using MUEats.Core.Domain.User.Entities;
 using MUEats.Infrastructure.Persistence;
@@ -29,9 +30,11 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
             .FirstOrDefaultAsync(x => x.Email == email, ct);
     }
 
+    //todo fix
     public Task<List<ManagerDto>> GetManagersAsync(CancellationToken ct)
     {
-        return context.Users.Where(x => x.Role == Role.RestaurantManager)
+        return context.Users.Where(x => x.UserRoles.
+                Any(ur => ur.Role.RoleName == RoleConstants.RoleNames.RestaurantOwner))
             .Select(y => new ManagerDto
             {
                 Id = y.Id,
@@ -40,7 +43,6 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
                 FirstName = y.FirstName,
                 LastName = y.LastName,
                 RestaurantId = y.UserAttributes.FirstOrDefault(z => z.Key == "restaurant_id").Value,
-                Role = y.Role.ToString()
             }).ToListAsync(ct);
     }
 

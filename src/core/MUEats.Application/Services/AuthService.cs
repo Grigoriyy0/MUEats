@@ -3,10 +3,8 @@ using MUEats.Application.Dto.User;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Application.Responses;
-using MUEats.Core.Domain.User;
-using MUEats.Core.Domain.User.Entities;
 
-namespace MUEats.Application.Services.Identity;
+namespace MUEats.Application.Services;
 
 public class AuthService : IAuthService
 {
@@ -16,13 +14,15 @@ public class AuthService : IAuthService
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IUnitOfWork _uow;
     private readonly IPasswordValidator _passwordValidator;
+    private readonly IUsersService _usersService;
     
     public AuthService(IRefreshTokenService refreshTokenService, 
         ITokenProducer tokenProducer, 
         IHashProvider hashProvider, 
         IUsersRepository usersRepository, 
         IUnitOfWork uow, 
-        IPasswordValidator passwordValidator)
+        IPasswordValidator passwordValidator, 
+        IUsersService usersService)
     {
         _refreshTokenService = refreshTokenService;
         _tokenProducer = tokenProducer;
@@ -30,6 +30,7 @@ public class AuthService : IAuthService
         _usersRepository = usersRepository;
         _uow = uow;
         _passwordValidator = passwordValidator;
+        _usersService = usersService;
     }
 
     public async Task<TokenResponse> AuthAsync(AuthDto dto, CancellationToken ct)
@@ -67,7 +68,6 @@ public class AuthService : IAuthService
                 throw new Exception("Token not found");
             }
 
-            // Защита от повторного использования (Reuse Detection)
             if (token.IsRevoked)
             {
                 await _refreshTokenService.RevokeAllForUserAsync(token.UserId, ct);
@@ -109,11 +109,9 @@ public class AuthService : IAuthService
         {
             await _uow.BeginTransactionAsync(ct);
 
-            var checkUser = await _usersRepository.AnyAsync(dto.Email, ct);
-
-            if (checkUser)
+            if (dto.Password != dto.PasswordConfirmation)
             {
-                throw new ArgumentException("User with that email already exists");
+                throw new ArgumentException("Passwords do not match");
             }
             
             var validationResult = _passwordValidator.Validate(dto.Password);
@@ -122,22 +120,10 @@ public class AuthService : IAuthService
             {
                 throw new ArgumentException("Password does not match requirements");
             }
+
+
+            await _usersService.CreateAsync(dto, ct);
             
-            var passwordHash = _hashProvider.ComputeHash(dto.Password);
-        
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                Username = dto.Username,
-                PasswordHash = passwordHash,
-                Role = Role.Customer
-            };
-
-            await _usersRepository.AddAsync(user, ct);
-
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);
         }

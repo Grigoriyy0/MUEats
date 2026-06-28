@@ -2,9 +2,9 @@
 
 namespace MUEats.Application.Interfaces;
 
-public interface IUserService
+public interface IUsersService
 {
-    Task CreateManagerAsync(CreateManagerDto dto, CancellationToken ct);
+    Task CreateAsync(CreateUserDto dto, CancellationToken ct);
     
     Task<List<ManagerDto>> GetManagersAsync(CancellationToken ct);
 }

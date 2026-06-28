@@ -36,7 +36,11 @@ public class MueDbContext : DbContext
     public DbSet<InboxMessage> InboxMessages { get; set; }
     
     public DbSet<OrderSaga>  OrderSagas { get; set; }
-
+    
+    public DbSet<Role> Roles { get; set; }
+    
+    public DbSet<UserRole> UserRoles { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MueDbContext).Assembly);

@@ -12,7 +12,5 @@ public class ManagerDto
     
     public string Email { get; set; }
     
-    public string Role { get; set; }
-    
     public string RestaurantId { get; set; }
 }

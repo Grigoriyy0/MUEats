@@ -1,8 +1,10 @@
 namespace MUEats.Core.Domain.User.Entities;
 
-public enum Role
+public class Role
 {
-    Customer,
-    RestaurantManager,
-    Admin
+    public Guid Id { get; set; }
+    
+    public string RoleName { get; set; }
+
+    public ICollection<UserRole> Roles { get; set; } = [];
 }
