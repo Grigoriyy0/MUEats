@@ -33,11 +33,15 @@ public class OrdersQueries : IOrdersQueries
             {
                 Id = x.Id,
                 RestaurantId = x.RestaurantId,
+                TotalPrice = x.TotalPrice,
+                RestaurantDetails = x.RestaurantId.ToString(),
+                OrderDate = x.CreatedAt,
                 OrderItems = x.OrderItems.Select(o => new OrderItemDto
                 {
                     Id = o.Id,
                     ItemName = o.Name,
-                    Price = o.Price
+                    Price = o.Price,
+                    Quantity = o.Quantity
                 }).ToList()
             }).FirstOrDefaultAsync(ct);
     }
@@ -52,11 +56,13 @@ public class OrdersQueries : IOrdersQueries
                 Id = y.Id,
                 OrderDate = y.CreatedAt,
                 RestaurantDetails = y.RestaurantId.ToString(),
+                RestaurantId = y.RestaurantId,
                 OrderItems = y.OrderItems.Select(z => new OrderItemDto
                 {
                     Id = z.Id,
                     ItemName = z.Name,
-                    Price = z.Price
+                    Price = z.Price,
+                    Quantity = z.Quantity
                 }).ToList(),
                 TotalPrice = y.TotalPrice
             })
