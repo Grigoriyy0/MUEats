@@ -52,7 +52,7 @@ public class OrdersService : IOrdersService
                 throw new ArgumentException("Add items to create an order.");
             }
 
-            var totalPrice = cart.Items.Sum(x => x.Price);
+            var totalPrice = cart.Items.Sum(x => x.Price * x.Quantity);
         
             var order = new Order
             {

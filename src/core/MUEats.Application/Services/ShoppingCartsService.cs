@@ -108,6 +108,12 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         {
             return cart;
         }
+        
+        if (cart != null)
+        {
+            await shoppingCartsRepository.DeleteAsync(cart, ct);
+        }
+        
 
         var newCart = new ShoppingCart
         {

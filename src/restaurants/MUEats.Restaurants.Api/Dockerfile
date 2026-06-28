@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -7,6 +7,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY --chmod=644 ./src/core/MUEats.Api/private_key.pem /app/private_key.pem
 COPY ["src/restaurants/MUEats.Restaurants.Api/MUEats.Restaurants.Api.csproj", "src/restaurants/MUEats.Restaurants.Api/"]
 COPY ["src/restaurants/MUEats.Restaurants.Application/MUEats.Restaurants.Application.csproj", "src/restaurants/MUEats.Restaurants.Application/"]
 COPY ["src/restaurants/MUEats.Restaurants.Core/MUEats.Restaurants.Core.csproj", "src/restaurants/MUEats.Restaurants.Core/"]
@@ -24,4 +25,5 @@ RUN dotnet publish "./MUEats.Restaurants.Api.csproj" -c $BUILD_CONFIGURATION -o 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./src/restaurants/MUEats.Restaurants.Api/public_key.pem /app/public_key.pem
 ENTRYPOINT ["dotnet", "MUEats.Restaurants.Api.dll"]

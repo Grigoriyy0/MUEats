@@ -58,7 +58,12 @@ public class OrdersController : ControllerBase
     {
         var orderStatus = await _ordersQueries.GetStatusAsync(orderId, ct);
 
-        return Ok(orderStatus);
+        return Ok(new OrderStatusDto
+        {
+            OrderId = orderId,
+            OrderStatus = orderStatus.ToString(),
+            DeliveryStatus = null
+        });
     }
 
     [HttpGet]
