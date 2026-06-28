@@ -40,7 +40,7 @@ public class RestaurantsService
         
         var businessHours = businessHoursResult.Value;
 
-        var restaurantResult = Restaurant.Create(dto.Name, dto.Description, businessHours, dto.Address);
+        var restaurantResult = Restaurant.Create(dto.Name, dto.Description, businessHours, dto.Address, dto.Latitude, dto.Longitude);
 
         if (restaurantResult.IsFailure)
         {
