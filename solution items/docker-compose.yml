@@ -10,8 +10,9 @@ volumes:
   grafana-storage: { }
   redis-data:
     driver: local
-  #core-db-data:
-  #restaurants-db-data:
+  core-postgres-data:
+  restaurants-postgres-data:
+
 
 services:
   zookeeper:
@@ -105,7 +106,7 @@ services:
   
   redis:
     image: redis:latest
-    container_name: my-redis
+    container_name: mueats.redis
     ports:
       - '6379:6379'
     volumes:
@@ -113,3 +114,82 @@ services:
     environment:
       - REDIS_ARGS=--requirepass your_password_here --appendonly yes
     restart: unless-stopped
+  
+  core-postgres:
+    image: postgres:16
+    container_name: mueats.core.postgres
+    ports:
+      - '5433:5432'
+    expose:
+      - '5432'
+    environment:
+      POSTGRES_USER: core-user
+      POSTGRES_PASSWORD: corepassword
+      POSTGRES_DB: postgres
+    volumes:
+      - core-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U core-user -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  
+  restaurants-postgres:
+    image: postgres:16
+    container_name: mueats.restaurants.postgres
+    ports:
+      - '5434:5432'
+    expose:
+      - '5432'
+    environment:
+      POSTGRES_USER: restaurants-user
+      POSTGRES_PASSWORD: restaurantspassword
+      POSTGRES_DB: postgres
+    volumes:
+      - restaurants-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U restaurants-user -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  
+  core-api:
+    build:
+      context: ..
+      dockerfile: ./src/core/MUEats.Api/Dockerfile
+    container_name: mueats.core
+    ports:
+      - '5555:8080'
+    expose:
+      - '8080'
+    restart: unless-stopped
+    depends_on:
+      core-postgres:
+        condition: service_healthy
+    
+  gateway:
+    build:
+      context: ..
+      dockerfile: ./src/gateway/MUEats.Gateway/Dockerfile
+    container_name: mueats.gateway
+    ports:
+      - '5556:5000'
+    restart: unless-stopped
+  
+  restaurants:
+    build:
+      context: ..
+      dockerfile: ./src/restaurants/MUEats.Restaurants.Api/Dockerfile
+    container_name: mueats.restaurants
+    ports:
+      - '5557:8080'
+    expose:
+      - '8080'
+    restart: unless-stopped
+    depends_on:
+      restaurants-postgres:
+        condition: service_healthy

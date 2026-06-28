@@ -14,7 +14,7 @@ public static class AuthExtensions
                 var keyPath = configuration["AuthOptions:PrivateKeyPath"];
                 if (string.IsNullOrEmpty(keyPath) || !File.Exists(keyPath))
                 {
-                    throw new FileNotFoundException("RSA Private Key not found at specified path.");
+                    throw new FileNotFoundException("RSA Private Key is not found at specified path.");
                 }
 
                 var pemContent = File.ReadAllText(keyPath);
