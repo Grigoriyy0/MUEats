@@ -12,13 +12,15 @@ public class RestaurantAggregateTests
         var name = "JCC";
         var description = "Cafe";
         var address = "JCC G/F";
+        var latitude = 22.3193;
+        var longitude = 114.1694;
         
         var openingTime = new TimeSpan(0, 12, 0, 0);
         var closingTime = new TimeSpan(0, 20, 0, 0);
 
         var businessHours = BusinessHours.Create(openingTime, closingTime).Value;
         
-        var result = Restaurant.Create(name, description, businessHours, address);
+        var result = Restaurant.Create(name, description, businessHours, address, latitude, longitude);
         
         var restaurant = result.Value;
         
@@ -26,6 +28,8 @@ public class RestaurantAggregateTests
         Assert.Equal(restaurant.Name, name);
         Assert.Equal(restaurant.Description, description);
         Assert.Equal(restaurant.Address, address);
+        Assert.Equal(restaurant.Latitude, latitude);
+        Assert.Equal(restaurant.Longitude, longitude);
     }
 
     [Fact]
@@ -40,7 +44,7 @@ public class RestaurantAggregateTests
 
         var businessHours = BusinessHours.Create(openingTime, closingTime).Value;
         
-        var result = Restaurant.Create(name, description, businessHours, address);
+        var result = Restaurant.Create(name, description, businessHours, address, 22.3193, 114.1694);
         
         Assert.False(result.IsSuccess);
         Assert.Equal(result.Error, DomainErrors.Restaurant.NameIsEmpty);
@@ -58,7 +62,7 @@ public class RestaurantAggregateTests
 
         var businessHours = BusinessHours.Create(openingTime, closingTime).Value;
         
-        var result = Restaurant.Create(name, description, businessHours, address);
+        var result = Restaurant.Create(name, description, businessHours, address, 22.3193, 114.1694);
         
         Assert.False(result.IsSuccess);
         Assert.Equal(result.Error, DomainErrors.Restaurant.AddressIsEmpty);
@@ -109,6 +113,6 @@ public class RestaurantAggregateTests
 
         var businessHours = BusinessHours.Create(openingTime, closingTime).Value;
         
-        return Restaurant.Create("JCC", null, businessHours, "JCC G/F").Value;
+        return Restaurant.Create("JCC", null, businessHours, "JCC G/F", 22.3193, 114.1694).Value;
     }
 }

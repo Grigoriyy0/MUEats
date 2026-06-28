@@ -31,6 +31,8 @@ public sealed class RestaurantsRepository : IRestaurantsRepository
                 Name = r.Name,
                 Description = r.Description,
                 Address = r.Address,
+                Latitude = r.Latitude,
+                Longitude = r.Longitude,
                 BusinessHours = $"{r.BusinessHours.OpeningTime:hh\\:mm}" + $"-{r.BusinessHours.ClosingTime:hh\\:mm}",
             }).FirstOrDefaultAsync(ct);
     }
@@ -45,6 +47,8 @@ public sealed class RestaurantsRepository : IRestaurantsRepository
                 Name = r.Name,
                 Description = r.Description,
                 Address = r.Address,
+                Latitude = r.Latitude,
+                Longitude = r.Longitude,
                 BusinessHours = $"{r.BusinessHours.OpeningTime:hh\\:mm}" + $"-{r.BusinessHours.ClosingTime:hh\\:mm}",
             }).ToListAsync(ct);
     }

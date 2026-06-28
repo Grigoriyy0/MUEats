@@ -10,13 +10,17 @@ public class Restaurant
         string name, 
         string? description, 
         BusinessHours businessHours,
-        string address)
+        string address,
+        double latitude,
+        double longitude)
     {
         Id = Guid.NewGuid();
         Name = name;
         Description = description;
         BusinessHours = businessHours;
         Address = address;
+        Latitude = latitude;
+        Longitude = longitude;
     }
 
     public Guid Id { get; init; }
@@ -29,12 +33,17 @@ public class Restaurant
 
     public string Address { get; private set; } 
     
+    public double Latitude { get; private set; }
+    public double Longitude { get; private set; }
+    
     public Guid MenuId { get; private set; }
 
     public static Result<Restaurant, Error> Create(string name, 
         string? description, 
         BusinessHours businessHours,
-        string address)
+        string address,
+        double latitude,
+        double longitude)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -46,7 +55,7 @@ public class Restaurant
             return DomainErrors.Restaurant.AddressIsEmpty;
         }
         
-        return new Restaurant(name, description, businessHours, address);
+        return new Restaurant(name, description, businessHours, address, latitude, longitude);
     }
 
     public void AddMenuId(Guid menuId)

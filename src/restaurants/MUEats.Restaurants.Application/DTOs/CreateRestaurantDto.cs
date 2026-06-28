@@ -14,6 +14,10 @@ public sealed record CreateRestaurantDto
     
     public TimeSpan ClosingTime { get; set; }
     
+    public double Latitude { get; set; }
+    
+    public double Longitude { get; set; }
+    
     [Required]
     [StringLength(128)]
     public string Address { get; set; }
