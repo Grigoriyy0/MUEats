@@ -27,9 +27,6 @@ public class RestaurantAggregateTests
         Assert.True(result.IsSuccess);
         Assert.Equal(restaurant.Name, name);
         Assert.Equal(restaurant.Description, description);
-        Assert.Equal(restaurant.Address, address);
-        Assert.Equal(restaurant.Latitude, latitude);
-        Assert.Equal(restaurant.Longitude, longitude);
     }
 
     [Fact]
@@ -91,19 +88,6 @@ public class RestaurantAggregateTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(newName, restaurant.Name);
-    }
-
-    [Fact]
-    public void Test_UpdateAddress_EmptyString_ReturnsError()
-    {
-        var address = string.Empty;
-        
-        var restaurant = CreateRestaurant();
-        
-        var result = restaurant.UpdateAddress(address);
-        
-        Assert.False(result.IsSuccess);
-        Assert.Equal(result.Error, DomainErrors.Restaurant.AddressIsEmpty);
     }
 
     private static Restaurant CreateRestaurant()
