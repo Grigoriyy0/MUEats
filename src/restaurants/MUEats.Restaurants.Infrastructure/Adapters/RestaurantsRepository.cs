@@ -30,7 +30,9 @@ public sealed class RestaurantsRepository : IRestaurantsRepository
                 MenuId = r.MenuId,
                 Name = r.Name,
                 Description = r.Description,
-                Address = r.Address,
+                Address = r.Address.AddressLine,
+                Latitude = r.Address.Latitude,
+                Longitude = r.Address.Longitude,
                 BusinessHours = $"{r.BusinessHours.OpeningTime:hh\\:mm}" + $"-{r.BusinessHours.ClosingTime:hh\\:mm}",
             }).FirstOrDefaultAsync(ct);
     }
@@ -44,7 +46,9 @@ public sealed class RestaurantsRepository : IRestaurantsRepository
                 MenuId = r.MenuId,
                 Name = r.Name,
                 Description = r.Description,
-                Address = r.Address,
+                Address = r.Address.AddressLine,
+                Latitude = r.Address.Latitude,
+                Longitude = r.Address.Longitude,
                 BusinessHours = $"{r.BusinessHours.OpeningTime:hh\\:mm}" + $"-{r.BusinessHours.ClosingTime:hh\\:mm}",
             }).ToListAsync(ct);
     }

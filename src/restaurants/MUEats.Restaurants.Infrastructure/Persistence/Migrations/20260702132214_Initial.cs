@@ -93,7 +93,9 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                     name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     description = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     business_hours = table.Column<string>(type: "jsonb", nullable: false),
-                    address = table.Column<string>(type: "text", nullable: false),
+                    address_line = table.Column<string>(type: "text", nullable: false),
+                    latitude = table.Column<double>(type: "double precision", precision: 9, scale: 6, nullable: false),
+                    longitude = table.Column<double>(type: "double precision", precision: 9, scale: 6, nullable: false),
                     menu_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>

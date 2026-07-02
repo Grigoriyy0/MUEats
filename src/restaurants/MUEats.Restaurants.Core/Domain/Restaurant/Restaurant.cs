@@ -6,11 +6,16 @@ namespace MUEats.Restaurants.Core.Domain.Restaurant;
 
 public class Restaurant
 {
+    public Restaurant()
+    {
+        
+    }
+    
     private Restaurant(
         string name, 
         string? description, 
-        BusinessHours businessHours,
-        string address)
+        BusinessHours businessHours, 
+        Address address)
     {
         Id = Guid.NewGuid();
         Name = name;
@@ -27,14 +32,16 @@ public class Restaurant
     
     public BusinessHours BusinessHours { get; private set; }
 
-    public string Address { get; private set; } 
+    public Address Address { get; private set; }
     
     public Guid MenuId { get; private set; }
 
     public static Result<Restaurant, Error> Create(string name, 
         string? description, 
         BusinessHours businessHours,
-        string address)
+        string address,
+        double latitude,
+        double longitude)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -45,8 +52,15 @@ public class Restaurant
         {
             return DomainErrors.Restaurant.AddressIsEmpty;
         }
+
+        var addressResult = Address.Create(address, latitude, longitude);
+
+        if (addressResult.IsFailure)
+        {
+            return addressResult.Error;
+        }
         
-        return new Restaurant(name, description, businessHours, address);
+        return new Restaurant(name, description, businessHours, addressResult.Value);
     }
 
     public void AddMenuId(Guid menuId)
@@ -66,14 +80,16 @@ public class Restaurant
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> UpdateAddress(string address)
+    public UnitResult<Error> UpdateAddress(string addressLine, double latitude, double longitude)
     {
-        if (string.IsNullOrWhiteSpace(address))
+        var addressResult = Address.Create(addressLine, latitude, longitude);
+
+        if (addressResult.IsFailure)
         {
-            return DomainErrors.Restaurant.AddressIsEmpty;
+            return addressResult.Error;
         }
-        
-        Address = address;
+
+        Address = addressResult.Value;
         
         return UnitResult.Success<Error>();
     }
