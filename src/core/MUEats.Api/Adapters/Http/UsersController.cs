@@ -11,10 +11,12 @@ namespace MUEats.Adapters.Http;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
+    private readonly IRolesService _rolesService;
 
-    public UsersController(IUsersService usersService)
+    public UsersController(IUsersService usersService, IRolesService rolesService)
     {
         _usersService = usersService;
+        _rolesService = rolesService;
     }
     
     [HttpPost]
@@ -25,6 +27,22 @@ public class UsersController : ControllerBase
         {
             //await  _usersService.CreateAsync(dto, ct);
             return Created();
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPost]
+    [Route("{userId:guid}/role/{roleId:guid}")]
+    public async Task<IActionResult> GrantRoleAsync([FromRoute] Guid userId, Guid roleId, CancellationToken ct)
+    {
+        try
+        {
+            await _rolesService.GrantRoleAsync(userId, roleId, ct);
+
+            return Ok();
         }
         catch (Exception e)
         {

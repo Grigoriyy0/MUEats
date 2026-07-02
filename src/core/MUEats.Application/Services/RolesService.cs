@@ -7,12 +7,16 @@ namespace MUEats.Application.Services;
 public class RolesService : IRolesService
 {
     private readonly IUnitOfWork _uow;
-    private readonly IRolesRepository _repository;
+    private readonly IRolesRepository _rolesRepository;
+    private readonly IUsersRepository _usersRepository;
 
-    public RolesService(IUnitOfWork uow, IRolesRepository repository)
+    public RolesService(IUnitOfWork uow, 
+        IRolesRepository rolesRepository, 
+        IUsersRepository usersRepository)
     {
         _uow = uow;
-        _repository = repository;
+        _rolesRepository = rolesRepository;
+        _usersRepository = usersRepository;
     }
 
     public async Task CreateAsync(string roleName, CancellationToken ct)
@@ -21,7 +25,7 @@ public class RolesService : IRolesService
         {
             await _uow.BeginTransactionAsync(ct);
 
-            var roleExists = await _repository.AnyAsync(roleName, ct);
+            var roleExists = await _rolesRepository.AnyAsync(roleName, ct);
 
             if (roleExists)
             {
@@ -35,7 +39,7 @@ public class RolesService : IRolesService
                 RoleName = roleName
             };
 
-            await _repository.AddAsync(role, ct);
+            await _rolesRepository.AddAsync(role, ct);
 
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);
@@ -47,8 +51,39 @@ public class RolesService : IRolesService
         }
     }
 
-    public async Task GrantRoleAsync()
+    public async Task GrantRoleAsync(Guid userId, Guid roleId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var role = await _rolesRepository.GetByIdAsync(roleId, ct);
+
+            if (role is null)
+            {
+                //todo error
+                return;
+            }
+
+            var user = await _usersRepository.GetByIdAsync(userId, ct);
+
+            if (user is null)
+            {
+                //todo error
+                return;
+            }
+            
+            user.UserRoles.Add(new UserRole
+            {
+                RoleId = roleId,
+                UserId = userId
+            });
+
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
+        }
+        catch (Exception)
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            throw;
+        }
     }
 }

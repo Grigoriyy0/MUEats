@@ -1,6 +1,6 @@
 using MUEats.Core.Domain.User.Entities;
 
-namespace MUEats.Application.Interfaces;
+namespace MUEats.Application.Ports;
 
 public interface IRolesRepository
 {
