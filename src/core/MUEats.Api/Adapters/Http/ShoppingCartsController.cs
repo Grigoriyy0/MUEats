@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Application.Dto.ShoppingCart;
@@ -28,7 +27,7 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
     [HttpGet]
     [Route("{userId:guid}")]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> GetAsync([FromRoute] Guid userId, CancellationToken ct)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid userId, CancellationToken ct)
     {
         return Ok(await shoppingCartsService.GetShoppingCartAsync(userId, ct));
     }

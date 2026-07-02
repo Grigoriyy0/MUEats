@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MUEats.Application.Dto.User;
 using MUEats.Application.Interfaces;
+using MUEats.Application.Queries;
 
 namespace MUEats.Adapters.Http;
 
@@ -20,21 +20,6 @@ public class UsersController : ControllerBase
     }
     
     [HttpPost]
-    [Route("managers")]
-    public async Task<IActionResult> CreateManagerAsync([FromBody] CreateManagerDto dto, CancellationToken ct)
-    {
-        try
-        {
-            //await  _usersService.CreateAsync(dto, ct);
-            return Created();
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-
-    [HttpPost]
     [Route("{userId:guid}/role/{roleId:guid}")]
     public async Task<IActionResult> GrantRoleAsync([FromRoute] Guid userId, Guid roleId, CancellationToken ct)
     {
@@ -51,8 +36,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    [Route("managers")]
-    public async Task<IActionResult> GetManagersAsync(CancellationToken ct)
+    public async Task<IActionResult> GetUsersAsync([FromQuery] GetUsersQuery query, CancellationToken ct)
     {
         return Ok(await _usersService.GetManagersAsync(ct));
     }

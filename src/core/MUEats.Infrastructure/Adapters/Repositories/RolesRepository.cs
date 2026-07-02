@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Dto.Role;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.User.Entities;
 using MUEats.Infrastructure.Persistence;
@@ -28,5 +29,14 @@ public class RolesRepository : IRolesRepository
     public Task<bool> AnyAsync(string roleName, CancellationToken ct)
     {
         return _context.Roles.AnyAsync(x => x.RoleName == roleName, ct);
+    }
+
+    public Task<List<RoleDto>> GetAllDtoAsync(CancellationToken ct)
+    {
+        return _context.Roles.Select(x => new RoleDto
+        {
+            Id = x.Id,
+            Name = x.RoleName
+        }).ToListAsync(ct);
     }
 }

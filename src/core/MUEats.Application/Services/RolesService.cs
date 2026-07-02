@@ -1,3 +1,4 @@
+using MUEats.Application.Dto.Role;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.User.Entities;
@@ -85,5 +86,10 @@ public class RolesService : IRolesService
             await _uow.RollbackTransactionAsync(ct);
             throw;
         }
+    }
+
+    public Task<List<RoleDto>> GetRolesAsync(CancellationToken ct)
+    {
+        return _rolesRepository.GetAllDtoAsync(ct);
     }
 }
