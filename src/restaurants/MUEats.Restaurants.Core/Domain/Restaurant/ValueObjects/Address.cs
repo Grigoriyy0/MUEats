@@ -5,6 +5,11 @@ namespace MUEats.Restaurants.Core.Domain.Restaurant.ValueObjects;
 
 public class Address : ValueObject
 {
+    public Address()
+    {
+        
+    }
+    
     private Address(string addressLine, double latitude, double longitude)
     {
         AddressLine = addressLine;

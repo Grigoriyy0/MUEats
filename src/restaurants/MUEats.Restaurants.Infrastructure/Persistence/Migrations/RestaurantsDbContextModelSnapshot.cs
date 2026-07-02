@@ -178,11 +178,6 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("address");
-
                     b.Property<string>("BusinessHours")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -446,6 +441,42 @@ namespace MUEats.Restaurants.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_options_groups_menu_items_menu_item_id");
+                });
+
+            modelBuilder.Entity("MUEats.Restaurants.Core.Domain.Restaurant.Restaurant", b =>
+                {
+                    b.OwnsOne("MUEats.Restaurants.Core.Domain.Restaurant.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("RestaurantId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("AddressLine")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("address_line");
+
+                            b1.Property<double>("Latitude")
+                                .HasPrecision(9, 6)
+                                .HasColumnType("double precision")
+                                .HasColumnName("latitude");
+
+                            b1.Property<double>("Longitude")
+                                .HasPrecision(9, 6)
+                                .HasColumnType("double precision")
+                                .HasColumnName("longitude");
+
+                            b1.HasKey("RestaurantId");
+
+                            b1.ToTable("restaurants");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RestaurantId")
+                                .HasConstraintName("fk_restaurants_restaurants_id");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MUEats.Restaurants.Core.Projections.Order.OrderItemSnapshot", b =>

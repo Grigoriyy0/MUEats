@@ -6,6 +6,11 @@ namespace MUEats.Restaurants.Core.Domain.Restaurant;
 
 public class Restaurant
 {
+    public Restaurant()
+    {
+        
+    }
+    
     private Restaurant(
         string name, 
         string? description, 

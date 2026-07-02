@@ -28,13 +28,19 @@ public class RestaurantEntityTypeConfiguration : IEntityTypeConfiguration<Restau
                 )
             .HasColumnType("jsonb")
             .HasColumnName("business_hours");
+        
+        builder.OwnsOne(x => x.Address, address =>
+        {
+            address.Property(x => x.AddressLine)
+                .HasColumnName("address_line");
 
-        builder.Property(x => x.Address)
-            .HasConversion(
-                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
-                v => JsonSerializer.Deserialize<Address>(v, (JsonSerializerOptions)null)
-                )
-            .HasColumnType("jsonb")
-            .HasColumnName("address");
+            address.Property(x => x.Latitude)
+                .HasColumnName("latitude")
+                .HasPrecision(9, 6);
+
+            address.Property(x => x.Longitude)
+                .HasColumnName("longitude")
+                .HasPrecision(9, 6);
+        });
     }
 }
