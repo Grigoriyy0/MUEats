@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Dto.Role;
 using MUEats.Application.Dto.User;
 using MUEats.Application.Ports;
 using MUEats.Application.Queries;
@@ -37,12 +38,18 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
     {
         return context.Users.Where(y => y.UserRoles
                 .Any(x => x.Role.RoleName == query.RoleName))
+            .Include(ur => ur.UserRoles)
             .Select(x => new UserDto
         {
             Id = x.Id,
             Email = x.Email,
             FirstName = x.FirstName,
-            LastName = x.LastName
+            LastName = x.LastName,
+            Roles = x.UserRoles.Select(x => new RoleDto
+            {
+                Id = x.RoleId,
+                Name = x.Role.RoleName
+            }).ToList()
         })
         .Skip((query.Page - 1) * query.PageSize)
         .Take(query.PageSize)
