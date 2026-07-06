@@ -67,7 +67,6 @@ public class DatabaseSeeder
         var adminUser = new User
         {
             Id = Guid.NewGuid(),
-            Username = _adminOptions.UserName,
             FirstName = _adminOptions.FirstName,
             LastName = _adminOptions.LastName,
             Email = _adminOptions.Email,

@@ -50,7 +50,6 @@ public class TokenProducer(IOptions<AuthOptions> options) : ITokenProducer
     {
         yield return new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString());
         yield return new Claim(JwtRegisteredClaimNames.Email, user.Email);
-        yield return new Claim(JwtRegisteredClaimNames.UniqueName, user.Username);
     
         foreach (var userRole in user.UserRoles)
         {

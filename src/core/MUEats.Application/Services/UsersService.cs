@@ -23,12 +23,6 @@ public class UsersService : IUsersService
 
     public async Task CreateAsync(CreateUserDto dto, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(dto.Username))
-        {
-            //todo error
-            return;
-        }
-
         if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName))
         {
             //todo error
@@ -48,7 +42,6 @@ public class UsersService : IUsersService
         var user = new User
         {
             Id = Guid.NewGuid(),
-            Username = dto.Username,
             Email = dto.Email,
             FirstName = dto.FirstName,
             LastName = dto.LastName,
