@@ -25,15 +25,13 @@ public class RolesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAsync(string roleName, CancellationToken ct)
     {
-        try
-        {
-            await _rolesService.CreateAsync(roleName, ct);
+        var roleResult = await _rolesService.CreateAsync(roleName, ct);
 
-            return Created();
-        }
-        catch (Exception e)
+        if (roleResult.IsFailure)
         {
-            return BadRequest(e.Message);
+            return BadRequest(roleResult.Error);
         }
+        
+        return Created();
     }
 }

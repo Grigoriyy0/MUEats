@@ -8,35 +8,40 @@ namespace MUEats.Adapters.Http;
 [ApiController]
 public class IdentityController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly IIdentityManager _identityManager;
 
-    public IdentityController(IAuthService authService)
+    public IdentityController(IIdentityManager identityManager)
     {
-        _authService = authService;
+        _identityManager = identityManager;
     }
 
     [HttpPost]
     [Route("signup")]
     public async Task<IActionResult> RegisterAsync(CreateUserDto dto, CancellationToken ct)
     {
-        try
-        {
-            await _authService.RegisterAsync(dto, ct);
+        var result = await _identityManager.RegisterAsync(dto, ct);
 
-            return NoContent();
-        }
-        catch (Exception)
+        if (result.IsFailure)
         {
-            return BadRequest();
+            return BadRequest(result.Error);
         }
+            
+        return NoContent();
     }
 
     [HttpPost]
     [Route("signin")]
     public async Task<IActionResult> LoginAsync(AuthDto dto, CancellationToken ct)
     {
-        var tokenPair = await _authService.AuthAsync(dto, ct);
+        var tokenResult = await _identityManager.AuthAsync(dto, ct);
 
+        if (tokenResult.IsFailure)
+        {
+            return BadRequest(tokenResult.Error);
+        }
+
+        var tokenPair = tokenResult.Value;
+        
         SetRefreshTokenCookie(tokenPair.RefreshToken);
 
         return Ok(new
@@ -51,23 +56,26 @@ public class IdentityController : ControllerBase
     {
         var oldRefreshToken = Request.Cookies["refreshToken"];
 
-        if (oldRefreshToken is null) return Unauthorized();
-
-        try
-        {
-            var tokenPair = await _authService.RefreshAsync(oldRefreshToken, ct);
-
-            SetRefreshTokenCookie(tokenPair.RefreshToken);
-
-            return Ok(new
-            {
-                tokenPair.AccessToken
-            });
-        }
-        catch (Exception)
+        if (oldRefreshToken is null)
         {
             return Unauthorized();
         }
+        
+        var tokenPairResult = await _identityManager.RefreshAsync(oldRefreshToken, ct);
+
+        if (tokenPairResult.IsFailure) 
+        { 
+            return Unauthorized(tokenPairResult.Error);
+        }
+
+        var tokenPair = tokenPairResult.Value;
+            
+        SetRefreshTokenCookie(tokenPair.RefreshToken);
+
+        return Ok(new
+        {
+            tokenPair.AccessToken 
+        });
     }
 
     private void SetRefreshTokenCookie(string refreshToken)

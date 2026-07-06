@@ -1,22 +1,24 @@
+using CSharpFunctionalExtensions;
 using MUEats.Application.Dto.ShoppingCart;
 using MUEats.Application.Ports;
 using MUEats.Core.Domain.ShoppingCart;
 using MUEats.Core.Domain.ShoppingCart.ValueObjects;
+using Primitives;
 
 namespace MUEats.Application.Services;
 
-public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsRepository, 
+public class ShoppingCartsService(
+    IShoppingCartsRepository shoppingCartsRepository, 
     IUnitOfWork uow,
     ICurrentUserContext currentUserContext)
 {
-    public async Task AddToCartAsync(AddFoodItemDto dto, CancellationToken ct)
+    public async Task<UnitResult<Error>> AddToCartAsync(AddFoodItemDto dto, CancellationToken ct)
     {
         try
         {
             await uow.BeginTransactionAsync(ct);
 
             var userId = currentUserContext.GetUserId();
-            
             var cart = await shoppingCartsRepository.GetByUserIdAsync(userId, ct);
 
             cart = await EnsureShoppingCartAsync(cart, userId, dto.RestaurantId, dto.RestaurantName, ct);
@@ -25,15 +27,17 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
             
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);
+
+            return UnitResult.Success<Error>();
         }
         catch (Exception)
         {
             await uow.RollbackTransactionAsync(ct);
-            throw;
+            throw; 
         }
     }
 
-    public async Task DeleteCartItemAsync(Guid cartItemId, CancellationToken ct)
+    public async Task<UnitResult<Error>> DeleteCartItemAsync(Guid cartItemId, CancellationToken ct)
     {
         try
         {
@@ -43,13 +47,16 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
 
             if (cartItem is null)
             {
-                throw new ArgumentException("No such cart item");
+                await uow.RollbackTransactionAsync(ct);
+                return ApplicationErrors.ShoppingCart.ItemNotFound;
             }
 
             await DeleteOrDecreaseItem(cartItem, ct);
             
             await uow.SaveChangesAsync(ct);
             await uow.CommitTransactionAsync(ct);
+
+            return UnitResult.Success<Error>();
         }
         catch (Exception)
         {
@@ -58,9 +65,19 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         }
     }
 
-    private async Task AddOrIncreaseItem(AddFoodItemDto dto, 
-        ShoppingCart cart, 
-        CancellationToken ct)
+    public async Task<Result<CartDto, Error>> GetShoppingCartAsync(Guid userId, CancellationToken ct)
+    {
+        var cartDto = await shoppingCartsRepository.GetCartDtoAsync(userId, ct);
+        
+        if (cartDto is null)
+        {
+            return ApplicationErrors.ShoppingCart.CartNotFound;
+        }
+
+        return cartDto;
+    }
+
+    private async Task AddOrIncreaseItem(AddFoodItemDto dto, ShoppingCart cart, CancellationToken ct)
     {
         var existingItem = cart.CartItems.FirstOrDefault(x => x.FoodItemId == dto.ItemId);
 
@@ -82,7 +99,6 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         };
 
         await shoppingCartsRepository.AddCartItemAsync(newCartItem, ct);
-        
         cart.CartItems.Add(newCartItem);
     }
 
@@ -98,7 +114,8 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         await shoppingCartsRepository.DeleteCartItemAsync(cartItem, ct);
     }
 
-    private async Task<ShoppingCart> EnsureShoppingCartAsync(ShoppingCart? cart, 
+    private async Task<ShoppingCart> EnsureShoppingCartAsync(
+        ShoppingCart? cart, 
         Guid userId, 
         Guid restaurantId, 
         string restaurantName,
@@ -113,7 +130,6 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         {
             await shoppingCartsRepository.DeleteAsync(cart, ct);
         }
-        
 
         var newCart = new ShoppingCart
         {
@@ -124,12 +140,6 @@ public class ShoppingCartsService(IShoppingCartsRepository shoppingCartsReposito
         };
         
         await shoppingCartsRepository.AddAsync(newCart, ct);
-        
         return newCart;
-    }
-
-    public Task<CartDto?> GetShoppingCartAsync(Guid userId, CancellationToken ct)
-    {
-        return shoppingCartsRepository.GetCartDtoAsync(userId, ct);
     }
 }
