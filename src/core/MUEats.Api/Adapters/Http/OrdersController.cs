@@ -4,7 +4,6 @@ using MUEats.Application.Dto.Order;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Application.Queries;
-using MUEats.Application.Services;
 
 namespace MUEats.Adapters.Http;
 

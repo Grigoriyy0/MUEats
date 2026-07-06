@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using MUEats.Application.Dto.Role;
 using MUEats.Application.Dto.User;
 using MUEats.Application.Ports;
+using MUEats.Application.Queries;
+using MUEats.Core.Domain.Constants;
 using MUEats.Core.Domain.User;
 using MUEats.Core.Domain.User.Entities;
 using MUEats.Infrastructure.Persistence;
@@ -26,41 +29,32 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
     {
         return context.Users.AsNoTracking()
             .Include(u => u.UserAttributes)
+            .Include(x => x.UserRoles)
+                .ThenInclude(y => y.Role)
             .FirstOrDefaultAsync(x => x.Email == email, ct);
     }
-
-    public Task<List<ManagerDto>> GetManagersAsync(CancellationToken ct)
+    
+    public Task<List<UserDto>> GetUsersAsync(GetUsersQuery query, CancellationToken ct)
     {
-        return context.Users.Where(x => x.Role == Role.RestaurantManager)
-            .Select(y => new ManagerDto
+        return context.Users.Where(y => y.UserRoles
+                .Any(x => x.Role.RoleName == query.RoleName))
+            .Include(ur => ur.UserRoles)
+            .Select(x => new UserDto
+        {
+            Id = x.Id,
+            Email = x.Email,
+            FirstName = x.FirstName,
+            LastName = x.LastName,
+            Roles = x.UserRoles.Select(x => new RoleDto
             {
-                Id = y.Id,
-                Email = y.Email,
-                UserName = y.Username,
-                FirstName = y.FirstName,
-                LastName = y.LastName,
-                RestaurantId = y.UserAttributes.FirstOrDefault(z => z.Key == "restaurant_id").Value,
-                Role = y.Role.ToString()
-            }).ToListAsync(ct);
+                Id = x.RoleId,
+                Name = x.Role.RoleName
+            }).ToList()
+        })
+        .Skip((query.Page - 1) * query.PageSize)
+        .Take(query.PageSize)
+            .ToListAsync(ct);
     }
-
-    public Task DeleteAsync(User user, CancellationToken ct)
-    {
-        context.Users.Remove(user);
-        return Task.CompletedTask;
-    }
-
-    public Task UpdateAsync(User user, CancellationToken ct)
-    {
-        context.Users.Update(user);
-        return Task.CompletedTask;
-    }
-
-    public Task<bool> AnyAsync(Guid id, CancellationToken ct)
-    {
-        return context.Users.AnyAsync(x => x.Id == id, ct);
-    }
-
     public Task<bool> AnyAsync(string email, CancellationToken ct)
     {
         return context.Users.AnyAsync(x => x.Email == email, ct);

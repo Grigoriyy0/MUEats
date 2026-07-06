@@ -11,16 +11,17 @@ using MUEats.Infrastructure.Options;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
-public class TokenProducer(IOptions<AuthOptions> options, IClaimsService claimsService) : ITokenProducer
+public class TokenProducer(IOptions<AuthOptions> options) : ITokenProducer
 {
     private readonly AuthOptions _options = options.Value;
     
     public string ProduceToken(User user)
     {
-        var claims = claimsService.GetClaims(user);
-
+        var claims = GetUserClaims(user);
+        
         return InternalProduce(claims);
     }
+    
 
     public string ProduceRefreshToken()
     {
@@ -43,6 +44,29 @@ public class TokenProducer(IOptions<AuthOptions> options, IClaimsService claimsS
             AccessToken = accessToken,
             RefreshToken = refreshToken
         };
+    }
+
+    private IEnumerable<Claim> GetUserClaims(User user)
+    {
+        yield return new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString());
+        yield return new Claim(JwtRegisteredClaimNames.Email, user.Email);
+        yield return new Claim(JwtRegisteredClaimNames.UniqueName, user.Username);
+    
+        foreach (var userRole in user.UserRoles)
+        {
+            if (userRole.Role?.RoleName != null)
+            {
+                yield return new Claim("role", userRole.Role.RoleName);
+            }
+        }
+        
+        foreach (var attribute in user.UserAttributes)
+        {
+            if (attribute.Value != null)
+            {
+                yield return new Claim("attributes", attribute.Value);
+            }
+        }
     }
     
     private string InternalProduce(IEnumerable<Claim> claims)

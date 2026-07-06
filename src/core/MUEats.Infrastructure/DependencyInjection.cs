@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IInboxService, InboxService>();
         services.AddScoped<IOrdersService, OrdersService>();
+        services.AddScoped<IRolesRepository, RolesRepository>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
         services.AddSingleton<IPasswordValidator, PasswordValidator>();

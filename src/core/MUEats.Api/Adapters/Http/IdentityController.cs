@@ -6,15 +6,22 @@ namespace MUEats.Adapters.Http;
 
 [Route("api/auth")]
 [ApiController]
-public class AuthController(IAuthService authService) : ControllerBase
+public class IdentityController : ControllerBase
 {
+    private readonly IAuthService _authService;
+
+    public IdentityController(IAuthService authService)
+    {
+        _authService = authService;
+    }
+
     [HttpPost]
     [Route("signup")]
     public async Task<IActionResult> RegisterAsync(CreateUserDto dto, CancellationToken ct)
     {
         try
         {
-            await authService.RegisterAsync(dto, ct);
+            await _authService.RegisterAsync(dto, ct);
 
             return NoContent();
         }
@@ -28,33 +35,30 @@ public class AuthController(IAuthService authService) : ControllerBase
     [Route("signin")]
     public async Task<IActionResult> LoginAsync(AuthDto dto, CancellationToken ct)
     {
-        var tokenPair = await authService.AuthAsync(dto, ct);
+        var tokenPair = await _authService.AuthAsync(dto, ct);
 
         SetRefreshTokenCookie(tokenPair.RefreshToken);
-        
+
         return Ok(new
         {
             tokenPair.AccessToken
         });
     }
-    
+
     [HttpPost]
     [Route("refresh")]
     public async Task<IActionResult> RefreshAsync(CancellationToken ct)
     {
         var oldRefreshToken = Request.Cookies["refreshToken"];
 
-        if (oldRefreshToken is null)
-        {
-            return Unauthorized();
-        }
+        if (oldRefreshToken is null) return Unauthorized();
 
         try
         {
-            var tokenPair = await authService.RefreshAsync(oldRefreshToken, ct);
+            var tokenPair = await _authService.RefreshAsync(oldRefreshToken, ct);
 
             SetRefreshTokenCookie(tokenPair.RefreshToken);
-        
+
             return Ok(new
             {
                 tokenPair.AccessToken
@@ -65,7 +69,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             return Unauthorized();
         }
     }
-    
+
     private void SetRefreshTokenCookie(string refreshToken)
     {
         var cookieOptions = new CookieOptions
