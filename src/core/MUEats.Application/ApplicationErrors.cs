@@ -23,4 +23,11 @@ public static class ApplicationErrors
 
         public static readonly Error RoleNotFound = GeneralError.NotFound("role");
     }
+    
+    public static class ShoppingCart
+    {
+        public static readonly Error ItemNotFound = GeneralError.NotFound("shopping_cart.item");
+        
+        public static readonly Error CartNotFound = GeneralError.NotFound("shopping_cart");
+    }
 }
