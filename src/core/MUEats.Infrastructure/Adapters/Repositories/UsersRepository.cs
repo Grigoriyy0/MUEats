@@ -28,6 +28,8 @@ public class UsersRepository(MueDbContext context) : IUsersRepository
     {
         return context.Users.AsNoTracking()
             .Include(u => u.UserAttributes)
+            .Include(x => x.UserRoles)
+                .ThenInclude(y => y.Role)
             .FirstOrDefaultAsync(x => x.Email == email, ct);
     }
     
