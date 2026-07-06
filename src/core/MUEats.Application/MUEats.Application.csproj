@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\utils\Primitives\Primitives.csproj" />
       <ProjectReference Include="..\MUEats.Core\MUEats.Core.csproj" />
     </ItemGroup>
 

@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using MUEats.Application.Dto.User;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
@@ -5,6 +6,7 @@ using MUEats.Application.Queries;
 using MUEats.Core.Domain.Constants;
 using MUEats.Core.Domain.User;
 using MUEats.Core.Domain.User.Entities;
+using Primitives;
 
 namespace MUEats.Application.Services;
 
@@ -12,29 +14,25 @@ public class UsersService : IUsersService
 {
     private readonly IUsersRepository _repository;
     private readonly IHashProvider _hashProvider;
-    private readonly IUnitOfWork _uow;
 
-    public UsersService(IUsersRepository repository, IHashProvider hashProvider, IUnitOfWork uow)
+    public UsersService(IUsersRepository repository, IHashProvider hashProvider)
     {
         _repository = repository;
         _hashProvider = hashProvider;
-        _uow = uow;
     }
 
-    public async Task CreateAsync(CreateUserDto dto, CancellationToken ct)
+    public async Task<UnitResult<Error>> CreateAsync(CreateUserDto dto, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName))
         {
-            //todo error
-            return;
+            return ApplicationErrors.User.NameIsEmpty;
         }
 
         var userExists = await _repository.AnyAsync(dto.Email, ct);
 
         if (userExists)
         {
-            //todo error
-            return;
+            return ApplicationErrors.User.UserAlreadyExists;
         }
 
         var passwordHash = _hashProvider.ComputeHash(dto.Password);
@@ -54,6 +52,8 @@ public class UsersService : IUsersService
         };
 
         await _repository.AddAsync(user, ct);
+
+        return UnitResult.Success<Error>();
     }
     
     public Task<List<UserDto>> GetFilteredAsync(GetUsersQuery query, CancellationToken ct)
