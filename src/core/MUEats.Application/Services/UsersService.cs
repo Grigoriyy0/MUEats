@@ -1,6 +1,7 @@
 using MUEats.Application.Dto.User;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
+using MUEats.Application.Queries;
 using MUEats.Core.Domain.Constants;
 using MUEats.Core.Domain.User;
 using MUEats.Core.Domain.User.Entities;
@@ -62,8 +63,11 @@ public class UsersService : IUsersService
         await _repository.AddAsync(user, ct);
     }
     
-    public Task<List<ManagerDto>> GetManagersAsync(CancellationToken ct)
+    public Task<List<UserDto>> GetFilteredAsync(GetUsersQuery query, CancellationToken ct)
     {
-        return _repository.GetManagersAsync(ct);
+        query.Page = query.Page <= 0 ? 1 : query.Page;
+        query.PageSize = query.PageSize <= 0 ? 20 : query.PageSize;
+
+        return _repository.GetUsersAsync(query, ct);
     }
 }

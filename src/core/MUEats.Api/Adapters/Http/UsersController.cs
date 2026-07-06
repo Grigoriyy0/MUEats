@@ -38,6 +38,6 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetUsersAsync([FromQuery] GetUsersQuery query, CancellationToken ct)
     {
-        return Ok(await _usersService.GetManagersAsync(ct));
+        return Ok(await _usersService.GetFilteredAsync(query, ct));
     }
 }
