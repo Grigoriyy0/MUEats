@@ -105,6 +105,7 @@ public class IdentityManager : IIdentityManager
         }
     }
     
+    //todo fix: exceptions -> errors
     public async Task<UnitResult<Error>> RegisterAsync(CreateUserDto dto, CancellationToken ct)
     {
         await _uow.BeginTransactionAsync(ct);
