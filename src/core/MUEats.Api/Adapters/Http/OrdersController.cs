@@ -23,7 +23,7 @@ public class OrdersController : ControllerBase
 
 
     [HttpPost]
-    [Authorize(Policy = "Customer")]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateOrderDto dto, CancellationToken ct)
     {
         var orderId = await _ordersService.CreateAsync(dto, ct);
@@ -35,7 +35,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(Policy = "Customer")]
+    [Authorize(Policy = "User")]
     [Route("{orderId:guid}/cancel")]
     public async Task<IActionResult> CancelAsync([FromRoute] Guid orderId, CancellationToken ct)
     {
@@ -52,7 +52,7 @@ public class OrdersController : ControllerBase
 
     [HttpGet]
     [Route("{orderId:guid}/status")]
-    [Authorize(Policy = "Customer")]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> GetStatusAsync([FromRoute] Guid orderId, CancellationToken ct)
     {
         var orderStatus = await _ordersQueries.GetStatusAsync(orderId, ct);
@@ -66,7 +66,7 @@ public class OrdersController : ControllerBase
 
     [HttpGet]
     [Route("{orderId:guid}")]
-    [Authorize(Policy = "Customer")]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> GetByIdAsync([FromRoute] Guid orderId, CancellationToken ct)
     {
         var orderDto = await _ordersQueries.GetDtoByIdAsync(orderId, ct);
@@ -76,7 +76,7 @@ public class OrdersController : ControllerBase
     
     [HttpGet]
     [Route("history")]
-    [Authorize(Policy = "Customer")]
+    [Authorize(Policy = "User")]
     public async Task<IActionResult> GetHistory([FromQuery] GetOrdersHistoryQuery query, CancellationToken ct)
     {
         return Ok(await _ordersQueries.GetHistoryAsync(query, ct));
