@@ -12,7 +12,7 @@ public static class DependencyInjection
     {
         services.AddScoped<ShoppingCartsService>();
         
-        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IIdentityManager, IdentityManager>();
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IRolesService, RolesService>();
         

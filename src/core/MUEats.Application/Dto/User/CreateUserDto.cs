@@ -5,9 +5,6 @@ namespace MUEats.Application.Dto.User;
 public class CreateUserDto
 {
     [Required]
-    public string Username { get; set; } = null!;
-
-    [Required]
     public string FirstName { get; set; } = null!;
 
     [Required]

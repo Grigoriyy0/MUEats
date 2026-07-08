@@ -1,12 +1,14 @@
 ﻿using System.Security;
+using CSharpFunctionalExtensions;
 using MUEats.Application.Dto.User;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
 using MUEats.Application.Responses;
+using Primitives;
 
 namespace MUEats.Application.Services;
 
-public class AuthService : IAuthService
+public class IdentityManager : IIdentityManager
 {
     private readonly IUsersRepository _usersRepository;
     private readonly IHashProvider _hashProvider;
@@ -16,7 +18,7 @@ public class AuthService : IAuthService
     private readonly IPasswordValidator _passwordValidator;
     private readonly IUsersService _usersService;
     
-    public AuthService(IRefreshTokenService refreshTokenService, 
+    public IdentityManager(IRefreshTokenService refreshTokenService, 
         ITokenProducer tokenProducer, 
         IHashProvider hashProvider, 
         IUsersRepository usersRepository, 
@@ -33,20 +35,20 @@ public class AuthService : IAuthService
         _usersService = usersService;
     }
 
-    public async Task<TokenResponse> AuthAsync(AuthDto dto, CancellationToken ct)
+    public async Task<Result<TokenResponse, Error>> AuthAsync(AuthDto dto, CancellationToken ct)
     {
         var user = await _usersRepository.GetByEmailAsync(dto.Email, ct);
 
         if (user is null)
         {
-            throw new ArgumentException("Login or password is incorrect");
+            return ApplicationErrors.User.InvalidDetails;
         }
         
         var verifyResult = _hashProvider.VerifyHash(dto.Password, user.PasswordHash);
         
         if (!verifyResult)
         {
-            throw new ArgumentException("Login or password is incorrect");
+            return ApplicationErrors.User.InvalidDetails;
         }
 
         var tokenResponse = _tokenProducer.ProduceTokenPair(user);
@@ -56,7 +58,7 @@ public class AuthService : IAuthService
         return tokenResponse;
     }
     
-    public async Task<TokenResponse> RefreshAsync(string refreshToken, CancellationToken ct)
+    public async Task<Result<TokenResponse, Error>> RefreshAsync(string refreshToken, CancellationToken ct)
     {
         await _uow.BeginTransactionAsync(ct);
         try 
@@ -103,34 +105,33 @@ public class AuthService : IAuthService
         }
     }
     
-    public async Task RegisterAsync(CreateUserDto dto, CancellationToken ct)
+    public async Task<UnitResult<Error>> RegisterAsync(CreateUserDto dto, CancellationToken ct)
     {
-        try
+        await _uow.BeginTransactionAsync(ct);
+
+        if (dto.Password != dto.PasswordConfirmation)
         {
-            await _uow.BeginTransactionAsync(ct);
-
-            if (dto.Password != dto.PasswordConfirmation)
-            {
-                throw new ArgumentException("Passwords do not match");
-            }
-            
-            var validationResult = _passwordValidator.Validate(dto.Password);
-
-            if (!validationResult)
-            {
-                throw new ArgumentException("Password does not match requirements");
-            }
-
-
-            await _usersService.CreateAsync(dto, ct);
-            
-            await _uow.SaveChangesAsync(ct);
-            await _uow.CommitTransactionAsync(ct);
+            throw new ArgumentException("Passwords do not match");
         }
-        catch (Exception)
+            
+        var validationResult = _passwordValidator.Validate(dto.Password);
+
+        if (!validationResult)
+        {
+            throw new ArgumentException("Password does not match requirements");
+        }
+        
+        var userResult = await _usersService.CreateAsync(dto, ct);
+
+        if (userResult.IsFailure)
         {
             await _uow.RollbackTransactionAsync(ct);
-            throw;
+            return userResult;
         }
+        
+        await _uow.SaveChangesAsync(ct);
+        await _uow.CommitTransactionAsync(ct);
+
+        return UnitResult.Success<Error>();
     }
 }

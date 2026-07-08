@@ -5,9 +5,7 @@ namespace MUEats.Core.Domain.User;
 public class User
 {
     public Guid Id { get; init; }
-
-    public string Username { get; set; } = null!;
-
+    
     public string FirstName { get; set; } = null!;
 
     public string LastName { get; set; } = null!;

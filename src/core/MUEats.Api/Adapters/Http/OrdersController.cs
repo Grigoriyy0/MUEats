@@ -61,7 +61,6 @@ public class OrdersController : ControllerBase
         {
             OrderId = orderId,
             OrderStatus = orderStatus.ToString(),
-            DeliveryStatus = null
         });
     }
 

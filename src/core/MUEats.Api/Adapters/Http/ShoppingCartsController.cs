@@ -6,6 +6,7 @@ using MUEats.Application.Services;
 namespace MUEats.Adapters.Http;
 
 [Route("api/carts")]
+[Authorize(Roles="Customer")]
 [ApiController]
 public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) : ControllerBase
 {
@@ -15,7 +16,13 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
     {
         try
         {
-            await shoppingCartsService.AddToCartAsync(dto, ct);
+            var result = await shoppingCartsService.AddToCartAsync(dto, ct);
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            
             return Created();
         }
         catch (Exception e)
@@ -29,7 +36,14 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
     [Authorize(Roles = "User")]
     public async Task<IActionResult> GetByIdAsync([FromRoute] Guid userId, CancellationToken ct)
     {
-        return Ok(await shoppingCartsService.GetShoppingCartAsync(userId, ct));
+        var result = await shoppingCartsService.GetShoppingCartAsync(userId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpDelete]
@@ -37,7 +51,13 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
     [Authorize(Roles = "User")]
     public async Task<IActionResult> DeleteCartItemAsync(Guid itemId, CancellationToken ct)
     {
-        await shoppingCartsService.DeleteCartItemAsync(itemId, ct);
+        var result = await shoppingCartsService.DeleteCartItemAsync(itemId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+        
         return NoContent();
     }
 }
