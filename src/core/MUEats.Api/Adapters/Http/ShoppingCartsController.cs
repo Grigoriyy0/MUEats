@@ -6,11 +6,11 @@ using MUEats.Application.Services;
 namespace MUEats.Adapters.Http;
 
 [Route("api/carts")]
-[Authorize(Roles="Customer")]
 [ApiController]
 public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> CreateAsync([FromBody] AddFoodItemDto dto, CancellationToken ct)
     {
         try
@@ -32,6 +32,7 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
 
     [HttpGet]
     [Route("{userId:guid}")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> GetByIdAsync([FromRoute] Guid userId, CancellationToken ct)
     {
         var result = await shoppingCartsService.GetShoppingCartAsync(userId, ct);
@@ -46,6 +47,7 @@ public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) 
 
     [HttpDelete]
     [Route("cart-items/{itemId:guid}")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> DeleteCartItemAsync(Guid itemId, CancellationToken ct)
     {
         var result = await shoppingCartsService.DeleteCartItemAsync(itemId, ct);

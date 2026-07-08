@@ -11,6 +11,8 @@ public static class AuthExtensions
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.MapInboundClaims = false;
+                
                 var keyPath = configuration["AuthOptions:PublicKeyPath"];
                 if (string.IsNullOrEmpty(keyPath) || !File.Exists(keyPath))
                 {
@@ -34,7 +36,9 @@ public static class AuthExtensions
                     CryptoProviderFactory = new CryptoProviderFactory{CacheSignatureProviders = true},
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero,
-                    ValidAlgorithms = [SecurityAlgorithms.RsaSha256]
+                    ValidAlgorithms = [SecurityAlgorithms.RsaSha256],
+                    RoleClaimType = "role",
+                    NameClaimType = "sub"
                 };
             });
     }
