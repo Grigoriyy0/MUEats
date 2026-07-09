@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MUEats.Application.Dto.Role;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Queries;
 
@@ -21,11 +22,11 @@ public class UsersController : ControllerBase
     
     [HttpPost]
     [Route("{userId:guid}/role/{roleId:guid}")]
-    public async Task<IActionResult> GrantRoleAsync([FromRoute] Guid userId, Guid roleId, CancellationToken ct)
+    public async Task<IActionResult> GrantRoleAsync([FromBody] GrantRoleDto dto, CancellationToken ct)
     {
         try
         {
-            await _rolesService.GrantRoleAsync(userId, roleId, ct);
+            await _rolesService.GrantRoleAsync(dto, ct);
 
             return Ok();
         }

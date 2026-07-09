@@ -1,8 +1,6 @@
-using MUEats.Core.Domain.Order.ValueObjects;
-
 namespace MUEats.Application.Dto.Order;
 
-public class OrderDto
+public sealed record OrderDto
 {
     public Guid Id { get; set; }
     

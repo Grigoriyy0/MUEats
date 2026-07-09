@@ -1,6 +1,6 @@
 namespace MUEats.Application.Dto.ShoppingCart;
 
-public class AddFoodItemDto
+public sealed record AddFoodItemDto
 {
     public Guid RestaurantId { get; set; }
     

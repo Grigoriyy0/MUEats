@@ -1,5 +1,4 @@
-﻿using System.Security;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using MUEats.Application.Dto.User;
 using MUEats.Application.Interfaces;
 using MUEats.Application.Ports;
@@ -12,25 +11,25 @@ public class IdentityManager : IIdentityManager
 {
     private readonly IUsersRepository _usersRepository;
     private readonly IHashProvider _hashProvider;
+    private readonly IUnitOfWork _uow;
     private readonly ITokenProducer _tokenProducer;
     private readonly IRefreshTokenService _refreshTokenService;
-    private readonly IUnitOfWork _uow;
     private readonly IPasswordValidator _passwordValidator;
     private readonly IUsersService _usersService;
-    
-    public IdentityManager(IRefreshTokenService refreshTokenService, 
-        ITokenProducer tokenProducer, 
+
+    public IdentityManager(IUsersRepository usersRepository, 
         IHashProvider hashProvider, 
-        IUsersRepository usersRepository, 
         IUnitOfWork uow, 
+        ITokenProducer tokenProducer, 
+        IRefreshTokenService refreshTokenService, 
         IPasswordValidator passwordValidator, 
         IUsersService usersService)
     {
-        _refreshTokenService = refreshTokenService;
-        _tokenProducer = tokenProducer;
-        _hashProvider = hashProvider;
         _usersRepository = usersRepository;
+        _hashProvider = hashProvider;
         _uow = uow;
+        _tokenProducer = tokenProducer;
+        _refreshTokenService = refreshTokenService;
         _passwordValidator = passwordValidator;
         _usersService = usersService;
     }
@@ -51,23 +50,35 @@ public class IdentityManager : IIdentityManager
             return ApplicationErrors.User.InvalidDetails;
         }
 
-        var tokenResponse = _tokenProducer.ProduceTokenPair(user);
-
-        await _refreshTokenService.SaveAsync(user.Id, tokenResponse.RefreshToken, ct);
-        
-        return tokenResponse;
+        await _uow.BeginTransactionAsync(ct);
+        try
+        {
+            var tokenResponse = _tokenProducer.ProduceTokenPair(user);
+            await _refreshTokenService.SaveAsync(user.Id, tokenResponse.RefreshToken, ct);
+            
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
+            
+            return tokenResponse;
+        }
+        catch
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            throw;
+        }
     }
     
     public async Task<Result<TokenResponse, Error>> RefreshAsync(string refreshToken, CancellationToken ct)
     {
         await _uow.BeginTransactionAsync(ct);
-        try 
+        try
         {
             var token = await _refreshTokenService.GetAsync(refreshToken, ct);
 
             if (token is null)
             {
-                throw new Exception("Token not found");
+                await _uow.RollbackTransactionAsync(ct);
+                return ApplicationErrors.User.NotFound;
             }
 
             if (token.IsRevoked)
@@ -75,27 +86,32 @@ public class IdentityManager : IIdentityManager
                 await _refreshTokenService.RevokeAllForUserAsync(token.UserId, ct);
                 await _uow.SaveChangesAsync(ct);
                 await _uow.CommitTransactionAsync(ct);
-                throw new SecurityException("Token reuse detected. All sessions revoked.");
+                
+                return ApplicationErrors.User.InvalidDetails; 
             }
 
             if (token.ExpiresOn <= DateTime.UtcNow)
-                throw new Exception("Token expired");
+            {
+                await _uow.RollbackTransactionAsync(ct);
+                return ApplicationErrors.User.NotFound; 
+            }
 
             var user = await _usersRepository.GetByIdAsync(token.UserId, ct);
-            
+                
             if (user is null)
             {
-                throw new Exception("User unavailable");
+                await _uow.RollbackTransactionAsync(ct);
+                return ApplicationErrors.User.NotFound;
             }
 
             var newTokenPair = _tokenProducer.ProduceTokenPair(user);
-            
+                
             token.IsRevoked = true;
             await _refreshTokenService.SaveAsync(user.Id, newTokenPair.RefreshToken, ct);
 
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);
-        
+            
             return newTokenPair;
         }
         catch
@@ -108,30 +124,39 @@ public class IdentityManager : IIdentityManager
     public async Task<UnitResult<Error>> RegisterAsync(CreateUserDto dto, CancellationToken ct)
     {
         await _uow.BeginTransactionAsync(ct);
-
-        if (dto.Password != dto.PasswordConfirmation)
+        try
         {
-            throw new ArgumentException("Passwords do not match");
-        }
+            if (dto.Password != dto.PasswordConfirmation)
+            {
+                await _uow.RollbackTransactionAsync(ct);
+                return ApplicationErrors.User.PasswordsDoNotMatch;
+            }
+                
+            var validationResult = _passwordValidator.Validate(dto.Password);
+
+            if (!validationResult)
+            {
+                await _uow.RollbackTransactionAsync(ct);
+                return ApplicationErrors.User.PasswordDoesNotMatchRequirements;
+            }
             
-        var validationResult = _passwordValidator.Validate(dto.Password);
+            var userResult = await _usersService.CreateAsync(dto, ct);
 
-        if (!validationResult)
-        {
-            throw new ArgumentException("Password does not match requirements");
+            if (userResult.IsFailure)
+            {
+                await _uow.RollbackTransactionAsync(ct);
+                return userResult;
+            }
+            
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
+
+            return UnitResult.Success<Error>();
         }
-        
-        var userResult = await _usersService.CreateAsync(dto, ct);
-
-        if (userResult.IsFailure)
+        catch
         {
             await _uow.RollbackTransactionAsync(ct);
-            return userResult;
+            throw;
         }
-        
-        await _uow.SaveChangesAsync(ct);
-        await _uow.CommitTransactionAsync(ct);
-
-        return UnitResult.Success<Error>();
     }
 }

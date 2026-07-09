@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MUEats.Application.Dto.User;
 
-public class CreateUserDto
+public sealed record CreateUserDto
 {
     [Required]
     public string FirstName { get; set; } = null!;

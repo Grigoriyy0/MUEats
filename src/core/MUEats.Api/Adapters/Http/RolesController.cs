@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MUEats.Application.Dto.Role;
 using MUEats.Application.Interfaces;
 
 namespace MUEats.Adapters.Http;
@@ -23,9 +24,9 @@ public class RolesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(string roleName, CancellationToken ct)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateRoleDto dto, CancellationToken ct)
     {
-        var roleResult = await _rolesService.CreateAsync(roleName, ct);
+        var roleResult = await _rolesService.CreateAsync(dto, ct);
 
         if (roleResult.IsFailure)
         {

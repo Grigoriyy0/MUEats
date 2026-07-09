@@ -7,4 +7,6 @@ public class Role
     public string RoleName { get; set; }
 
     public ICollection<UserRole> Roles { get; set; } = [];
+
+    public ICollection<RoleRequirement> Requirements { get; set; } = [];
 }

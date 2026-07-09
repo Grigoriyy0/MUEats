@@ -1,6 +1,6 @@
 namespace MUEats.Application.Dto.Order;
 
-public class OrderItemDto
+public sealed record OrderItemDto
 {
     public Guid Id { get; set; }
     
