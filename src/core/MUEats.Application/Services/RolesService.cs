@@ -87,17 +87,51 @@ public class RolesService : IRolesService
             UserId = dto.UserId
         });
 
+        if (role.Requirements.Count > 0)
+        {
+            var providedKeys = dto.Attributes?.Select(a => a.Key).ToHashSet() ?? [];
+            
+            foreach (var requirement in role.Requirements)
+            {
+                if (!providedKeys.Contains(requirement.ValueName))
+                {
+                    await _uow.RollbackTransactionAsync(ct);
+                    return ApplicationErrors.Role.RoleRequirementMissing;
+                }
+            }
+        }
+        
+        var roleAlreadyGranted = user.UserRoles.Any(ur => ur.RoleId == dto.RoleId);
+        
+        if (!roleAlreadyGranted)
+        {
+            user.UserRoles.Add(new UserRole
+            {
+                RoleId = dto.RoleId,
+                UserId = dto.UserId
+            });
+        }
+
         if (dto.Attributes is not null)
         {
-            foreach (var attribute in dto.Attributes)
+            foreach (var attrDto in dto.Attributes)
             {
-                user.UserAttributes.Add(new UserAttribute
+                var existingAttribute = user.UserAttributes.FirstOrDefault(ua => ua.Key == attrDto.Key);
+                
+                if (existingAttribute is not null)
                 {
-                    Id = Guid.NewGuid(),
-                    Key = attribute.Key,
-                    Value = attribute.Value,
-                    UserId = user.Id
-                });   
+                    existingAttribute.Value = attrDto.Value;
+                }
+                else
+                {
+                    user.UserAttributes.Add(new UserAttribute
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = user.Id,
+                        Key = attrDto.Key,
+                        Value = attrDto.Value
+                    });
+                }
             }
         }
         

@@ -23,7 +23,9 @@ public class RolesRepository : IRolesRepository
 
     public Task<Role?> GetByIdAsync(Guid roleId, CancellationToken ct)
     {
-        return _context.Roles.FirstOrDefaultAsync(x => x.Id == roleId, ct);
+        return _context.Roles
+            .Include(x => x.Requirements)
+            .FirstOrDefaultAsync(x => x.Id == roleId, ct);
     }
 
     public Task<bool> AnyAsync(string roleName, CancellationToken ct)

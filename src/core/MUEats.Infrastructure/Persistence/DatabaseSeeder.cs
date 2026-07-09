@@ -34,29 +34,70 @@ public class DatabaseSeeder
 
     private async Task SeedRolesAsync(CancellationToken ct)
     {
-        var roles = new Dictionary<Guid, string>
-        {
-            [RoleConstants.RoleIds.User] = RoleConstants.RoleNames.User,
-            [RoleConstants.RoleIds.Admin] = RoleConstants.RoleNames.Admin,
-            [RoleConstants.RoleIds.RestaurantOwner] = RoleConstants.RoleNames.RestaurantOwner
-        };
-
-        var existingRoles = await _dbContext.Roles
-            .Select(r => r.RoleName)
+        var existingRoleIds = await _dbContext.Roles
+            .Select(r => r.Id)
             .ToListAsync(ct);
 
-        var newRoles = roles
-            .Where(r => !existingRoles.Contains(r.Value))
-            .Select(r => new Role
-            {
-                Id = r.Key,
-                RoleName = r.Value
-            });
+        var rolesToSeed = new List<Role>();
 
-        await _dbContext.Roles.AddRangeAsync(newRoles, ct);
+        if (!existingRoleIds.Contains(RoleConstants.RoleIds.User))
+        {
+            rolesToSeed.Add(new Role
+            {
+                Id = RoleConstants.RoleIds.User,
+                RoleName = RoleConstants.RoleNames.User
+            });
+        }
+
+        if (!existingRoleIds.Contains(RoleConstants.RoleIds.Admin))
+        {
+            rolesToSeed.Add(new Role
+            {
+                Id = RoleConstants.RoleIds.Admin,
+                RoleName = RoleConstants.RoleNames.Admin
+            });
+        }
+
+        if (!existingRoleIds.Contains(RoleConstants.RoleIds.RestaurantOwner))
+        {
+            rolesToSeed.Add(new Role
+            {
+                Id = RoleConstants.RoleIds.RestaurantOwner,
+                RoleName = RoleConstants.RoleNames.RestaurantOwner,
+                Requirements = new List<RoleRequirement>
+                {
+                    new RoleRequirement
+                    {
+                        Id = Guid.NewGuid(),
+                        ValueName = "restaurant_id"
+                    }
+                }
+            });
+        }
+        else
+        {
+            var restaurantOwnerRole = await _dbContext.Roles
+                .Include(x => x.Requirements)
+                .FirstAsync(x => x.Id == RoleConstants.RoleIds.RestaurantOwner, ct);
+
+            if (restaurantOwnerRole.Requirements.All(r => r.ValueName != "restaurant_id"))
+            {
+                restaurantOwnerRole.Requirements.Add(new RoleRequirement
+                {
+                    Id = Guid.NewGuid(),
+                    ValueName = "restaurant_id"
+                });
+            }
+        }
+        
+        if (rolesToSeed.Count > 0)
+        {
+            await _dbContext.Roles.AddRangeAsync(rolesToSeed, ct);
+        }
+
         await _dbContext.SaveChangesAsync(ct);
     }
-
+    
     private async Task SeedAdminUserAsync(CancellationToken ct)
     {
         var adminExists = await _dbContext.Users

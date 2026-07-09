@@ -26,6 +26,8 @@ public static class ApplicationErrors
         public static readonly Error RoleAlreadyExists = GeneralError.AlreadyExists("rolename", "role already exists");
 
         public static readonly Error RoleNotFound = GeneralError.NotFound("role");
+
+        public static readonly Error RoleRequirementMissing = GeneralError.ValueIsIncorrect("role", "incorrect required fields value");
     }
     
     public static class ShoppingCart
