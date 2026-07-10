@@ -1,6 +1,6 @@
 namespace MUEats.Application.Dto.User;
 
-public class AuthDto
+public sealed record AuthDto
 {
     public string Email { get; set; }
     

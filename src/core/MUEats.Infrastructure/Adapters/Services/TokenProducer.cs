@@ -11,10 +11,22 @@ using MUEats.Infrastructure.Options;
 
 namespace MUEats.Infrastructure.Adapters.Services;
 
-public class TokenProducer(IOptions<AuthOptions> options) : ITokenProducer
+public class TokenProducer : ITokenProducer
 {
-    private readonly AuthOptions _options = options.Value;
-    
+    private readonly AuthOptions _options;
+    private readonly RsaSecurityKey _signinKey;
+
+    public TokenProducer(IOptions<AuthOptions> options)
+    {
+        _options = options.Value;
+        
+        var rsa = RSA.Create();
+        rsa.ImportFromPem(File.ReadAllText(_options.PrivateKeyPath));
+
+        _signinKey = new RsaSecurityKey(rsa);
+    }
+
+
     public string ProduceToken(User user)
     {
         var claims = GetUserClaims(user);
@@ -63,7 +75,7 @@ public class TokenProducer(IOptions<AuthOptions> options) : ITokenProducer
         {
             if (attribute.Value != null)
             {
-                yield return new Claim("attributes", attribute.Value);
+                yield return new Claim(attribute.Key, attribute.Value);
             }
         }
     }
@@ -74,17 +86,16 @@ public class TokenProducer(IOptions<AuthOptions> options) : ITokenProducer
         
         var expires = now.Add(TimeSpan.FromMinutes(_options.AccessTokenExpirationMinutes));
 
-        var rsa = RSA.Create();
-        rsa.ImportFromPem(File.ReadAllText(_options.PrivateKeyPath));
+
         
         var signingCredentials = new SigningCredentials(
-            new RsaSecurityKey(rsa), 
+            _signinKey, 
             SecurityAlgorithms.RsaSha256
         );
 
         var jwt = new JwtSecurityToken(
-            options.Value.Issuer,
-            options.Value.Audience,
+            _options.Issuer,
+            _options.Audience,
             claims: claims,
             expires: expires,
             signingCredentials: signingCredentials

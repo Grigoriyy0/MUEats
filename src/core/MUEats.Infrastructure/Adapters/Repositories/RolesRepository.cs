@@ -23,7 +23,9 @@ public class RolesRepository : IRolesRepository
 
     public Task<Role?> GetByIdAsync(Guid roleId, CancellationToken ct)
     {
-        return _context.Roles.FirstOrDefaultAsync(x => x.Id == roleId, ct);
+        return _context.Roles
+            .Include(x => x.Requirements)
+            .FirstOrDefaultAsync(x => x.Id == roleId, ct);
     }
 
     public Task<bool> AnyAsync(string roleName, CancellationToken ct)
@@ -33,10 +35,13 @@ public class RolesRepository : IRolesRepository
 
     public Task<List<RoleDto>> GetAllDtoAsync(CancellationToken ct)
     {
-        return _context.Roles.Select(x => new RoleDto
+        return _context.Roles.Include(x => x.Requirements)
+            .Select(x => new RoleDto
         {
             Id = x.Id,
-            Name = x.RoleName
+            Name = x.RoleName,
+            Requirements = x.Requirements.Select(y => y.ValueName)
+                .ToList()
         }).ToListAsync(ct);
     }
 }
