@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Discounts.Application.Ports;
+using MUEats.Discounts.Infrastructure.Adapters;
 using MUEats.Discounts.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Discounts.Infrastructure;
@@ -11,5 +13,7 @@ public static class DependencyInjection
     {
         services.AddDbContext<DiscountsDbContext>(opt => 
             opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
+
+        services.AddScoped<IDiscountsRepository, DiscountsRepository>();
     }
 }

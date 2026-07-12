@@ -1,3 +1,4 @@
+using MUEats.Discounts.Application;
 using MUEats.Discounts.Infrastructure;
 
 namespace MUEats.Discounts.Api;
@@ -11,6 +12,7 @@ public class Program
         builder.Services.AddAuthorization();
         builder.Services.AddOpenApi();
         builder.Services.AddInfrastructureServices(builder.Configuration);
+        builder.Services.AddApplicationServices();
 
         builder.Services.AddControllers();
         
