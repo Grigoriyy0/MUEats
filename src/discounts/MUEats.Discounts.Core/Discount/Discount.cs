@@ -35,7 +35,7 @@ public class Discount : Entity<Guid>
 
     public DiscountType Type { get; init; }
 
-    private List<IdentityRole> _targetedRoles { get; set; } = [];
+    private List<IdentityRole> _targetedRoles = [];
 
     public IReadOnlyList<IdentityRole> TargetedRoles => _targetedRoles.AsReadOnly();
     

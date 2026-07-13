@@ -15,5 +15,6 @@ public static class DependencyInjection
             opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
 
         services.AddScoped<IDiscountsRepository, DiscountsRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 }

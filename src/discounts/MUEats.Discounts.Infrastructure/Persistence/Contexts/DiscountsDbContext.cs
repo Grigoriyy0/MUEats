@@ -14,7 +14,9 @@ public class DiscountsDbContext : DbContext
     public DbSet<Discount> Discounts { get; set; }
     
     public DbSet<IdentityRole> IdentityRoles { get; set; }
-     
+    
+    public DbSet<UserUsageCount> UserUsages { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DiscountsDbContext).Assembly);

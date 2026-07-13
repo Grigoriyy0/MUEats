@@ -17,5 +17,9 @@ public class DiscountEntityTypeConfiguration : IEntityTypeConfiguration<Discount
 
         builder.Property(x => x.Type)
             .HasConversion<string>();
+        
+        builder.Metadata
+            .FindNavigation(nameof(Discount.TargetedRoles))?
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }
