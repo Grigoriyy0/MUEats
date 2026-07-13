@@ -2,7 +2,7 @@ namespace MUEats.Discounts.Core.Discount;
 
 public enum DiscountPriority
 {
-   High,
+   Low,
    Medium,
-   Low
+   High
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Discounts.Application.Dtos;
+using MUEats.Discounts.Application.Queries;
 using MUEats.Discounts.Application.Services;
 
 namespace MUEats.Discounts.Api.Adapters.Http;
@@ -21,5 +22,11 @@ public class DiscountsController : ControllerBase
         await _discountsService.CreateAsync(dto, ct);
 
         return Created();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFilteredAsync([FromQuery] GetDiscountsQuery query, CancellationToken ct)
+    {
+        return Ok();
     }
 }

@@ -7,4 +7,6 @@ public class IdentityRole
     public Guid DiscountId { get; set; }
     
     public string RoleName { get; set; }
+    
+    public Discount.Discount? Discount { get; set; }
 }

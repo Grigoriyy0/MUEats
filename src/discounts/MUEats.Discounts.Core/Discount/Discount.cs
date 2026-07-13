@@ -2,27 +2,27 @@ namespace MUEats.Discounts.Core.Discount;
 
 public class Discount
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
     
-    public Guid RestaurantId { get; set; }
+    public Guid RestaurantId { get; init; }
     
-    public Guid? FoodItemId { get; set; }
+    public Guid? FoodItemId { get; init; }
     
-    public decimal Value { get; set; }
+    public decimal Value { get; private set; }
 
-    public DiscountType Type { get; set; }
+    public DiscountType Type { get; init; }
     
-    public DiscountPriority Priority { get; set; }
+    public DiscountPriority Priority { get; init; }
     
     public List<IdentityRole> TargetedRoles { get; set; } = [];
     
-    public DateTime ActiveFrom { get; set; }
+    public DateTime ActiveFrom { get; init; }
     
-    public DateTime? ActiveBefore { get; set; }
+    public DateTime? ActiveBefore { get; private set; }
     
-    public bool IsActive { get; set; }
+    public bool IsActive { get; private set; }
     
-    public int? MaxUsageCount { get; set; }
+    public int? MaxUsageCount { get; init; }
     
-    public decimal? MinOrderValue { get; set; }
+    public decimal? MinOrderValue { get; private set; }
 }

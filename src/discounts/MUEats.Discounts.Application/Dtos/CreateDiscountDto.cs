@@ -8,7 +8,7 @@ public sealed record CreateDiscountDto
     
     public Guid? FoodItemId { get; set; }
     
-    public decimal? Value { get; set; }
+    public decimal Value { get; set; }
     
     public DiscountType Type { get; set; }
     
