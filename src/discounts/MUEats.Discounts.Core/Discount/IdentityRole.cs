@@ -1,4 +1,4 @@
-namespace MUEats.Discounts.Core;
+namespace MUEats.Discounts.Core.Discount;
 
 public class IdentityRole
 {
@@ -8,5 +8,5 @@ public class IdentityRole
     
     public string RoleName { get; set; }
     
-    public Discount.Discount? Discount { get; set; }
+    public Discount? Discount { get; set; }
 }

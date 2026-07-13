@@ -17,8 +17,5 @@ public class DiscountEntityTypeConfiguration : IEntityTypeConfiguration<Discount
 
         builder.Property(x => x.Type)
             .HasConversion<string>();
-
-        builder.Property(x => x.Priority)
-            .HasConversion<string>();
     }
 }

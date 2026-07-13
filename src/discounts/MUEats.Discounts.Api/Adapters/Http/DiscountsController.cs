@@ -19,14 +19,28 @@ public class DiscountsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAsync([FromBody] CreateDiscountDto dto, CancellationToken ct)
     {
-        await _discountsService.CreateAsync(dto, ct);
+        var createResult = await _discountsService.CreateAsync(dto, ct);
 
+        if (createResult.IsFailure)
+        {
+            return BadRequest(createResult.Error);
+        }
+        
         return Created();
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetFilteredAsync([FromQuery] GetDiscountsQuery query, CancellationToken ct)
+    public async Task<IActionResult> GetByFilterAsync([FromQuery] GetDiscountsQuery query, CancellationToken ct)
     {
-        return Ok();
+        return Ok(await _discountsService.GetByFilterAsync(query, ct));
+    }
+
+    [HttpDelete]
+    [Route("{id:guid}")]
+    public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken ct)
+    {
+        await _discountsService.DeleteAsync(id, ct);
+
+        return NoContent();
     }
 }

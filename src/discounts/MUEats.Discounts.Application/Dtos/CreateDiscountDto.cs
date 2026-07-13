@@ -13,4 +13,12 @@ public sealed record CreateDiscountDto
     public DiscountType Type { get; set; }
     
     public List<string> TargetRoles { get; set; } = [];
+    
+    public DateTime ActiveFrom { get; set; }
+    
+    public DateTime? ActiveBefore { get; set; }
+    
+    public int? MaxUsageCount { get; set; }
+    
+    public decimal? MinOrderValue { get; set; }
 }
