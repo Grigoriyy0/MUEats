@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using MUEats.Discounts.Core;
 using MUEats.Discounts.Core.Discount;
 
 namespace MUEats.Discounts.Infrastructure.Persistence.Contexts;

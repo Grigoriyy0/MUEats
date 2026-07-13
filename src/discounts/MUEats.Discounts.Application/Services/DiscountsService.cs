@@ -107,4 +107,38 @@ public class DiscountsService
         await _uow.SaveChangesAsync(ct);
         await _uow.CommitTransactionAsync(ct);
     }
+
+    public async Task<UnitResult<Error>> UpdateAsync(UpdateDiscountDto dto, CancellationToken ct)
+    {
+        await _uow.BeginTransactionAsync(ct);
+
+        var discount = await _discounts.GetByIdAsync(dto.Id, ct);
+
+        if (discount is null)
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Discount.NotFound;
+        }
+
+        var updateResult = discount.Update(dto.RestaurantId,
+            dto.FoodItemId,
+            dto.Value,
+            dto.Type,
+            dto.ActiveFrom,
+            dto.ActiveBefore,
+            dto.IsActive,
+            dto.MaxUsageCount,
+            dto.MinOrderValue);
+
+        if (updateResult.IsFailure)
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            return updateResult.Error;
+        }
+
+        await _uow.SaveChangesAsync(ct);
+        await _uow.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
 }

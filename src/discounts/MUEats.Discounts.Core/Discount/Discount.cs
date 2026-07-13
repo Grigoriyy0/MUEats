@@ -27,25 +27,25 @@ public class Discount : Entity<Guid>
         MinOrderValue = minOrderValue;
     }
 
-    public Guid RestaurantId { get; init; }
+    public Guid RestaurantId { get; private set; }
     
-    public Guid? FoodItemId { get; init; }
+    public Guid? FoodItemId { get; private set; }
     
     public decimal Value { get; private set; }
 
-    public DiscountType Type { get; init; }
+    public DiscountType Type { get; private set; }
 
     private List<IdentityRole> _targetedRoles = [];
 
     public IReadOnlyList<IdentityRole> TargetedRoles => _targetedRoles.AsReadOnly();
     
-    public DateTime ActiveFrom { get; init; }
+    public DateTime ActiveFrom { get; private set; }
     
     public DateTime? ActiveBefore { get; private set; }
     
     public bool IsActive { get; private set; }
     
-    public int? MaxUsageCount { get; init; }
+    public int? MaxUsageCount { get; private set; }
     
     public decimal? MinOrderValue { get; private set; }
 
@@ -118,4 +118,54 @@ public class Discount : Entity<Guid>
 
         return discount;
     }
+
+    public UnitResult<Error> Update(
+        Guid restaurantId,
+        Guid? foodItemId,
+        decimal value,
+        DiscountType type,
+        DateTime activeFrom,
+        DateTime? activeBefore,
+        bool isActive,
+        int? maxUsageCount,
+        decimal? minOrderValue)
+    {
+        if (value <= 0 && type == DiscountType.Fixed)
+        {
+            return DomainErrors.Discount.InvalidFixedValue;
+        }
+
+        if ((value <= 0 || value >= 100) && type == DiscountType.Percentage)
+        {
+            return DomainErrors.Discount.InvalidPercentageValue;
+        }
+        
+        if (activeBefore is not null && activeBefore <= activeFrom)
+        {
+            return DomainErrors.Discount.InvalidExpirationDate;
+        }
+
+        if (maxUsageCount is not null && maxUsageCount <= 0)
+        {
+            return DomainErrors.Discount.InvalidMaxUsageCount;
+        }
+        
+        if (minOrderValue is not null && minOrderValue < 0)
+        {
+            return DomainErrors.Discount.NegativeMinOrderValue;
+        }
+
+        RestaurantId = restaurantId;
+        FoodItemId = foodItemId;
+        Type = type;
+        Value = value;
+        ActiveFrom = activeFrom;
+        ActiveBefore = activeBefore;
+        IsActive = isActive;
+        MaxUsageCount = maxUsageCount;
+        MinOrderValue = minOrderValue;
+
+        return UnitResult.Success<Error>();
+    }
+
 }

@@ -35,6 +35,19 @@ public class DiscountsController : ControllerBase
         return Ok(await _discountsService.GetByFilterAsync(query, ct));
     }
 
+    [HttpPut]
+    public async Task<IActionResult> UpdateAsync([FromBody] UpdateDiscountDto dto, CancellationToken ct)
+    {
+        var result = await _discountsService.UpdateAsync(dto, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok();
+    }
+    
     [HttpDelete]
     [Route("{id:guid}")]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken ct)
