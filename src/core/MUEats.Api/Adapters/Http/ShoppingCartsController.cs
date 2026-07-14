@@ -6,7 +6,7 @@ using MUEats.Application.Services;
 namespace MUEats.Adapters.Http;
 
 [Route("api/carts")]
-[Authorize(Roles="Customer")]
+[Authorize(Roles="User")]
 [ApiController]
 public class ShoppingCartsController(ShoppingCartsService shoppingCartsService) : ControllerBase
 {

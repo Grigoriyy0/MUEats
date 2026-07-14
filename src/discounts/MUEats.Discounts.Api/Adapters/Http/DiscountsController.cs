@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MUEats.Discounts.Api.Utils;
 using MUEats.Discounts.Application.Dtos;
 using MUEats.Discounts.Application.Queries;
 using MUEats.Discounts.Application.Services;
@@ -7,13 +9,17 @@ namespace MUEats.Discounts.Api.Adapters.Http;
 
 [ApiController]
 [Route("api/discounts")]
+[Authorize(Roles="RestaurantOwner,Admin")]
+[AuthorizeRestaurant]
 public class DiscountsController : ControllerBase
 {
     private readonly DiscountsService _discountsService;
+    private readonly CurrentUserContext _context;
 
-    public DiscountsController(DiscountsService discountsService)
+    public DiscountsController(DiscountsService discountsService, CurrentUserContext context)
     {
         _discountsService = discountsService;
+        _context = context;
     }
 
     [HttpPost]

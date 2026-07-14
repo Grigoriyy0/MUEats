@@ -2,7 +2,7 @@ using MUEats.Discounts.Core.Discount;
 
 namespace MUEats.Discounts.Application.Dtos;
 
-public sealed record CreateDiscountDto
+public sealed record CreateDiscountDto : IRestaurantRelatedRequest
 {
     public Guid RestaurantId { get; set; }
     

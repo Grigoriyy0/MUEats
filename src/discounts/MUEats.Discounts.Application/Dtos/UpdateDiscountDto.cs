@@ -2,11 +2,11 @@ using MUEats.Discounts.Core.Discount;
 
 namespace MUEats.Discounts.Application.Dtos;
 
-public sealed record UpdateDiscountDto
+public sealed record UpdateDiscountDto : IRestaurantRelatedRequest
 {
     public Guid Id { get; init; }
     
-    public Guid RestaurantId { get; init; }
+    public Guid RestaurantId { get; set; }
     
     public Guid? FoodItemId { get; init; }
     

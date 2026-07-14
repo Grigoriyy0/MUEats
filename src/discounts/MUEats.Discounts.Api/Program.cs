@@ -1,3 +1,5 @@
+using MUEats.Discounts.Api.Extensions;
+using MUEats.Discounts.Api.Utils;
 using MUEats.Discounts.Application;
 using MUEats.Discounts.Infrastructure;
 
@@ -16,6 +18,11 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerExtensions();
+        builder.Services.AddRsaAuth(builder.Configuration);
+        builder.Services.AddHttpContextAccessor();
+
+        builder.Services.AddScoped<CurrentUserContext>();
         
         var app = builder.Build();
 
@@ -24,11 +31,9 @@ public class Program
             app.MapOpenApi();
             app.UseSwagger();
             app.UseSwaggerUI();
-
         }
 
         app.UseHttpsRedirection();
-        
         app.UseAuthorization();
         app.MapControllers();
         app.Run();

@@ -31,14 +31,14 @@ public class Program
         
         builder.Services.AddAuthorization(opt =>
         {
-            opt.AddPolicy("Customer", policy => 
-                policy.RequireRole("Customer"));
+            opt.AddPolicy("User", policy => 
+                policy.RequireRole("User"));
             
             opt.AddPolicy("Admin", policy =>
                 policy.RequireRole("Admin"));
             
-            opt.AddPolicy("RestaurantManager",  policy =>
-                policy.RequireRole("RestaurantManager"));
+            opt.AddPolicy("RestaurantOwner",  policy =>
+                policy.RequireRole("RestaurantOwner"));
         });
 
         var app = builder.Build();
