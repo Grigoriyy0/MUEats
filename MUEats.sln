@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MUEats.Discounts.Core", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MUEats.Discounts.Infrastructure", "src\discounts\MUEats.Discounts.Infrastructure\MUEats.Discounts.Infrastructure.csproj", "{327C7246-C912-4C1E-AB53-F4F42B96F4AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedContracts", "src\utils\SharedContracts\SharedContracts.csproj", "{3A883869-1C58-4161-BF56-2BFCD9307431}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{327C7246-C912-4C1E-AB53-F4F42B96F4AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{327C7246-C912-4C1E-AB53-F4F42B96F4AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{327C7246-C912-4C1E-AB53-F4F42B96F4AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A883869-1C58-4161-BF56-2BFCD9307431}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A883869-1C58-4161-BF56-2BFCD9307431}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A883869-1C58-4161-BF56-2BFCD9307431}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A883869-1C58-4161-BF56-2BFCD9307431}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{05B05B86-CAFA-486D-B740-7F0492443515} = {E602608C-6904-4FA6-9CD6-28995304C685}
@@ -140,5 +146,6 @@ Global
 		{002877A9-D0A8-450E-860C-8788EDA2B191} = {4BD9DEF3-8BF1-438F-AAB6-63DD2D70BD91}
 		{E6CD9C6A-5385-4A7B-A178-64B3E661C916} = {4BD9DEF3-8BF1-438F-AAB6-63DD2D70BD91}
 		{327C7246-C912-4C1E-AB53-F4F42B96F4AA} = {4BD9DEF3-8BF1-438F-AAB6-63DD2D70BD91}
+		{3A883869-1C58-4161-BF56-2BFCD9307431} = {508C721C-271E-4D20-A68C-09641617227B}
 	EndGlobalSection
 EndGlobal

@@ -14,12 +14,10 @@ namespace MUEats.Discounts.Api.Adapters.Http;
 public class DiscountsController : ControllerBase
 {
     private readonly DiscountsService _discountsService;
-    private readonly CurrentUserContext _context;
 
-    public DiscountsController(DiscountsService discountsService, CurrentUserContext context)
+    public DiscountsController(DiscountsService discountsService)
     {
         _discountsService = discountsService;
-        _context = context;
     }
 
     [HttpPost]
@@ -36,6 +34,7 @@ public class DiscountsController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetByFilterAsync([FromQuery] GetDiscountsQuery query, CancellationToken ct)
     {
         return Ok(await _discountsService.GetByFilterAsync(query, ct));
