@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MUEats.Discounts.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DiscountsDbContext))]
-    [Migration("20260713070710_Initial")]
+    [Migration("20260718075102_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -71,6 +71,9 @@ namespace MUEats.Discounts.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("DiscountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RoleId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("RoleName")

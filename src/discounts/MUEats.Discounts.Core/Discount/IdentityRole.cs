@@ -8,5 +8,7 @@ public class IdentityRole
     
     public string RoleName { get; set; }
     
+    public Guid? RoleId { get; set; }
+    
     public Discount? Discount { get; set; }
 }

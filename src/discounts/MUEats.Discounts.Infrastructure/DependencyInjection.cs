@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MUEats.Discounts.Application.Ports;
 using MUEats.Discounts.Infrastructure.Adapters;
+using MUEats.Discounts.Infrastructure.Adapters.Kafka.Consumers;
+using MUEats.Discounts.Infrastructure.Options;
 using MUEats.Discounts.Infrastructure.Persistence.Contexts;
 
 namespace MUEats.Discounts.Infrastructure;
@@ -16,5 +18,12 @@ public static class DependencyInjection
 
         services.AddScoped<IDiscountsRepository, DiscountsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
+        
+        services.AddHostedService<FoodItemDeletedConsumer>();
+        services.AddHostedService<RestaurantDeletedConsumer>();
+        services.AddHostedService<RoleDeletedConsumer>();
+        services.AddHostedService<RoleUpdatedConsumer>();
     }
 }

@@ -70,6 +70,9 @@ namespace MUEats.Discounts.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("DiscountId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("RoleId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("RoleName")
                         .IsRequired()
                         .HasColumnType("text");
