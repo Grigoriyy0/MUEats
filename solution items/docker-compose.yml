@@ -12,6 +12,7 @@ volumes:
     driver: local
   core-postgres-data:
   restaurants-postgres-data:
+  discounts-postgres-data:
 
 
 services:
@@ -161,6 +162,27 @@ services:
       retries: 5
       start_period: 30s
   
+  discounts-postgres:
+    image: postgres:16
+    container_name: mueats.discounts.postgres
+    ports:
+      - '5435:5432'
+    expose:
+      - '5432'
+    environment:
+      POSTGRES_USER: discounts-user
+      POSTGRES_PASSWORD: discountspassword
+      POSTGRES_DB: postgres
+    volumes:
+      - discounts-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U restaurants-user -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  
   core-api:
     build:
       context: ..
@@ -176,6 +198,23 @@ services:
         condition: service_healthy
     environment:
       ConnectionStrings__Postgres: "Host=mueats.core.postgres;Port=5432;Username=core-user;Password=corepassword;Database=postgres"
+    
+  discounts-api:
+     build:
+       context: ..
+       dockerfile: ./src/discounts/MUEats.Discounts.Api/Dockerfile
+     container_name: mueats.discounts
+     ports:
+       - '5557:8080'
+     expose:
+       - '8080'
+     restart: unless-stopped
+     depends_on:
+       discounts-postgres:
+         condition: service_healthy
+     environment:
+       ConnectionStrings__Postgres: "Host=localhost;Port=5432;Username=discounts-user;Password=discountspassword;Database=mue.discounts"
+       
     
   gateway:
     build:

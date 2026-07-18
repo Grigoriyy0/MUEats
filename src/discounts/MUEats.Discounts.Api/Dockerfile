@@ -7,6 +7,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY --chmod=644 ./public.key /app/public.key
 COPY ["src/discounts/MUEats.Discounts.Api/MUEats.Discounts.Api.csproj", "src/discounts/MUEats.Discounts.Api/"]
 COPY ["src/discounts/MUEats.Discounts.Infrastructure/MUEats.Discounts.Infrastructure.csproj", "src/discounts/MUEats.Discounts.Infrastructure/"]
 COPY ["src/discounts/MUEats.Discounts.Application/MUEats.Discounts.Application.csproj", "src/discounts/MUEats.Discounts.Application/"]
@@ -25,4 +26,5 @@ RUN dotnet publish "./MUEats.Discounts.Api.csproj" -c $BUILD_CONFIGURATION -o /a
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./public.key /app/public.key
 ENTRYPOINT ["dotnet", "MUEats.Discounts.Api.dll"]
