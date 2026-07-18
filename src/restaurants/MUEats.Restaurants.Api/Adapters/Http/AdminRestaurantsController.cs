@@ -38,7 +38,7 @@ public class AdminRestaurantsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     [Route("{restaurantId:guid}/menu")]
     public async Task<IActionResult> GetMenuAsync(Guid restaurantId, CancellationToken ct)
     {

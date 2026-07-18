@@ -72,6 +72,10 @@ services:
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.created --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.rejected --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic orders.cancelled --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic fooditems.deleted --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic restaurants.deleted --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic roles.deleted --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic roles.updated --replication-factor 1 --partitions 1
       "
   kowl:
     image: quay.io/cloudhut/kowl:v1.4.0
