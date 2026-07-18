@@ -40,6 +40,13 @@ public class DiscountsController : ControllerBase
         return Ok(await _discountsService.GetByFilterAsync(query, ct));
     }
 
+    [HttpGet]
+    [Route("/admin")]
+    public async Task<IActionResult> GetManagementViewAsync(Guid restaurantId, CancellationToken ct)
+    {
+        return Ok(await _discountsService.GetDiscountsAsync(restaurantId, ct));
+    }
+    
     [HttpPut]
     public async Task<IActionResult> UpdateAsync([FromBody] UpdateDiscountDto dto, CancellationToken ct)
     {

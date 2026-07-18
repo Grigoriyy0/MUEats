@@ -141,4 +141,19 @@ public class DiscountsService
         
         return UnitResult.Success<Error>();
     }
+
+    public async Task<List<DiscountDto>> GetDiscountsAsync(Guid restaurantId, CancellationToken ct)
+    {
+        var spec = new GetRestaurantDiscountsSpecification(restaurantId);
+
+        var discounts = await _discounts.ListAsync(spec, ct);
+        
+        return discounts.Select(x => new DiscountDto
+        {
+            Id = x.Id,
+            FoodItemId = x.FoodItemId,
+            Type = x.Type.ToString(),
+            Value = x.Value
+        }).ToList();
+    }
 }
