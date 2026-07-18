@@ -12,5 +12,10 @@ public class RoleEntityTypeConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasIndex(x => x.RoleName)
             .IsUnique();
+
+        builder.HasMany(x => x.Requirements)
+            .WithOne(y => y.Role)
+            .HasForeignKey(z => z.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

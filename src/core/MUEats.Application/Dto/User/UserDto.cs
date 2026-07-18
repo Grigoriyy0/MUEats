@@ -2,7 +2,7 @@ using MUEats.Application.Dto.Role;
 
 namespace MUEats.Application.Dto.User;
 
-public class UserDto
+public sealed record UserDto
 {
     public Guid Id { get; set; }
     

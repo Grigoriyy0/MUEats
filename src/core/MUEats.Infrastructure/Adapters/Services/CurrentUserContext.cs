@@ -14,7 +14,7 @@ public class CurrentUserContext : ICurrentUserContext
 
     public Guid GetUserId()
     {
-        var idClaim = _accessor.HttpContext?.User.FindFirst("id")?.Value;
+        var idClaim = _accessor.HttpContext?.User.FindFirst("sub")?.Value;
 
         if (string.IsNullOrEmpty(idClaim) || !Guid.TryParse(idClaim, out var userId))
         {

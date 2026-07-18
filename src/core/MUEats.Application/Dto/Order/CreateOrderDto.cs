@@ -1,6 +1,6 @@
 namespace MUEats.Application.Dto.Order;
 
-public class CreateOrderDto
+public sealed record CreateOrderDto
 {
     public DateTime? PickUpTime { get; set; }
 }
