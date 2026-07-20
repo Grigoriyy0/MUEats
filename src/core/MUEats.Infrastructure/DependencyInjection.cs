@@ -50,6 +50,7 @@ public static class DependencyInjection
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<InboxProcessingWorker>();
+        services.AddHostedService<OrderCancellationJob>();
         
         services.AddHostedService<OrderAcceptedConsumer>();
         services.AddHostedService<OrderPreparedConsumer>();

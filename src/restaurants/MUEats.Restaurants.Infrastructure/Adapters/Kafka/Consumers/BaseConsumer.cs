@@ -1,7 +1,6 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using MUEats.Restaurants.Application.Helpers;
 using MUEats.Restaurants.Infrastructure.Options;
 using Newtonsoft.Json;
 

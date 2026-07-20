@@ -7,32 +7,42 @@ using Primitives;
 
 namespace MUEats.Application.Services;
 
-public class ShoppingCartsService(
-    IShoppingCartsRepository shoppingCartsRepository, 
-    IUnitOfWork uow,
-    ICurrentUserContext currentUserContext)
+public class ShoppingCartsService
 {
+    private readonly IShoppingCartsRepository _shoppingCartsRepository;
+    private readonly IUnitOfWork _uow;
+    private readonly ICurrentUserContext _currentUserContext;
+
+    public ShoppingCartsService(IShoppingCartsRepository shoppingCartsRepository, 
+        IUnitOfWork uow,
+        ICurrentUserContext currentUserContext)
+    {
+        _shoppingCartsRepository = shoppingCartsRepository;
+        _uow = uow;
+        _currentUserContext = currentUserContext;
+    }
+
     public async Task<UnitResult<Error>> AddToCartAsync(AddFoodItemDto dto, CancellationToken ct)
     {
         try
         {
-            await uow.BeginTransactionAsync(ct);
+            await _uow.BeginTransactionAsync(ct);
 
-            var userId = currentUserContext.GetUserId();
-            var cart = await shoppingCartsRepository.GetByUserIdAsync(userId, ct);
+            var userId = _currentUserContext.GetUserId();
+            var cart = await _shoppingCartsRepository.GetByUserIdAsync(userId, ct);
 
             cart = await EnsureShoppingCartAsync(cart, userId, dto.RestaurantId, dto.RestaurantName, ct);
             
             await AddOrIncreaseItem(dto, cart, ct);
             
-            await uow.SaveChangesAsync(ct);
-            await uow.CommitTransactionAsync(ct);
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
 
             return UnitResult.Success<Error>();
         }
         catch (Exception)
         {
-            await uow.RollbackTransactionAsync(ct);
+            await _uow.RollbackTransactionAsync(ct);
             throw; 
         }
     }
@@ -41,33 +51,33 @@ public class ShoppingCartsService(
     {
         try
         {
-            await uow.BeginTransactionAsync(ct);
+            await _uow.BeginTransactionAsync(ct);
 
-            var cartItem = await shoppingCartsRepository.GetCartItemAsync(cartItemId, ct);
+            var cartItem = await _shoppingCartsRepository.GetCartItemAsync(cartItemId, ct);
 
             if (cartItem is null)
             {
-                await uow.RollbackTransactionAsync(ct);
+                await _uow.RollbackTransactionAsync(ct);
                 return ApplicationErrors.ShoppingCart.ItemNotFound;
             }
 
             await DeleteOrDecreaseItem(cartItem, ct);
             
-            await uow.SaveChangesAsync(ct);
-            await uow.CommitTransactionAsync(ct);
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
 
             return UnitResult.Success<Error>();
         }
         catch (Exception)
         {
-            await uow.RollbackTransactionAsync(ct);
+            await _uow.RollbackTransactionAsync(ct);
             throw;
         }
     }
 
     public async Task<Result<CartDto, Error>> GetShoppingCartAsync(Guid userId, CancellationToken ct)
     {
-        var cartDto = await shoppingCartsRepository.GetCartDtoAsync(userId, ct);
+        var cartDto = await _shoppingCartsRepository.GetCartDtoAsync(userId, ct);
         
         if (cartDto is null)
         {
@@ -77,14 +87,16 @@ public class ShoppingCartsService(
         return cartDto;
     }
 
-    private async Task AddOrIncreaseItem(AddFoodItemDto dto, ShoppingCart cart, CancellationToken ct)
+    private async Task AddOrIncreaseItem(AddFoodItemDto dto, 
+        ShoppingCart cart, 
+        CancellationToken ct)
     {
         var existingItem = cart.CartItems.FirstOrDefault(x => x.FoodItemId == dto.ItemId);
 
         if (existingItem != null)
         {
             existingItem.Quantity++;
-            await shoppingCartsRepository.UpdateCartItemAsync(existingItem, ct);
+            await _shoppingCartsRepository.UpdateCartItemAsync(existingItem, ct);
             return;
         }
         
@@ -98,7 +110,7 @@ public class ShoppingCartsService(
             Quantity = 1
         };
 
-        await shoppingCartsRepository.AddCartItemAsync(newCartItem, ct);
+        await _shoppingCartsRepository.AddCartItemAsync(newCartItem, ct);
         cart.CartItems.Add(newCartItem);
     }
 
@@ -107,15 +119,14 @@ public class ShoppingCartsService(
         if (cartItem.Quantity > 1)
         {
             cartItem.Quantity--;
-            await shoppingCartsRepository.UpdateCartItemAsync(cartItem, ct);
+            await _shoppingCartsRepository.UpdateCartItemAsync(cartItem, ct);
             return;
         }
 
-        await shoppingCartsRepository.DeleteCartItemAsync(cartItem, ct);
+        await _shoppingCartsRepository.DeleteCartItemAsync(cartItem, ct);
     }
 
-    private async Task<ShoppingCart> EnsureShoppingCartAsync(
-        ShoppingCart? cart, 
+    private async Task<ShoppingCart> EnsureShoppingCartAsync(ShoppingCart? cart, 
         Guid userId, 
         Guid restaurantId, 
         string restaurantName,
@@ -128,7 +139,7 @@ public class ShoppingCartsService(
         
         if (cart != null)
         {
-            await shoppingCartsRepository.DeleteAsync(cart, ct);
+            await _shoppingCartsRepository.DeleteAsync(cart, ct);
         }
 
         var newCart = new ShoppingCart
@@ -139,7 +150,7 @@ public class ShoppingCartsService(
             RestaurantName = restaurantName
         };
         
-        await shoppingCartsRepository.AddAsync(newCart, ct);
+        await _shoppingCartsRepository.AddAsync(newCart, ct);
         return newCart;
     }
 }

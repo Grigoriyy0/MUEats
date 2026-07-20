@@ -8,5 +8,5 @@ public interface IUnitOfWork
     
     Task RollbackTransactionAsync(CancellationToken ct);
     
-    Task SaveChangesAsync(CancellationToken ct);
+    Task<int> SaveChangesAsync(CancellationToken ct);
 }
