@@ -18,4 +18,11 @@ public static class DomainErrors
 
         public static readonly Error PasswordHashIsEmpty = GeneralError.ValueIsIncorrect("user.password_hash");
     }
+
+    public static class Role
+    {
+        public static readonly Error RoleRequirementValueNameIsEmpty = GeneralError.ValueIsIncorrect("role.role_requirement.value_name", "value name cannot be empty.");
+
+        public static readonly Error RoleNameIsEmpty = GeneralError.ValueIsIncorrect("role.role_name", "role name cannot be empty.");
+    }
 }
