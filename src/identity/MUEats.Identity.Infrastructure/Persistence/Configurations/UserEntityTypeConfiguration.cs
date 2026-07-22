@@ -32,18 +32,7 @@ public class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
                 .HasMaxLength(256)
                 .IsRequired();
         });
-
-        builder.HasIndex(u => u.EmailAddress.Value)
-            .IsUnique();
-
-        builder.Property(u => u.RoleIds)
-            .HasField("_roleIds")
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
         
-        builder.Property(u => u.Attributes)
-            .HasField("_attributes")
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         builder.OwnsMany(u => u.Attributes, attr =>
         {
             attr.ToTable("user_attributes");

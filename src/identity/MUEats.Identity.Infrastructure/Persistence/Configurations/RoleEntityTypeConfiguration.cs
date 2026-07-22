@@ -18,10 +18,6 @@ public class RoleEntityTypeConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(x => x.RoleName)
             .HasMaxLength(100)
             .IsRequired();
-
-        builder.Property(x => x.Requirements)
-            .HasField("_requirements")
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
         
         builder.OwnsMany(x => x.Requirements, req =>
         {
