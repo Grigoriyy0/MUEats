@@ -12,7 +12,7 @@ public class Role
         RoleName = roleName;
     }
 
-    public Guid Id { get; init; }
+    public Guid Id { get; private set; }
 
     public string RoleName { get; private set; }
 

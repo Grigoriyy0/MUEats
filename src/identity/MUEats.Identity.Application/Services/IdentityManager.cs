@@ -13,19 +13,19 @@ public class IdentityManager : IIdentityManager
     private readonly IUsersRepository _usersRepository;
     private readonly IRolesRepository _rolesRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ITokenGenerator _tokenGenerator;
+    private readonly ITokenProducer _tokenProducer;
     private readonly IHashProvider _hashProvider;
 
     public IdentityManager(IUsersRepository usersRepository, 
         IRolesRepository rolesRepository, 
         IUnitOfWork unitOfWork, 
-        ITokenGenerator tokenGenerator, 
+        ITokenProducer tokenProducer, 
         IHashProvider hashProvider)
     {
         _usersRepository = usersRepository;
         _rolesRepository = rolesRepository;
         _unitOfWork = unitOfWork;
-        _tokenGenerator = tokenGenerator;
+        _tokenProducer = tokenProducer;
         _hashProvider = hashProvider;
     }
 
@@ -83,7 +83,7 @@ public class IdentityManager : IIdentityManager
 
         var roles = await _rolesRepository.GetRolesByIdsAsync(user.RoleIds.ToList(), ct);
 
-        var token = _tokenGenerator.ProduceToken(user, roles);
+        var token = _tokenProducer.ProduceToken(user, roles);
 
         return new AuthResponse
         {

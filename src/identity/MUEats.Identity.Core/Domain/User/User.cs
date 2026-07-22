@@ -23,7 +23,7 @@ public class User
         PasswordHash = passwordHash;
     }
 
-    public Guid Id { get; init; }
+    public Guid Id { get; private set; }
 
     public string FirstName { get; private set; } = null!;
 
