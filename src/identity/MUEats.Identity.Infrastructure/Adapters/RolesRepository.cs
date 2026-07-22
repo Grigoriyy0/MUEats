@@ -47,6 +47,8 @@ public class RolesRepository : IRolesRepository
 
     public Task<List<Role>> GetRolesByIdsAsync(List<Guid> roleIds, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return _context.Roles.AsNoTracking()
+            .Where(r => roleIds.Contains(r.Id))
+            .ToListAsync(ct);
     }
 }

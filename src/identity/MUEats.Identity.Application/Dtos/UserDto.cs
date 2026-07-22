@@ -10,5 +10,7 @@ public sealed record UserDto
     
     public string LastName { get; set; }
     
+    public List<AttributeDto> Attributes { get; set; }
+    
     public List<RoleDto> Roles { get; set; }
 }

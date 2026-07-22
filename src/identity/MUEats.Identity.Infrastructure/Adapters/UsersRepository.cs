@@ -36,9 +36,71 @@ public class UsersRepository : IUsersRepository
             .FirstOrDefaultAsync(x => x.EmailAddress.Value == email, ct);
     }
     
-    public Task<List<UserDto>> GetUsersAsync(GetUsersQuery query, CancellationToken ct)
+    public async Task<List<UserDto>> GetUsersAsync(GetUsersQuery query, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var targetRoleId = await _context.Roles
+            .AsNoTracking()
+            .Where(x => x.RoleName == query.RoleName)
+            .Select(r => r.Id)
+            .FirstOrDefaultAsync(ct);
+
+        if (targetRoleId == Guid.Empty)
+        {
+            return [];
+        }
+        
+        var users = await _context.Users
+            .AsNoTracking() 
+            .Where(x => x.RoleIds.Contains(targetRoleId))
+            .OrderBy(u => u.LastName)
+            .ThenBy(u => u.Id) 
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .Select(x => new
+            {
+                x.Id,
+                Email = x.EmailAddress.Value,
+                x.FirstName,
+                x.LastName,
+                x.RoleIds,
+                Attributes = x.Attributes.Select(y => new AttributeDto
+                {
+                    Key = y.Key,
+                    Value = y.Value
+                }).ToList()
+            })
+            .ToListAsync(ct);
+
+        if (users.Count == 0)
+        {
+            return [];
+        }
+
+        var currentPageRoleIds = users
+            .SelectMany(u => u.RoleIds)
+            .Distinct()
+            .ToList();
+
+        var rolesMap = await _context.Roles
+            .AsNoTracking()
+            .Where(r => currentPageRoleIds.Contains(r.Id))
+            .ToDictionaryAsync(r => r.Id, r => r.RoleName, ct);
+
+        return users.Select(u => new UserDto
+        {
+            Id = u.Id,
+            Email = u.Email,
+            FirstName = u.FirstName,
+            LastName = u.LastName,
+            Attributes = u.Attributes,
+            Roles = u.RoleIds
+                .Where(roleId => rolesMap.ContainsKey(roleId))
+                .Select(roleId => new RoleDto
+                {
+                    Name = rolesMap[roleId]
+                })
+                .ToList()
+        }).ToList();
     }
     
     public Task<bool> AnyAsync(string email, CancellationToken ct)
