@@ -25,6 +25,10 @@ public class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(512)
             .IsRequired();
 
+        builder.Property(u => u.RoleIds)
+            .HasField("_roleIds")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+        
         builder.ComplexProperty(u => u.EmailAddress, email =>
         {
             email.Property(e => e.Value)

@@ -56,7 +56,7 @@ public class DatabaseSeeder
             var adminRole = Role.Create(RoleConstants.RoleNames.Admin).Value;
 
             adminRole.SetProperty("Id", RoleConstants.RoleIds.Admin);
-                
+            
             rolesToSeed.Add(adminRole);
         }
 

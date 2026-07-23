@@ -65,6 +65,11 @@ namespace MUEats.Identity.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(512)")
                         .HasColumnName("password_hash");
 
+                    b.PrimitiveCollection<Guid[]>("RoleIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("role_ids");
+
                     b.ComplexProperty(typeof(Dictionary<string, object>), "EmailAddress", "MUEats.Identity.Core.Domain.User.User.EmailAddress#EmailAddress", b1 =>
                         {
                             b1.IsRequired();

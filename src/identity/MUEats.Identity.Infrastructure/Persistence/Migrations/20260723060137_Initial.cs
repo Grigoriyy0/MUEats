@@ -31,6 +31,7 @@ namespace MUEats.Identity.Infrastructure.Persistence.Migrations
                     first_name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     last_name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     password_hash = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    role_ids = table.Column<Guid[]>(type: "uuid[]", nullable: false),
                     email_address = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false)
                 },
                 constraints: table =>
