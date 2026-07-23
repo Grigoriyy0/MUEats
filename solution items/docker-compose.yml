@@ -13,6 +13,7 @@ volumes:
   core-postgres-data:
   restaurants-postgres-data:
   discounts-postgres-data:
+  identity-postgres-data:
 
 
 services:
@@ -177,11 +178,34 @@ services:
       - discounts-postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U restaurants-user -d postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U discounts-user -d postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+  
+  
+  identity-postgres:
+    image: postgres:16
+    container_name: mueats.identity.postgres
+    ports:
+      - '5436:5432'
+    expose:
+      - '5432'
+    environment:
+      POSTGRES_USER: identity-user
+      POSTGRES_PASSWORD: identitypassword
+      POSTGRES_DB: postgres
+    volumes:
+      - identity-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U identity-user -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      
   
   core-api:
     build:
@@ -215,7 +239,6 @@ services:
      environment:
        ConnectionStrings__Postgres: "Host=localhost;Port=5432;Username=discounts-user;Password=discountspassword;Database=mue.discounts"
        
-    
   gateway:
     build:
       context: ..
@@ -244,3 +267,17 @@ services:
     environment:
       ConnectionStrings__Postgres: "Host=mueats.restaurants.postgres;Port=5432;Username=restaurants-user;Password=restaurantspassword;Database=postgres"
       ConnectionStrings__Redis: "mueats.redis:6379,password=your_password_here"
+
+  identity-api:
+    build:
+      context: ..
+      dockerfile: ./src/identity/MUEats.Identity.Api/Dockerfile
+    container_name: mueats.identity
+    ports:
+      - '5558:8080'
+    expose:
+      - '8080'
+    restart: unless-stopped
+    depends_on:
+      identity-postgres:
+        condition: service_healthy
