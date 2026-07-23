@@ -18,7 +18,15 @@ public class Program
         builder.Services.AddOpenApi();
         builder.Services.AddApplicationServices();
         builder.Services.AddInfrastructureServices(builder.Configuration);
-
+        
+        builder.Services.AddAuthorizationBuilder()
+                    .AddPolicy("User", policy => 
+                policy.RequireRole("User"))
+                    .AddPolicy("Admin", policy =>
+                policy.RequireRole("Admin"))
+                    .AddPolicy("RestaurantOwner", policy =>
+                policy.RequireRole("RestaurantOwner"));
+        
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -87,7 +95,10 @@ public class Program
         seeder.SeedAsync().Wait();
         
         app.UseHttpsRedirection();
+        
+        app.UseAuthentication();
         app.UseAuthorization();
+        
         app.MapControllers();
         app.Run();
     }

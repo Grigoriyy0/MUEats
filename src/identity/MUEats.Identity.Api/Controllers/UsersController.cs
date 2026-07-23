@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Identity.Application.Interfaces;
 using MUEats.Identity.Application.Queries;
@@ -6,6 +7,7 @@ namespace MUEats.Identity.Api.Controllers;
 
 [ApiController]
 [Route("api/identity/users")]
+[Authorize(Roles = "Admin")]
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;

@@ -3,6 +3,7 @@ using MUEats.Identity.Application.Dtos;
 using MUEats.Identity.Application.Interfaces;
 using MUEats.Identity.Application.Ports;
 using MUEats.Identity.Application.Responses;
+using MUEats.Identity.Core.Domain.Constants;
 using MUEats.Identity.Core.Domain.User;
 using Primitives;
 
@@ -51,7 +52,11 @@ public class IdentityManager : IIdentityManager
                 return userResult.Error;
             }
 
-            await _usersRepository.AddAsync(userResult.Value, ct);
+            var user = userResult.Value;
+
+            user.AddRole(RoleConstants.RoleIds.User);
+            
+            await _usersRepository.AddAsync(user, ct);
 
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);

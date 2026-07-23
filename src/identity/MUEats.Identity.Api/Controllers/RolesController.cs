@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MUEats.Identity.Application.Dtos;
 using MUEats.Identity.Application.Interfaces;
@@ -6,6 +7,7 @@ namespace MUEats.Identity.Api.Controllers;
 
 [ApiController]
 [Route("api/identity/roles")]
+[Authorize(Roles = "Admin")]
 public class RolesController : ControllerBase
 {
     private readonly IRolesService _rolesService;
@@ -32,5 +34,26 @@ public class RolesController : ControllerBase
         }
         
         return Created();
+    }
+    
+    [HttpPost]
+    [Route("{userId:guid}/role/{roleId:guid}")]
+    public async Task<IActionResult> GrantRoleAsync([FromBody] GrantRoleDto dto, CancellationToken ct)
+    {
+        try
+        {
+            var result = await _rolesService.GrantRoleAsync(dto, ct);
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 }
