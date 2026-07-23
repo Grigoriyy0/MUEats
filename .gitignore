@@ -12,3 +12,4 @@ zookeeper-data/
 private.key
 .vs/
 *.pem
+*.key
