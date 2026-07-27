@@ -3,27 +3,35 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__Postgres=Host=core-postgres;Port=5432;Username=core-user;Password=corepassword;Database=mue.master;
-      - KafkaOptions__BootstrapServers=kafka:19092;
-  
+      - ConnectionStrings__Postgres=Host=core-postgres;Port=5432;Username=core-user;Password=corepassword;Database=mue.master
+      - KafkaOptions__BootstrapServers=kafka:19092
+
   gateway:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
-      - Clusters__restaurants_cluster__Destinations__destination1__Address=http://restaurants:8080
-      - Clusters__api_cluster__Destinations__destination1__Address=http://core-api:8080
-      - Clusters__discounts_cluster__Destinations__destination1__Address=http://discounts:8080
-  
+      - ReverseProxy__Clusters__restaurants_cluster__Destinations__destination1__Address=http://restaurants:8080
+      - ReverseProxy__Clusters__api_cluster__Destinations__destination1__Address=http://core-api:8080
+      - ReverseProxy__Clusters__discounts_cluster__Destinations__destination1__Address=http://discounts-api:8080
+      - ReverseProxy__Clusters__identity_cluster__Destinations__destination1__Address=http://identity-api:8080
+
   restaurants:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__Postgres=Host=restaurants-postgres;Port=5432;Username=restaurants-user;Password=restaurantspassword;Database=mue.restaurants;
-      - KafkaOptions__BootstrapServers=kafka:19092;
+      - ConnectionStrings__Postgres=Host=restaurants-postgres;Port=5432;Username=restaurants-user;Password=restaurantspassword;Database=mue.restaurants
+      - KafkaOptions__BootstrapServers=kafka:19092
 
-  discounts:
+  discounts-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__Postgres=Host=localhost;Port=5432;Username=discounts-user;Password=discountspassword;Database=mue.discounts
-      - KafkaOptions__BootstrapServers=kafka:19092;
+      - ConnectionStrings__Postgres=Host=discounts-postgres;Port=5432;Username=discounts-user;Password=discountspassword;Database=mue.discounts
+      - KafkaOptions__BootstrapServers=kafka:19092
+
+  identity-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__Postgres=Host=identity-postgres;Port=5432;Username=identity-user;Password=identitypassword;Database=mue.identity
+      - KafkaOptions__BootstrapServers=kafka:19092

@@ -1,8 +1,6 @@
-using Yarp.ReverseProxy.Transforms;
-
 namespace MUEats.Gateway;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {
