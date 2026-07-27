@@ -13,10 +13,10 @@ public static class AuthExtensions
             {
                 options.MapInboundClaims = false;
                 
-                var keyPath = configuration["AuthOptions:PrivateKeyPath"];
+                var keyPath = configuration["AuthOptions:PublicKeyPath"];
                 if (string.IsNullOrEmpty(keyPath) || !File.Exists(keyPath))
                 {
-                    throw new FileNotFoundException("RSA Private Key is not found at specified path.");
+                    throw new FileNotFoundException("RSA Public Key is not found at specified path.");
                 }
 
                 var pemContent = File.ReadAllText(keyPath);

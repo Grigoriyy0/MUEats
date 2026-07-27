@@ -7,7 +7,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY --chmod=644 ./src/core/MUEats.Api/private_key.pem /app/private_key.pem
+COPY --chmod=644 ./src/core/MUEats.Api/public.key /app/public.key
 COPY ["src/core/MUEats.Api/MUEats.Api.csproj", "src/core/MUEats.Api/"]
 COPY ["src/core/MUEats.Infrastructure/MUEats.Infrastructure.csproj", "src/core/MUEats.Infrastructure/"]
 COPY ["src/core/MUEats.Application/MUEats.Application.csproj", "src/core/MUEats.Application/"]
@@ -24,5 +24,5 @@ RUN dotnet publish "./MUEats.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY ./src/core/MUEats.Api/private_key.pem /app/private_key.pem
+COPY ./src/core/MUEats.Api/public.key /app/public.key
 ENTRYPOINT ["dotnet", "MUEats.Api.dll"]
