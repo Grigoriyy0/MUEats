@@ -1,5 +1,3 @@
-using MUEats.Core.Primitives.ValueObjects;
-
 namespace MUEats.Core.Domain.Order.ValueObjects;
 
 public class OrderItem

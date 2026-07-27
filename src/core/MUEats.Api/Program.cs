@@ -2,7 +2,6 @@ using Microsoft.OpenApi;
 using MUEats.Application;
 using MUEats.Extensions;
 using MUEats.Infrastructure;
-using MUEats.Infrastructure.Persistence;
 using Prometheus;
 
 namespace MUEats;
@@ -59,13 +58,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
-        using (var scope = app.Services.CreateScope())
-        {
-            var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-            //todo fix
-            seeder.SeedAsync().Wait();
-        }
+        
         app.MapControllers();
 
         app.UseHttpsRedirection();
