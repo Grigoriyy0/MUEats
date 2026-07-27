@@ -23,30 +23,21 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         
         services.AddScoped<IOrdersRepository, OrdersRepository>();
-        services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IShoppingCartsRepository, ShoppingCartsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<ITokenProducer, TokenProducer>();
-        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IOrderSagasRepository, OrderSagasRepository>();
         services.AddScoped<IEventDispatcher, EventDispatcher>();
-        services.AddScoped<DatabaseSeeder>();
         services.AddScoped<IOrdersQueries, OrdersQueries>();
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IInboxService, InboxService>();
         services.AddScoped<IOrdersService, OrdersService>();
-        services.AddScoped<IRolesRepository, RolesRepository>();
         
         services.AddSingleton<IHashProvider, HashProvider>();
-        services.AddSingleton<IPasswordValidator, PasswordValidator>();
         services.AddSingleton<TopicMapper>();
         services.AddSingleton<IProducer, KafkaProducer>();
         
-        services.Configure<AuthOptions>(configuration.GetSection(nameof(AuthOptions)));
-        services.Configure<PasswordValidatorOptions>(configuration.GetSection(nameof(PasswordValidatorOptions)));
         services.Configure<KafkaOptions>(configuration.GetSection(nameof(KafkaOptions)));
-        services.Configure<AdminOptions>(configuration.GetSection(nameof(AdminOptions)));
         
         services.AddHostedService<OutboxProcessingWorker>();
         services.AddHostedService<InboxProcessingWorker>();
