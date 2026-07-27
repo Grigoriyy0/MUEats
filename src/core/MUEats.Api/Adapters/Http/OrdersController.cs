@@ -8,7 +8,7 @@ using MUEats.Application.Queries;
 namespace MUEats.Adapters.Http;
 
 [Route("api/orders")]
-[Authorize(Policy = "User")]
+[Authorize(Roles="User")]
 [ApiController]
 public class OrdersController : ControllerBase
 {
