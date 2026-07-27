@@ -61,7 +61,6 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
-      # Ждем готовности Kafka
       cub kafka-ready -b kafka:19092 1 30
 
       echo 'Creating kafka topics...'
@@ -82,7 +81,7 @@ services:
     volumes:
       - ./kowl_config:/etc/kowl/
     ports:
-      - "8087:8080" # Оставлен для отладки UI Kafka
+      - "8087:8080" 
     entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
     depends_on:
       - kafka
@@ -223,7 +222,6 @@ services:
       discounts-postgres:
         condition: service_healthy
     environment:
-      # Исправлен Host и имя БД
       ConnectionStrings__Postgres: "Host=mueats.discounts.postgres;Port=5432;Username=${DISCOUNTS_DB_USER:-discounts-user};Password=${DISCOUNTS_DB_PASSWORD:-discountspassword};Database=postgres"
     networks:
       - internal-net
