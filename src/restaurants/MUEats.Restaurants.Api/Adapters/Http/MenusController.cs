@@ -165,4 +165,21 @@ public class MenusController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete]
+    [Route("{menuId:guid}/items/{itemId:guid}")]
+    [Authorize(Roles = "RestaurantManager")]
+    public async Task<IActionResult> DeleteMenuItemAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid itemId,
+        CancellationToken ct)
+    {
+        var result = await _menusService.DeleteMenuItemAsync(menuId, itemId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return NoContent();
+    }
 }

@@ -2,11 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MUEats.Restaurants.Application.Helpers;
-using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Persistence.Outbox;
 using Newtonsoft.Json;
+using SharedContracts.IntegrationEvents;
 
 namespace MUEats.Restaurants.Infrastructure.Workers;
 

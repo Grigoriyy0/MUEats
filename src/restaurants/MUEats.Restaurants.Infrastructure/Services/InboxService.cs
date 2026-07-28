@@ -5,6 +5,7 @@ using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Persistence.Inbox;
 using MUEats.Restaurants.Infrastructure.Services.Interfaces;
 using Newtonsoft.Json;
+using SharedContracts.IntegrationEvents;
 
 namespace MUEats.Restaurants.Infrastructure.Services;
 

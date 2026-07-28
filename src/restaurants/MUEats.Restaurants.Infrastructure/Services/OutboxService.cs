@@ -4,6 +4,7 @@ using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Persistence.Outbox;
 using Newtonsoft.Json;
+using IntegrationEvent = SharedContracts.IntegrationEvents.IntegrationEvent;
 
 namespace MUEats.Restaurants.Infrastructure.Services;
 

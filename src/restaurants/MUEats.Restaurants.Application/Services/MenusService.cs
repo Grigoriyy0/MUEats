@@ -3,6 +3,7 @@ using MUEats.Restaurants.Application.DTOs;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Domain.Menu;
 using Primitives;
+using SharedContracts.IntegrationEvents;
 
 namespace MUEats.Restaurants.Application.Services;
 
@@ -11,14 +12,17 @@ public class MenusService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRestaurantsRepository _restaurantsRepository;
     private readonly IMenusRepository _menusRepository;
+    private readonly IOutboxService _outboxService;
 
     public MenusService(IUnitOfWork unitOfWork, 
         IRestaurantsRepository restaurantsRepository, 
-        IMenusRepository menusRepository)
+        IMenusRepository menusRepository, 
+        IOutboxService outboxService)
     {
         _unitOfWork = unitOfWork;
         _restaurantsRepository = restaurantsRepository;
         _menusRepository = menusRepository;
+        _outboxService = outboxService;
     }
 
     public async Task<UnitResult<Error>> CreateAsync(Guid restaurantId, CancellationToken ct)
@@ -251,6 +255,40 @@ public class MenusService
         await _unitOfWork.SaveChangesAsync(ct);
         await _unitOfWork.CommitTransactionAsync(ct);
         
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> DeleteMenuItemAsync(Guid menuId, Guid itemId, CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu is null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.NotFound;
+        }
+
+        var deleteResult = menu.DeleteMenuItem(itemId);
+
+        if (deleteResult.IsFailure)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return deleteResult.Error;
+        }
+
+        var @event = new FoodItemDeletedEvent
+        {
+            RestaurantId = menu.RestaurantId,
+            FoodItemId = itemId
+        };
+        
+        await _outboxService.AddAsync(@event, ct);
+        
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+
         return UnitResult.Success<Error>();
     }
 }

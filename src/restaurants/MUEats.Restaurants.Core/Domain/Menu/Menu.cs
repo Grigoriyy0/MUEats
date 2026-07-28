@@ -196,4 +196,18 @@ public class Menu
 
         return UnitResult.Success<Error>();
     }
+
+    public UnitResult<Error> DeleteMenuItem(Guid itemId)
+    {
+        var item = MenuItems.FirstOrDefault(x => x.Id == itemId);
+
+        if (item is null)
+        {
+            return DomainErrors.Menu.MenuItemDoesNotExist;
+        }
+
+        _menuItems.Remove(item);
+
+        return UnitResult.Success<Error>();
+    }
 }
