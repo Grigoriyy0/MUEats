@@ -190,6 +190,13 @@ public class MenusController : ControllerBase
         [FromRoute] Guid categoryId,
         CancellationToken ct)
     {
+        var result = await _menusService.DeleteCategoryAsync(menuId, categoryId, ct);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
         return NoContent();
     }
 }
