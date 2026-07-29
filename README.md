@@ -51,20 +51,11 @@ While currently a fully functioning prototype with real-world deployment potenti
 # Prerequisites
 
 To start, please ensure you have following installed on your computer:
-1) .NET 10 SDK 
-2) Git
-3) PostgreSQL 16
-4) Docker
+1) Git
+2) Docker
 
 # Setup guide
 
-!!! SOON WILL BE MOVED TO A SINGLE DOCKER-COMPOSE !!!
-
 1) clone repository by using `git clone https://github.com/Grigoriyy0/MUEats.git`
-2) in `src/core/MUEats.Api/appsetting.json`  in `"Postgres": "Host=localhost;Port=5432;Username=postgres;Password=123123;Database=mue.master"` section input your connection credentials to postgres
-3) in `src/restaurants/MUEats.Restaurants/appsettings.json` in `"Postgres": "Host=localhost;Port=5432;Username=postgres;Password=123123;Database=mue.restaurants"` section input your connection credentials to postgres
-4) generate RSA key, put the private key in `src/core/MUEats.Api/`, put the public key in 
-5) from `solution items` folder run `docker compose up -d` to start infrastructure
-6) from `src/core` folder run `dotnet run` to start API
-7) from `src/restaurants` folder run `dotnet run` to start Restaurants service
-8) from `src/gateway` folder run `dotnet run` to start Gateway
+2) generate RSA key, put the private key in `src/identity/MUEats.Identity.Api/`, put the public key in API layer of other services
+3) docker compose up -d
