@@ -1,4 +1,4 @@
-using MUEats.Restaurants.Application.IntegrationEvents;
+using IntegrationEvent = SharedContracts.IntegrationEvents.IntegrationEvent;
 
 namespace MUEats.Restaurants.Application.Ports;
 

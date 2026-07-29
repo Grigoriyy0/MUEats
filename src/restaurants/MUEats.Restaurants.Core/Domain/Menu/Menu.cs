@@ -196,4 +196,37 @@ public class Menu
 
         return UnitResult.Success<Error>();
     }
+
+    public UnitResult<Error> DeleteMenuItem(Guid itemId)
+    {
+        var item = MenuItems.FirstOrDefault(x => x.Id == itemId);
+
+        if (item is null)
+        {
+            return DomainErrors.Menu.MenuItemDoesNotExist;
+        }
+
+        _menuItems.Remove(item);
+
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> DeleteCategory(Guid categoryId)
+    {
+        var category = _categories.FirstOrDefault(x => x.Id == categoryId);
+
+        if (category is null)
+        {
+            return DomainErrors.MenuCategory.CategoryIsNotFound;
+        }
+
+        if (_menuItems.Any(x => x.CategoryId == categoryId))
+        {
+            return DomainErrors.MenuCategory.CategoryContainsItems;
+        }
+
+        _categories.Remove(category);
+        
+        return UnitResult.Success<Error>();
+    }
 }
