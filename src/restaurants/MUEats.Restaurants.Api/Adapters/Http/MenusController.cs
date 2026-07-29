@@ -107,8 +107,7 @@ public class MenusController : ControllerBase
     [HttpPut]
     [Route("{menuId:guid}/items/{itemId:guid}")]
     [Authorize(Roles = "RestaurantOwner")]
-    public async Task<IActionResult> UpdateItemAsync(
-        [FromRoute] Guid menuId,
+    public async Task<IActionResult> UpdateItemAsync([FromRoute] Guid menuId,
         [FromRoute] Guid itemId,
         [FromBody] UpdateMenuItemDto dto,
         CancellationToken ct)
