@@ -41,6 +41,10 @@ public static class DomainErrors
     public static class MenuCategory
     {
         public static readonly Error CategoryNameIsEmpty = GeneralError.ValueIsIncorrect("menuCategory.categoryName");
+
+        public static readonly Error CategoryIsNotFound = GeneralError.ValueIsIncorrect("menu.category", "category is not found");
+
+        public static readonly Error CategoryContainsItems = GeneralError.ValueIsIncorrect("menu.category", "category cannot be deleted since it is not empty");
     }
 
     public static class MenuOptionsGroup

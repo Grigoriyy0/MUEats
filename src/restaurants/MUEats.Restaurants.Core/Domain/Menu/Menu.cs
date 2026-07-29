@@ -210,4 +210,23 @@ public class Menu
 
         return UnitResult.Success<Error>();
     }
+
+    public UnitResult<Error> DeleteCategory(Guid categoryId)
+    {
+        var category = _categories.FirstOrDefault(x => x.Id == categoryId);
+
+        if (category is null)
+        {
+            return DomainErrors.MenuCategory.CategoryIsNotFound;
+        }
+
+        if (_menuItems.Any(x => x.CategoryId == categoryId))
+        {
+            return DomainErrors.MenuCategory.CategoryContainsItems;
+        }
+
+        _categories.Remove(category);
+        
+        return UnitResult.Success<Error>();
+    }
 }

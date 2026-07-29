@@ -291,4 +291,30 @@ public class MenusService
 
         return UnitResult.Success<Error>();
     }
+
+    public async Task<UnitResult<Error>> DeleteCategoryAsync(Guid menuId, Guid categoryId, CancellationToken ct)
+    {
+        await _unitOfWork.BeginTransactionAsync(ct);
+
+        var menu = await _menusRepository.GetByIdAsync(menuId, ct);
+
+        if (menu is null)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return ApplicationErrors.Menu.NotFound;
+        }
+
+        var deleteResult = menu.DeleteCategory(categoryId);
+
+        if (deleteResult.IsFailure)
+        {
+            await _unitOfWork.RollbackTransactionAsync(ct);
+            return deleteResult.Error;
+        }
+
+        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
+        
+        return UnitResult.Success<Error>();
+    }
 }

@@ -7,7 +7,7 @@ using MUEats.Restaurants.Application.Services;
 namespace MUEats.Restaurants.Api.Adapters.Http;
 
 [ApiController]
-[Authorize(Roles = "RestaurantManager")]
+[Authorize(Roles = "RestaurantOwner")]
 [Route("api/management/orders")]
 public class OrdersController : ControllerBase
 {

@@ -19,7 +19,7 @@ public class MenusController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> CreateAsync(Guid restaurantId, CancellationToken ct)
     {
         var result = await _menusService.CreateAsync(restaurantId, ct);
@@ -34,7 +34,7 @@ public class MenusController : ControllerBase
 
     [HttpPost]
     [Route("{menuId:guid}/items")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> CreateItemAsync(
         [FromRoute] Guid menuId,
         [FromBody] CreateMenuItemDto dto,
@@ -52,7 +52,7 @@ public class MenusController : ControllerBase
 
     [HttpPost]
     [Route("{menuId:guid}/items/{itemId:guid}/options-group")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> AddOptionsGroupAsync([FromRoute] Guid menuId,
         [FromRoute] Guid itemId,
         [FromBody] CreateOptionsGroupDto dto,
@@ -70,7 +70,7 @@ public class MenusController : ControllerBase
 
     [HttpPost]
     [Route("{menuId:guid}/option-groups/{groupId:guid}/options")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> AddItemOptionAsync([FromRoute] Guid menuId,
         [FromRoute] Guid groupId,
         [FromBody] AddItemOptionDto dto,
@@ -88,7 +88,7 @@ public class MenusController : ControllerBase
     
     [HttpPost]
     [Route("{menuId:guid}/categories")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> CreateCategoryAsync(
         [FromRoute] Guid menuId,
         [FromBody] CreateCategoryDto dto,
@@ -106,7 +106,7 @@ public class MenusController : ControllerBase
 
     [HttpPut]
     [Route("{menuId:guid}/items/{itemId:guid}")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> UpdateItemAsync(
         [FromRoute] Guid menuId,
         [FromRoute] Guid itemId,
@@ -134,7 +134,7 @@ public class MenusController : ControllerBase
 
     [HttpDelete]
     [Route("{menuId:guid}/option-groups/{groupId:guid}")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> DeleteOptionsGroupAsync([FromRoute] Guid menuId,
         [FromRoute] Guid groupId,
         CancellationToken ct)
@@ -151,7 +151,7 @@ public class MenusController : ControllerBase
 
     [HttpDelete]
     [Route("{menuId:guid}/item-options/{optionId:guid}")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> DeleteItemOptionAsync([FromRoute] Guid menuId,
         [FromRoute] Guid optionId,
         CancellationToken ct)
@@ -168,7 +168,7 @@ public class MenusController : ControllerBase
 
     [HttpDelete]
     [Route("{menuId:guid}/items/{itemId:guid}")]
-    [Authorize(Roles = "RestaurantManager")]
+    [Authorize(Roles = "RestaurantOwner")]
     public async Task<IActionResult> DeleteMenuItemAsync([FromRoute] Guid menuId,
         [FromRoute] Guid itemId,
         CancellationToken ct)
@@ -180,6 +180,16 @@ public class MenusController : ControllerBase
             return BadRequest(result.Error);
         }
 
+        return NoContent();
+    }
+
+    [HttpDelete]
+    [Route("{menuId:guid}/categories/{categoryId:guid}")]
+    [Authorize(Roles="RestaurantOwner")]
+    public async Task<IActionResult> DeleteCategoryAsync([FromRoute] Guid menuId,
+        [FromRoute] Guid categoryId,
+        CancellationToken ct)
+    {
         return NoContent();
     }
 }
