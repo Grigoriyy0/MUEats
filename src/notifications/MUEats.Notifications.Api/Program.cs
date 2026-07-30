@@ -1,3 +1,5 @@
+using MUEats.Notifications.Infrastructure;
+
 namespace MUEats.Notifications.Api;
 
 public class Program
@@ -9,7 +11,8 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
-
+        builder.Services.AddInfrastructureServices(builder.Configuration);
+        
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
