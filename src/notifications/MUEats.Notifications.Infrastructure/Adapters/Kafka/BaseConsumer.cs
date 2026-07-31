@@ -1,11 +1,10 @@
-﻿using Confluent.Kafka;
+using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using MUEats.Application.Helpers;
-using MUEats.Infrastructure.Options;
+using MUEats.Notifications.Infrastructure.Options;
 using Newtonsoft.Json;
 
-namespace MUEats.Infrastructure.Consumers;
+namespace MUEats.Notifications.Infrastructure.Adapters.Kafka;
 
 public abstract class BaseConsumer<T> : BackgroundService
 {
@@ -40,7 +39,11 @@ public abstract class BaseConsumer<T> : BackgroundService
         {
             var messageResult = _consumer.Consume(ct);
             
-            var message = JsonConvert.DeserializeObject<T>(messageResult.Message.Value, JsonSerializerHelper.Settings);
+            var message = JsonConvert.DeserializeObject<T>(messageResult.Message.Value, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                Formatting = Formatting.Indented
+            });
 
             if (message == null)
             {

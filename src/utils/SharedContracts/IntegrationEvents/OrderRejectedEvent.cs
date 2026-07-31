@@ -1,6 +1,4 @@
-using SharedContracts.IntegrationEvents;
-
-namespace MUEats.Restaurants.Application.IntegrationEvents;
+namespace SharedContracts.IntegrationEvents;
 
 public class OrderRejectedEvent : IntegrationEvent
 {

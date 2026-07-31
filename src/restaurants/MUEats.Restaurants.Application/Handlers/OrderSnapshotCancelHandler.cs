@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using MUEats.Restaurants.Application.Handlers.Interfaces;
-using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Projections.Order;
+using SharedContracts.IntegrationEvents;
 
 namespace MUEats.Restaurants.Application.Handlers;
 

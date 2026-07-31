@@ -1,5 +1,4 @@
 using MUEats.Restaurants.Application.Helpers;
-using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Persistence.Outbox;

@@ -1,4 +1,4 @@
-using MUEats.Restaurants.Application.IntegrationEvents;
+using SharedContracts.IntegrationEvents;
 
 namespace MUEats.Restaurants.Infrastructure.Services;
 
@@ -10,6 +10,7 @@ public class TopicMapper
     {
         _topics[typeof(OrderCreatedEvent)] = "orders.created";
         _topics[typeof(OrderRejectedEvent)] = "orders.rejected";
+        _topics[typeof(FoodItemDeletedEvent)] = "fooditems.deleted";
     }
 
     public string? TryGetTopic(Type type)

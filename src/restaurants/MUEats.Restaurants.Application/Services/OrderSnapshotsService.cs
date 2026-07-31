@@ -1,9 +1,9 @@
 using CSharpFunctionalExtensions;
 using MUEats.Restaurants.Application.DTOs;
-using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Application.Ports;
 using MUEats.Restaurants.Core.Projections.Order;
 using Primitives;
+using SharedContracts.IntegrationEvents;
 
 namespace MUEats.Restaurants.Application.Services;
 
@@ -81,7 +81,7 @@ public class OrderSnapshotsService
 
         orderSnapshot.Status = OrderStatus.Rejected;
         orderSnapshot.UpdatedAt = DateTime.UtcNow;
-
+        
         var @event = new OrderRejectedEvent
         {
             OrderId = orderSnapshot.OrderId,

@@ -22,7 +22,11 @@ namespace MUEats.Notifications.Infrastructure.Persistence.Migrations
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    SentAt = table.Column<string>(type: "character varying(48)", nullable: true)
+                    SentAt = table.Column<string>(type: "character varying(48)", nullable: true),
+                    NextAttemptAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastError = table.Column<string>(type: "text", nullable: true),
+                    AttemptCount = table.Column<int>(type: "integer", nullable: false),
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {

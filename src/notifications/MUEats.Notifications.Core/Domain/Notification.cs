@@ -34,6 +34,14 @@ public class Notification
     public DateTime CreatedAt { get; private set; }
     
     public DateTime? SentAt { get; private set; }
+    
+    public DateTime? NextAttemptAt { get; set; }
+    
+    public string? LastError { get; set; }
+    
+    public int AttemptCount { get; set; }
+    
+    public Guid CorrelationId { get; set; }
 
     public static Result<Notification, Error> Create(Guid userId,
         string payload,

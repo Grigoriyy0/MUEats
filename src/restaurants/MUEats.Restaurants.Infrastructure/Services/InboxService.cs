@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using MUEats.Restaurants.Application.Helpers;
-using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
 using MUEats.Restaurants.Infrastructure.Persistence.Inbox;
 using MUEats.Restaurants.Infrastructure.Services.Interfaces;

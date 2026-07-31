@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using MUEats.Restaurants.Application.IntegrationEvents;
 using MUEats.Restaurants.Core.Projections.Order;
 using MUEats.Restaurants.Infrastructure.Options;
 using MUEats.Restaurants.Infrastructure.Persistence.Contexts;
+using SharedContracts.IntegrationEvents;
 
 namespace MUEats.Restaurants.Infrastructure.Adapters.Kafka.Consumers;
 
