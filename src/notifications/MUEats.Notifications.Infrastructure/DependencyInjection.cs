@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MUEats.Notifications.Infrastructure.Adapters.Kafka;
 using MUEats.Notifications.Infrastructure.Persistence;
 
 namespace MUEats.Notifications.Infrastructure;
@@ -11,5 +12,8 @@ public static class DependencyInjection
     {
         services.AddDbContext<NotificationsDbContext>(opt => 
             opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
+
+        services.AddHostedService<OrderAcceptedConsumer>();
+        services.AddHostedService<OrderRejectedConsumer>();
     }
 }

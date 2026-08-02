@@ -5,27 +5,35 @@ namespace MUEats.Notifications.Core.Domain;
 
 public class Notification
 {
-    private Notification(Guid userId,
-        string payload,
+    private Notification(
+        Guid userId,
+        Guid correlationId,
+        string eventData,
         string recipientInfo,
         NotificationType type)
     {
         Id = Guid.NewGuid();
+        CorrelationId = correlationId;
         UserId = userId;
-        Payload = payload;
+        EventData = eventData;
         RecipientInfo = recipientInfo;
         Type = type;
-        Status = NotificationStatus.Created;
+        Status = NotificationStatus.Pending;
         CreatedAt = DateTime.UtcNow;
+        AttemptCount = 0;
     }
+
+    private Notification() { }
 
     public Guid Id { get; private set; }
     
+    public Guid CorrelationId { get; private set; }
+    
     public Guid UserId { get; private set; }
     
-    public string Payload { get; private set; }
+    public string EventData { get; private set; } = string.Empty;
     
-    public string RecipientInfo { get; private set; }
+    public string RecipientInfo { get; private set; } = string.Empty;
     
     public NotificationType Type { get; private set; }
     
@@ -35,22 +43,22 @@ public class Notification
     
     public DateTime? SentAt { get; private set; }
     
-    public DateTime? NextAttemptAt { get; set; }
+    public DateTime? NextAttemptAt { get; private set; }
     
-    public string? LastError { get; set; }
+    public string? LastError { get; private set; }
     
-    public int AttemptCount { get; set; }
-    
-    public Guid CorrelationId { get; set; }
+    public int AttemptCount { get; private set; }
 
-    public static Result<Notification, Error> Create(Guid userId,
-        string payload,
+    public static Result<Notification, Error> Create(
+        Guid userId,
+        Guid correlationId,
+        string eventData,
         string recipientInfo,
         NotificationType type)
     {
-        if (string.IsNullOrWhiteSpace(payload))
+        if (string.IsNullOrWhiteSpace(eventData))
         {
-            return DomainErrors.Notification.BodyIsEmpty;
+            return DomainErrors.Notification.EventDataIsEmpty;
         }
 
         if (string.IsNullOrWhiteSpace(recipientInfo))
@@ -58,27 +66,35 @@ public class Notification
             return DomainErrors.Notification.RecipientInfoIsEmpty;
         }
 
-        return new Notification(userId, payload, recipientInfo, type);
+        return new Notification(userId, correlationId, eventData, recipientInfo, type);
+    }
+
+    public void MarkAsPending()
+    {
+        Status = NotificationStatus.Pending;
     }
 
     public void MarkAsSent()
     {
-        if (SentAt is not null || Status == NotificationStatus.Sent)
-        {
-            return;
-        }
-
         SentAt = DateTime.UtcNow;
         Status = NotificationStatus.Sent;
+        LastError = null;
     }
 
-    public void MarkAsFailed()
+    public void RecordFailure(string error, TimeSpan retryDelay, int maxAttempts = 3)
     {
-        if (Status == NotificationStatus.Failed)
-        {
-            return;
-        }
+        AttemptCount++;
+        LastError = error;
 
-        Status = NotificationStatus.Failed;
+        if (AttemptCount >= maxAttempts)
+        {
+            Status = NotificationStatus.Failed;
+            NextAttemptAt = null;
+        }
+        else
+        {
+            Status = NotificationStatus.Pending;
+            NextAttemptAt = DateTime.UtcNow.Add(retryDelay);
+        }
     }
 }
