@@ -14,5 +14,6 @@ public static class DependencyInjection
             opt.UseNpgsql(configuration.GetConnectionString("Postgres")));
 
         services.AddHostedService<OrderAcceptedConsumer>();
+        services.AddHostedService<OrderRejectedConsumer>();
     }
 }
