@@ -19,8 +19,4 @@
       <ProjectReference Include="..\MUEats.Notifications.Core\MUEats.Notifications.Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Workers\" />
-    </ItemGroup>
-
 </Project>

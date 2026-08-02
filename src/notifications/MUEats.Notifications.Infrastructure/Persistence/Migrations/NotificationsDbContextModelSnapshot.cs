@@ -37,15 +37,18 @@ namespace MUEats.Notifications.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("EventData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("LastError")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("LockId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("NextAttemptAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Payload")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("RecipientInfo")
                         .IsRequired()

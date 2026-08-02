@@ -48,7 +48,9 @@ public class Notification
     public string? LastError { get; private set; }
     
     public int AttemptCount { get; private set; }
-
+    
+    public Guid? LockId { get; set; }
+    
     public static Result<Notification, Error> Create(
         Guid userId,
         Guid correlationId,

@@ -16,8 +16,9 @@ namespace MUEats.Notifications.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Payload = table.Column<string>(type: "text", nullable: false),
+                    EventData = table.Column<string>(type: "text", nullable: false),
                     RecipientInfo = table.Column<string>(type: "text", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
@@ -26,7 +27,7 @@ namespace MUEats.Notifications.Infrastructure.Persistence.Migrations
                     NextAttemptAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     LastError = table.Column<string>(type: "text", nullable: true),
                     AttemptCount = table.Column<int>(type: "integer", nullable: false),
-                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false)
+                    LockId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
